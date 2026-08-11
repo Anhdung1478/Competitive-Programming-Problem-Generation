@@ -22,7 +22,8 @@ Expected layout:
       ├─ generator-graph/
       ├─ generator-array/
       ├─ generator-number-theory/
-      └─ generator-string/
+      ├─ generator-string/
+      └─ text-solution/
 ```
 
 Codex discovers repository-local skills from `.agents/skills`. Each skill is intentionally focused on one part of the pipeline.

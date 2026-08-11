@@ -1,0 +1,41 @@
+\textbf{Tên bài:} Lịch ăn kẹo
+
+\textbf{Đề bài}
+
+Hà muốn lên lịch ăn kẹo trong nhiều ngày mà không ăn cùng một loại kẹo vào hai ngày liên tiếp.
+
+Có $N$ loại kẹo khác nhau, được đánh số từ $1$ đến $N$. Trong $M$ ngày liên tiếp, mỗi ngày Hà ăn đúng một viên kẹo. Gọi $C_i$ là loại kẹo Hà ăn vào ngày thứ $i$. Lịch ăn phải thỏa mãn
+
+$$C_i \ne C_{i+1}$$
+
+với mọi $1 \le i < M$.
+
+Có $K$ ngày đã được chỉ định trước. Với mỗi $1 \le i \le K$, vào ngày thứ $A_i$, Hà bắt buộc phải ăn loại kẹo $B_i$, tức là $C_{A_i} = B_i$. Trong những ngày không được chỉ định trước, Hà có thể chọn bất kỳ loại kẹo nào miễn là điều kiện trên được thỏa mãn.
+
+Hai lịch ăn được xem là khác nhau nếu tồn tại ít nhất một ngày mà loại kẹo được chọn trong hai lịch là khác nhau.
+
+\textbf{Yêu cầu:} Hãy tính số lịch ăn kẹo trong $M$ ngày thỏa mãn tất cả các điều kiện. Vì kết quả có thể rất lớn, hãy in kết quả theo modulo $998244353$.
+
+\textbf{Input}
+
+Dòng đầu tiên chứa ba số nguyên $N$, $M$, $K$ ($1 \le N \le 10^9$, $1 \le M \le 10^{18}$, $0 \le K \le \min(M, 10^4)$), lần lượt là số loại kẹo, số ngày và số ngày đã được chỉ định trước.
+
+$K$ dòng tiếp theo, dòng thứ $i$ chứa hai số nguyên $A_i$, $B_i$ ($1 \le A_i \le M$, $1 \le B_i \le N$), cho biết vào ngày thứ $A_i$, Hà phải ăn loại kẹo $B_i$.
+
+Các ngày được chỉ định trước được cho theo thứ tự tăng dần nghiêm ngặt: $A_1 < A_2 < \ldots < A_K$.
+
+Nếu $K = 0$ thì không có dòng nào sau dòng đầu tiên.
+
+\textbf{Output}
+
+In ra một số nguyên duy nhất là số lịch ăn kẹo thỏa mãn tất cả các điều kiện, lấy theo modulo $998244353$.
+
+\textbf{Subtask}
+
+\begin{itemize}
+    \item Subtask $1$ ($20\%$ số điểm): $N \cdot M \le 10^6$.
+    \item Subtask $2$ ($20\%$ số điểm): $M = 2$.
+    \item Subtask $3$ ($20\%$ số điểm): $K = 0$.
+    \item Subtask $4$ ($20\%$ số điểm): $M \le 10$.
+    \item Subtask $5$ ($20\%$ số điểm): Không có ràng buộc gì thêm.
+\end{itemize}

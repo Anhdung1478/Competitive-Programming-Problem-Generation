@@ -12,7 +12,8 @@ The agent must execute these workflow steps in this exact order:
 4. create `outputs/statement.txt`;
 5. create `outputs/test-script.txt`;
 6. create `outputs/generator-config.md`;
-7. create `outputs/gentest.cpp`.
+7. create `outputs/gentest.cpp`;
+8. create `output/text-solution.txt`.
 
 Do not reorder or skip a gate unless the user explicitly changes the workflow.
 
@@ -30,7 +31,7 @@ Do not edit `source/problem-context.md`, `source/solution.cpp`, or `source/subta
 
 ## Mandatory ambiguity gate
 
-Before generating or modifying any Step 1-7 artifact, read every available source-of-truth file.
+Before generating or modifying any Step 1-8 artifact, read every available source-of-truth file.
 
 Do not guess material facts. Ask the user before continuing when any fact that can change correctness is missing or ambiguous. Prefer one compact group of concrete questions.
 
@@ -66,7 +67,7 @@ If `source/solution.cpp` exists:
 
 If a correctness issue, compile error, undefined behavior, complexity violation, overflow risk that can affect valid inputs, or source mismatch is found:
 
-**STOP immediately. Do not create or modify Step 2-7 artifacts.**
+**STOP immediately. Do not create or modify Step 2-8 artifacts.**
 
 Report:
 1. the failing requirement;
@@ -207,6 +208,10 @@ Load specialized skills only when applicable:
 
 If a problem needs another specialized structure, create a focused skill under `.agents/skills/` rather than bloating the generic generator skill.
 
+## Step 8 — `outputs/text-solution.txt`
+
+Use the `text-solution` skill.
+
 ## Cross-artifact consistency gate
 
 Before finishing, cross-check:
@@ -219,6 +224,7 @@ Before finishing, cross-check:
 - each subtask index/constraint agrees across `source/subtask.md`, statement, config, script, and generator;
 - checker semantics == statement output semantics;
 - multi-test format agrees everywhere;
+- `output/text-solution.txt` describes the algorithm and complexity of the implementation selected by the `text-solution` skill;
 - every generated test can be consumed by `outputs/codex-solution.cpp` and by `source/solution.cpp` when the latter exists.
 
 Compile `outputs/codex-solution.cpp` as GNU C++17. Compile `outputs/checker.cpp` and `outputs/gentest.cpp` with the same `testlib.h` environment used by Polygon when available.
