@@ -4,14 +4,15 @@
 
 This repository is a problem-preparation workspace for Codeforces Polygon.
 
-The agent must convert the source-of-truth problem files into these generated artifacts, in this exact order:
+The agent must execute these workflow steps in this exact order:
 
-1. validate the official solution;
-2. `outputs/checker.cpp`;
-3. `outputs/statement.txt`;
-4. `outputs/test-script.txt`;
-5. `outputs/generator-config.md`;
-6. `outputs/gentest.cpp`.
+1. validate `source/solution.cpp` when it is present;
+2. create `outputs/checker.cpp`;
+3. create and validate `outputs/codex-solution.cpp`;
+4. create `outputs/statement.txt`;
+5. create `outputs/test-script.txt`;
+6. create `outputs/generator-config.md`;
+7. create `outputs/gentest.cpp`.
 
 Do not reorder or skip a gate unless the user explicitly changes the workflow.
 
@@ -29,7 +30,7 @@ Do not edit `source/problem-context.md`, `source/solution.cpp`, or `source/subta
 
 ## Mandatory ambiguity gate
 
-Before generating or modifying B1-B6 artifacts, read every available source-of-truth file.
+Before generating or modifying any Step 1-7 artifact, read every available source-of-truth file.
 
 Do not guess material facts. Ask the user before continuing when any fact that can change correctness is missing or ambiguous. Prefer one compact group of concrete questions.
 
@@ -55,7 +56,7 @@ If `source/subtask.md` is absent, never invent a subtask ladder. If the problem 
 
 Use the `validate-solution` skill.
 
-If `solution.cpp` exists:
+If `source/solution.cpp` exists:
 
 - check that it solves exactly the problem in `source/problem-context.md`;
 - check it against every constraint/subtask in `source/subtask.md` when present;
@@ -65,7 +66,7 @@ If `solution.cpp` exists:
 
 If a correctness issue, compile error, undefined behavior, complexity violation, overflow risk that can affect valid inputs, or source mismatch is found:
 
-**STOP immediately. Do not create or modify B2-B6.**
+**STOP immediately. Do not create or modify Step 2-7 artifacts.**
 
 Report:
 1. the failing requirement;
@@ -74,7 +75,7 @@ Report:
 4. a counterexample when possible;
 5. what must be fixed.
 
-If `source/solution.cpp` does not exist, mark the solution audit as skipped and continue only if the remaining artifacts can be written unambiguously.
+If `source/solution.cpp` does not exist, mark the official-solution audit as skipped and continue only if the remaining artifacts can be written unambiguously.
 
 ## Step 2 — `outputs/checker.cpp`
 
@@ -89,7 +90,31 @@ Requirements:
 - For optimization/construction problems, validate the participant witness and compare the required objective against the jury optimum when appropriate.
 - Consume all required participant output and reject invalid extra output unless the statement permits it.
 
-## Step 3 — `outputs/statement.txt`
+## Step 3 — `outputs/codex-solution.cpp`
+
+Create an independent full solution based on `source/problem-context.md` and `source/subtask.md` when present. Do not derive the algorithm by copying `source/solution.cpp`; use that optional file only after the Codex solution has been independently designed, for cross-checking.
+
+Requirements:
+
+- self-contained GNU C++17 contest solution;
+- read and write exactly the formats defined by the source-of-truth files;
+- solve the full constraints and every subtask, not only partial subtasks;
+- document the algorithm and complexity concisely in code comments where they aid review;
+- use safe integer widths, indexing, memory, and recursion depth for all valid inputs;
+- compile with warnings enabled;
+- run targeted corner cases and brute-force or differential tests when feasible.
+
+If `source/solution.cpp` exists, double-check `outputs/codex-solution.cpp` against it:
+
+- compare the algorithms, assumptions, complexity, and edge-case handling;
+- run both programs on targeted and randomized valid inputs when feasible;
+- for unique outputs, require identical results;
+- for non-unique outputs, validate both programs' outputs with `outputs/checker.cpp` rather than requiring identical witnesses;
+- investigate and resolve every discrepancy before continuing.
+
+If `outputs/codex-solution.cpp` has a correctness issue, compile error, undefined behavior, complexity violation, overflow risk, source mismatch, or disagreement with a valid `source/solution.cpp`, revise it and repeat the compile-and-test cycle until it passes. Do not proceed to Step 4 while any such issue remains. If progress is blocked by missing or ambiguous source-of-truth information, use the mandatory ambiguity gate instead of guessing.
+
+## Step 4 — `outputs/statement.txt`
 
 Use the `polygon-statement` skill.
 
@@ -106,10 +131,10 @@ Requirements:
 - Be precise, transparent, and easy to understand.
 - Add only a very short story/flavor sentence or paragraph. It must not obscure the mathematical task.
 - Do not invent constraints, behavior, samples, or edge-case rules.
-- Keep notation consistent with `source/problem-context.md`, `source/solution.cpp`, and `source/subtask.md`.
+- Keep notation consistent with `source/problem-context.md`, `source/subtask.md`, `outputs/codex-solution.cpp`, and `source/solution.cpp` when it exists.
 - State variable scopes explicitly enough that a contestant cannot reasonably misread them.
 
-## Step 4 — `outputs/test-script.txt`
+## Step 5 — `outputs/test-script.txt`
 
 Use the `test-script` skill.
 
@@ -133,7 +158,7 @@ gentest 84GOGVE16X --subtask 1 --rate 0.87 > $
 
 Every line must end in `> $` when the jury answer comes from the official solution.
 
-## Step 5 — `outputs/generator-config.md`
+## Step 6 — `outputs/generator-config.md`
 
 Use the `generator-config` skill.
 
@@ -151,7 +176,7 @@ This file is the design contract for `outputs/gentest.cpp`. It must contain:
 
 Do not put unexplained magic constants into `outputs/gentest.cpp`; important choices belong here.
 
-## Step 6 — `outputs/gentest.cpp`
+## Step 7 — `outputs/gentest.cpp`
 
 Use the `polygon-gentest` skill plus all applicable specialized generator skills.
 
@@ -186,21 +211,25 @@ If a problem needs another specialized structure, create a focused skill under `
 
 Before finishing, cross-check:
 
+- `outputs/codex-solution.cpp` input/output semantics == source-of-truth files;
+- `outputs/codex-solution.cpp` agrees with `source/solution.cpp` on all cross-checks when the latter exists;
 - statement input order == `outputs/gentest.cpp` output order;
 - statement bounds == `outputs/generator-config.md` bounds == generator bounds;
 - each `outputs/test-script.txt` option exists in `outputs/gentest.cpp`;
 - each subtask index/constraint agrees across `source/subtask.md`, statement, config, script, and generator;
 - checker semantics == statement output semantics;
 - multi-test format agrees everywhere;
-- every generated test can be consumed by `source/solution.cpp` when it exists.
+- every generated test can be consumed by `outputs/codex-solution.cpp` and by `source/solution.cpp` when the latter exists.
 
-Compile `outputs/checker.cpp` and `outputs/gentest.cpp` with the same `testlib.h` environment used by Polygon when available.
+Compile `outputs/codex-solution.cpp` as GNU C++17. Compile `outputs/checker.cpp` and `outputs/gentest.cpp` with the same `testlib.h` environment used by Polygon when available.
 
 ## Communication
 
 When blocked by ambiguity, explain exactly what is unknown and why it changes one or more generated artifacts.
 
 When Step 1 fails, stop and report the failure; do not continue “for convenience”.
+
+When Step 3 reveals a defect in `outputs/codex-solution.cpp`, fix it and repeat Step 3 until the solution passes all required checks.
 
 When all requested artifacts are complete, summarize:
 - files created/changed;
