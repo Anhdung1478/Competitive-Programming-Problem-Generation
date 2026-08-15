@@ -1,38 +1,24 @@
 Ý tưởng chính
 
-Các ngày đã chỉ định chia lịch ăn thành những đoạn độc lập. Trong mỗi đoạn, hai đầu đã biết loại kẹo hoặc một đầu nằm ngoài phạm vi M ngày. Vì mọi ngày liên tiếp chỉ cần khác nhau, cùng một phép chuyển trạng thái được lặp lại nhiều lần. Ta biểu diễn phép chuyển bằng ma trận và lũy thừa nhanh theo độ dài đoạn.
+Mỗi yêu cầu a(i) phải đứng trước b(i) được biểu diễn bằng một cạnh có hướng từ a(i) đến b(i). Khi đó, một cách xếp hàng hợp lệ chính là một thứ tự topo của đồ thị. Nếu đồ thị có chu trình thì không thể thỏa mãn đồng thời tất cả yêu cầu.
 
-Các trạng thái
+Để thu được thứ tự từ điển nhỏ nhất, tại mỗi vị trí ta luôn chọn người có số hiệu nhỏ nhất trong số những người chưa xếp và hiện không còn yêu cầu nào bắt họ phải đứng sau một người khác. Hàng đợi ưu tiên dạng min-heap hỗ trợ lấy người như vậy.
 
-Vector X có ba thành phần. Tùy loại đoạn, chúng gom số cách theo việc loại kẹo ở ngày hiện tại:
+Thuật toán
 
-- trùng với loại ở đầu trái;
-- trùng với loại bắt buộc ở đầu phải;
-- khác cả hai loại trên.
-
-Khi hai loại ở hai đầu khác nhau, ma trận A0 chuyển giữa ba nhóm này. Chẳng hạn, từ một loại khác cả hai đầu, ngày tiếp theo có 1 cách chọn loại đầu trái, 1 cách chọn loại đầu phải và N - 3 cách vẫn thuộc nhóm còn lại.
-
-Khi hai đầu yêu cầu cùng một loại, ma trận A1 gộp trường hợp này phù hợp với chỉ một loại đặc biệt. Từ một loại khác loại đặc biệt có 1 cách quay lại loại đó và N - 2 cách chọn một loại khác.
-
-Hai ma trận còn lại xử lý biên:
-
-- A2 xử lý đoạn từ ngày đầu tiên đến ngày được chỉ định đầu tiên. Tại ngày đầu, có đúng 1 lựa chọn trùng với loại đích và N - 1 lựa chọn khác loại đích.
-- A3 xử lý các ngày sau ngày được chỉ định cuối cùng. Từ loại vừa ăn có N - 1 lựa chọn cho ngày kế tiếp.
-
-Quy trình tính
-
-Ban đầu đặt X(0) = 1. Với mỗi ngày chỉ định a(i):
-
-1. Chọn A2 nếu đây là ngày chỉ định đầu tiên; nếu không, chọn A0 khi b(i - 1) khác b(i), hoặc A1 khi hai loại bằng nhau.
-2. Nâng ma trận đã chọn lên lũy thừa bằng độ dài đoạn rồi nhân vào X.
-3. X(1) là số cách kết thúc đúng bằng loại b(i). Giữ giá trị này trong X(0) và đưa hai thành phần còn lại về 0 để bắt đầu đoạn kế tiếp.
-
-Nếu K = 0, dùng A2 lũy thừa M và cộng ba thành phần của X. Nếu còn ngày sau vị trí chỉ định cuối cùng, nhân thêm A3 với số mũ bằng số ngày còn lại. Kết quả cuối cùng là tổng các thành phần của X, lấy modulo 998244353.
+1. Tạo danh sách cạnh và tính degIn(v), là số cạnh đang đi vào mỗi đỉnh v.
+2. Đưa tất cả đỉnh có degIn(v) bằng 0 vào min-heap.
+3. Khi heap chưa rỗng, lấy đỉnh u nhỏ nhất, thêm u vào cuối kết quả, rồi xóa ảnh hưởng của u: với mỗi cạnh từ u đến v, giảm degIn(v) đi 1. Nếu degIn(v) trở thành 0 thì đưa v vào heap.
+4. Nếu kết quả có đủ N người, in thứ tự tìm được. Nếu có ít hơn N người thì phần đồ thị còn lại chứa chu trình, vì vậy in impossible.
 
 Tính đúng đắn
 
-Mỗi trạng thái chứa toàn bộ cách hợp lệ kết thúc trong đúng nhóm màu tương ứng. Các hệ số của ma trận đếm chính xác số lựa chọn màu mới khác màu của ngày trước. Vì vậy, sau mỗi phép nhân, X vẫn đếm đúng các lịch ăn của đoạn đã xét. Lũy thừa ma trận chỉ thực hiện nhanh nhiều phép chuyển liên tiếp. Sau mỗi ngày bắt buộc, chỉ giữ trạng thái kết thúc bằng loại được yêu cầu, nên mọi lịch còn lại đều thỏa toàn bộ ràng buộc đã đi qua. Do các đoạn chỉ giao nhau tại ngày bắt buộc, xử lý lần lượt tất cả đoạn cho đúng số lịch ăn hợp lệ của M ngày.
+Mỗi đỉnh được lấy khỏi heap đều có bậc vào hiện tại bằng 0, nên không còn người chưa xếp nào bắt buộc phải đứng trước nó. Do đó, đặt đỉnh ấy vào vị trí tiếp theo không vi phạm yêu cầu nào. Khi xử lý cạnh đi ra từ đỉnh vừa chọn, thuật toán cập nhật chính xác số yêu cầu chưa được thỏa mãn của các đỉnh còn lại. Vì vậy, nếu thuật toán lấy được đủ N đỉnh thì dãy kết quả là một thứ tự topo hợp lệ.
+
+Tại mỗi bước, mọi thứ tự topo có thể tiếp tục đều phải chọn một trong các đỉnh đang có bậc vào bằng 0. Thuật toán chọn đỉnh nhỏ nhất trong tập này, nên phần tử tại vị trí hiện tại là nhỏ nhất có thể. Lặp lại lập luận cho các vị trí sau cho thấy toàn bộ dãy là thứ tự từ điển nhỏ nhất.
+
+Nếu heap rỗng khi vẫn còn đỉnh chưa được chọn, mọi đỉnh còn lại đều có bậc vào dương. Khi đó phần đồ thị này chứa chu trình, nên không tồn tại cách xếp hàng hợp lệ và việc in impossible là chính xác.
 
 Độ phức tạp
 
-Mỗi đoạn cần O(log M) phép nhân ma trận kích thước cố định. Tổng thời gian là O((K + 1) log M), bộ nhớ dùng cho dữ liệu đầu vào là O(K), còn phần trạng thái và ma trận là O(1).
+Mỗi đỉnh được thêm và lấy khỏi heap đúng một lần, mỗi cạnh được duyệt đúng một lần. Thời gian là O((N + M) log N) và bộ nhớ là O(N + M).

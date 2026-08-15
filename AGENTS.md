@@ -224,7 +224,7 @@ Before finishing, cross-check:
 - each subtask index/constraint agrees across `source/subtask.md`, statement, config, script, and generator;
 - checker semantics == statement output semantics;
 - multi-test format agrees everywhere;
-- `output/text-solution.txt` describes the algorithm and complexity of the implementation selected by the `text-solution` skill;
+- `outputs/text-solution.txt` describes the algorithm and complexity of the implementation selected by the `text-solution` skill;
 - every generated test can be consumed by `outputs/codex-solution.cpp` and by `source/solution.cpp` when the latter exists.
 
 Compile `outputs/codex-solution.cpp` as GNU C++17. Compile `outputs/checker.cpp` and `outputs/gentest.cpp` with the same `testlib.h` environment used by Polygon when available.

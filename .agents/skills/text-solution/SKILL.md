@@ -12,13 +12,13 @@ Read these files before writing:
 1. `source/problem-context.md`;
 2. `source/subtask.md` when present;
 3. `source/solution.cpp` when present; otherwise `outputs/codex-solution.cpp`;
-4. the current `output/text-solution.txt` when reviewing or updating it.
+4. the current `outputs/text-solution.txt` when reviewing or updating it.
 
 Use `source/solution.cpp` as the implementation to explain when it exists. Otherwise, explain `outputs/codex-solution.cpp`. Do not invent algorithmic steps that are absent from the selected implementation.
 
 ## Write the explanation
 
-Write `output/text-solution.txt` in Vietnamese.
+Write `outputs/text-solution.txt` in Vietnamese.
 
 Keep it easy to understand and reasonably short while retaining the key reasoning needed to learn and implement the solution. Explain only the problem-specific solution: state what each technique is used for and how it contributes to solving this problem.
 
