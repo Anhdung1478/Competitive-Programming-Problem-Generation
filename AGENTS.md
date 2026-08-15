@@ -13,7 +13,7 @@ The agent must execute these workflow steps in this exact order:
 5. create `outputs/test-script.txt`;
 6. create `outputs/generator-config.md`;
 7. create `outputs/gentest.cpp`;
-8. create `output/text-solution.txt`.
+8. create `outputs/text-solution.txt`.
 
 Do not reorder or skip a gate unless the user explicitly changes the workflow.
 
