@@ -1,28 +1,63 @@
 Tóm tắt đề bài
 
-Cho N người được đánh số từ 1 đến N và M yêu cầu, trong đó mỗi yêu cầu a(i), b(i) quy định người a(i) phải đứng trước người b(i). Hãy tìm cách xếp đủ N người thỏa mãn mọi yêu cầu và có thứ tự từ điển nhỏ nhất; nếu không tồn tại cách xếp hợp lệ, in impossible.
+Có n đài thiên văn và m sự kiện cần xử lý online. Một thành viên mới đặt camera tại tối đa ba đài và hoàn thành mục tiêu khi tổng lượng video các camera thu được kể từ lúc tham gia đạt ít nhất y. Sau mỗi sự kiện cập nhật một đài, cần in các ID vừa hoàn thành; các tham số đầu vào phải được giải mã bằng bitwise XOR với số thành viên vừa in ở lần cập nhật trước.
 
 Ý tưởng chính
 
-Biểu diễn mỗi yêu cầu bằng một cạnh có hướng từ a(i) đến b(i). Khi đó, một cách xếp hàng hợp lệ chính là một thứ tự topo của đồ thị. Nếu đồ thị có chu trình thì không thể thỏa mãn đồng thời tất cả yêu cầu.
+Không thể cập nhật trực tiếp mọi thành viên có camera tại một đài vì một đài có thể chứa rất nhiều camera. Thay vào đó, mỗi thành viên đặt một checkpoint tại từng đài của mình. Chỉ khi tổng video của một đài chạm checkpoint gần nhất, thành viên đó mới được kiểm tra lại.
 
-Để thu được thứ tự từ điển nhỏ nhất, tại mỗi vị trí ta luôn chọn người có số hiệu nhỏ nhất trong số những người chưa xếp và hiện không còn yêu cầu nào bắt họ phải đứng sau một người khác. Hàng đợi ưu tiên dạng min-heap hỗ trợ lấy người như vậy.
+Các checkpoint được chia đều theo phần mục tiêu còn thiếu. Vì mỗi thành viên có nhiều nhất ba camera, sau mỗi lần kiểm tra chưa hoàn thành, phần còn thiếu giảm theo một tỉ lệ hằng số. Do đó, mỗi thành viên chỉ cần được reschedule O(log y) lần.
 
-Thuật toán
+Dữ liệu duy trì
 
-1. Tạo danh sách cạnh và tính degIn(v), là số cạnh đi vào mỗi đỉnh v.
-2. Đưa tất cả đỉnh có degIn(v) bằng 0 vào min-heap.
-3. Khi heap chưa rỗng, lấy đỉnh u nhỏ nhất và thêm u vào cuối kết quả. Với mỗi cạnh từ u đến v, giảm degIn(v) đi 1; nếu degIn(v) trở thành 0 thì đưa v vào heap.
-4. Nếu kết quả có đủ N người, in thứ tự tìm được. Nếu kết quả có ít hơn N người, in impossible.
+Với mỗi đài x:
+
+- sumAt(x) là tổng số phút video đã được tạo tại x từ đầu chương trình;
+- một min-heap priority queue lưu các cặp checkpoint, member ID của những thành viên có camera tại x.
+
+Với mỗi thành viên u, lưu tối đa ba cặp gồm station ID và checkpoint hiện tại. Ngoài ra, rem(u) lưu phần hiệu chỉnh khi chia đều mục tiêu, còn isDeleted(u) cho biết thành viên đã hoàn thành.
+
+Giả sử u còn thiếu K phút và có t camera. Đặt:
+
+- d = ceil(K / t);
+- checkpoint tại mỗi đài x bằng sumAt(x) + d;
+- rem(u) = d x t - K.
+
+Khi đó luôn có invariant:
+
+K = tổng của checkpoint(u, x) - sumAt(x) trên các camera của u, rồi trừ rem(u).
+
+Mỗi checkpoint mới được đẩy vào min-heap của đài tương ứng.
+
+Xử lý sự kiện
+
+Trước mỗi sự kiện, giải mã các tham số được mã hóa bằng bitwise XOR với last.
+
+Với sự kiện thêm thành viên:
+
+1. Gán ID mới theo thứ tự xuất hiện.
+2. Lưu các đài đặt camera.
+3. Chia đều mục tiêu ban đầu và tạo checkpoint tại từng đài như trên.
+
+Với sự kiện đài v tạo thêm k phút video:
+
+1. Tăng sumAt(v) thêm k.
+2. Trong khi checkpoint nhỏ nhất trong min-heap của v không vượt quá sumAt(v), lấy entry đó ra.
+3. Bỏ qua entry nếu thành viên đã hoàn thành hoặc checkpoint này đã cũ. Đây là kỹ thuật lazy deletion, vì mỗi lần reschedule tạo checkpoint mới nhưng không cần xóa checkpoint cũ khỏi các heap khác.
+4. Dùng invariant để tính lại chính xác lượng video thành viên còn thiếu.
+5. Nếu lượng còn thiếu không dương, đánh dấu thành viên hoàn thành và đưa ID vào kết quả. Nếu vẫn còn thiếu, chia đều lại lượng này và reschedule checkpoint tại tất cả các đài của thành viên.
+6. Sắp xếp các ID vừa hoàn thành, in số lượng cùng danh sách ID, rồi gán last bằng số lượng đó.
 
 Tính đúng đắn
 
-Mỗi đỉnh được lấy khỏi heap đều có bậc vào hiện tại bằng 0, nên không còn người chưa xếp nào bắt buộc phải đứng trước nó. Vì vậy, đặt đỉnh ấy vào vị trí tiếp theo không vi phạm yêu cầu nào. Sau khi chọn u, thuật toán giảm bậc vào trên mọi cạnh đi ra từ u, nên bậc vào của các đỉnh chưa xếp luôn phản ánh chính xác số yêu cầu còn lại. Do đó, nếu thuật toán chọn được đủ N đỉnh thì kết quả là một cách xếp hợp lệ.
+Khi tạo hoặc reschedule checkpoint, mỗi camera được gán khoảng cách d tới checkpoint và rem(u) loại bỏ phần làm tròn dư. Vì vậy invariant cho đúng lượng video còn thiếu của u. Mỗi lần một đài nhận thêm video, hiệu checkpoint(u, x) - sumAt(x) giảm đúng bằng lượng video camera tại đài đó thu được, nên invariant tiếp tục đúng cho đến lần reschedule kế tiếp.
 
-Tại mỗi bước, phần tử tiếp theo của mọi cách xếp hợp lệ phải là một đỉnh đang có bậc vào bằng 0. Thuật toán chọn đỉnh nhỏ nhất trong tập này, nên giá trị tại vị trí hiện tại là nhỏ nhất có thể. Lặp lại lập luận cho từng vị trí cho thấy dãy kết quả có thứ tự từ điển nhỏ nhất.
+Nếu tổng video mới đủ hoàn thành mục tiêu, ít nhất một camera phải đạt checkpoint. Thật vậy, nếu mọi camera đều tăng ít hơn d thì tổng mức tăng nhỏ hơn K. Do đó, thành viên chắc chắn được lấy ra kiểm tra ngay trong sự kiện làm họ hoàn thành. Ngược lại, khi invariant vẫn cho giá trị dương, tổng video chưa đủ mục tiêu nên việc reschedule là chính xác.
 
-Nếu heap rỗng khi vẫn còn đỉnh chưa được chọn, mọi đỉnh còn lại đều có bậc vào dương, nên phần đồ thị còn lại chứa chu trình. Khi đó không tồn tại cách xếp hợp lệ và việc in impossible là chính xác.
+Lazy deletion chỉ loại bỏ entry không còn trùng với checkpoint hiện tại của thành viên. Mọi entry hợp lệ đạt ngưỡng đều được xử lý, nên không bỏ sót thành viên. isDeleted(u) bảo đảm mỗi ID chỉ được báo cáo đúng một lần. Cuối cùng, việc sort danh sách tạo đúng thứ tự ID tăng dần theo yêu cầu.
 
 Độ phức tạp
 
-Mỗi đỉnh được thêm và lấy khỏi heap đúng một lần, mỗi cạnh được duyệt đúng một lần. Thời gian là O((N + M) log N) và bộ nhớ là O(N + M).
+Sau một lần checkpoint bị chạm mà thành viên chưa hoàn thành, lượng còn thiếu mới không vượt quá phần tỉ lệ (t - 1) / t của lượng cũ. Vì t không vượt quá 3 và y không vượt quá 10^6, mỗi thành viên được reschedule O(log y) lần.
+
+Tổng số heap entry là O(m log Ymax), với Ymax là mục tiêu lớn nhất. Mỗi thao tác heap tốn O(log(m log Ymax)); việc sort các ID hoàn thành có tổng chi phí O(m log m). Tổng thời gian là O(m log Ymax log(m log Ymax)) và bộ nhớ là O(n + m log Ymax).
