@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="polygon-light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#0e4b81" />
+  <title><!-- PROBLEM_NAME --> — lời giải</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" />
+  <style>
+    /* Polygon light — sampled from a Codeforces/Polygon statement screenshot.
+       Header bar #0e4b81, info/card boxes #f0f4f7, box border #c2c7cd.
+       Do not mix with another theme. */
+    :root,
+    [data-theme="polygon-light"] {
+      --background: #ffffff;
+      --surface: #f0f4f7;
+      --surface-muted: #eef3f7;
+      --header-bar: #0e4b81;
+      --header-text: #ffffff;
+      --text: #000000;
+      --text-muted: #3c5e88;
+      --heading: #0e4b81;
+      --text-inverse: #ffffff;
+      --border: #c2c7cd;
+      --accent: #0e4b81;
+      --link: #0e4b81;
+      --selection: #0e4b81;
+      --gold: #8a5a00;
+      --success: #1a6b45;
+      --success-bg: #e8f4ee;
+      --success-text: #1a6b45;
+      --warning-bg: #f7f1e6;
+      --warning-text: #6b4e16;
+      --code-bg: #f0f4f7;
+      --code-fg: #000000;
+      --wash-accent: rgba(14, 75, 129, 0.10);
+      --wash-accent-soft: rgba(14, 75, 129, 0.06);
+      --font: "Times New Roman", Times, serif;
+      --font-sans: Arial, Helvetica, sans-serif;
+      --font-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      color-scheme: light;
+      background: var(--background);
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: color-mix(in oklab, var(--selection) 22%, transparent);
+    }
+
+    a { color: var(--link); }
+
+    .bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--header-bar);
+      border-bottom: none;
+    }
+
+    .bar-inner {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 1.05rem 1.25rem 1.15rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.85rem;
+    }
+
+    .bar-kicker {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--header-text);
+      opacity: 0.78;
+    }
+
+    .bar-name {
+      font-family: var(--font-sans);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--header-text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 1.35rem 1.25rem 4.5rem;
+    }
+
+    mark {
+      background: var(--wash-accent);
+      color: var(--heading);
+      padding: 0.05em 0.28em;
+      border-radius: 0;
+      box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 28%, transparent);
+    }
+
+    .kicker {
+      margin: 0 0 0.45rem;
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    h1, h2, h3 {
+      color: var(--heading);
+      font-family: var(--font-sans);
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.25;
+    }
+
+    h1 {
+      margin: 0 0 1.15rem;
+      font-size: 1.85rem;
+    }
+
+    h2 {
+      margin: 2.4rem 0 0.7rem;
+      font-size: 1.15rem;
+    }
+
+    h3 {
+      margin: 1.5rem 0 0.5rem;
+      font-size: 1.02rem;
+    }
+
+    p { margin: 0.75em 0; }
+
+    ul, ol {
+      margin: 0.75em 0;
+      padding-left: 1.25rem;
+    }
+
+    li + li { margin-top: 0.2rem; }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 9.5rem 1fr;
+      gap: 0.45rem 1.15rem;
+      margin: 0 0 1rem;
+      padding: 0.95rem 1.1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .meta dt {
+      margin: 0;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--heading);
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .meta dd {
+      margin: 0;
+      color: var(--text);
+      font-family: var(--font);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0 0 2rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--text-muted);
+      box-shadow: inset 0 0 0 1px var(--border);
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 0;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 0;
+      padding: 0.95rem 1.05rem 1.05rem;
+      margin: 1.1rem 0;
+    }
+
+    .card-label {
+      margin: 0 0 0.45rem;
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .card.lemma .card-label { color: var(--gold); }
+    .card.transform .card-label { color: var(--success-text); }
+
+    .card p:first-of-type { margin-top: 0; }
+    .card p:last-child { margin-bottom: 0; }
+
+    .bridge {
+      margin: 1.35rem 0;
+      padding: 0.15rem 0 0.15rem 1rem;
+      border-left: 2px solid var(--accent);
+      color: var(--text);
+    }
+
+    .complexity {
+      margin: 1.5rem 0;
+      padding: 0.95rem 1.05rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      white-space: pre-wrap;
+      font-family: var(--font-mono);
+    }
+
+    .fun {
+      margin: 1.5rem 0;
+      padding: 0.95rem 1.05rem;
+      border: 1px solid var(--border);
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .fun .card-label { color: var(--warning-text); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+      font-size: 0.9em;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+    }
+
+    th {
+      background: var(--surface);
+      font-family: var(--font-sans);
+      font-weight: 700;
+      color: var(--heading);
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.85em;
+      line-height: 1.5;
+    }
+
+    :not(pre) > code {
+      background: var(--surface);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.9em;
+    }
+
+    .katex { font-size: 1.05em; color: var(--text); }
+    .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.25rem 0; }
+
+    .subtask {
+      margin: 2rem 0 0;
+      padding: 0 0 0.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .subtask h2 { margin-top: 1.4rem; }
+
+    svg { max-width: 100%; height: auto; display: block; margin: 1rem 0; }
+
+    footer.page-end {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      html, body {
+        margin: 0;
+        background: var(--background);
+      }
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      .bar { position: static; }
+      .bar-inner,
+      .page {
+        max-width: none;
+        padding-left: 14mm;
+        padding-right: 14mm;
+      }
+      .page {
+        padding-top: 8mm;
+        padding-bottom: 10mm;
+      }
+      .katex-display,
+      pre {
+        overflow: visible;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-inner">
+      <span class="bar-kicker">Lời giải</span>
+      <span class="bar-name"><!-- PROBLEM_NAME --></span>
+    </div>
+  </div>
+
+  <main class="page">
+    <p class="kicker">Bài toán</p>
+    <h1><!-- PROBLEM_NAME --></h1>
+
+    <dl class="meta">
+      <dt>Giới hạn thời gian</dt>
+      <dd><!-- TIME_LIMIT e.g. 2 s --></dd>
+      <dt>Giới hạn bộ nhớ</dt>
+      <dd><!-- MEMORY_LIMIT e.g. 256 MB --></dd>
+      <dt>Expected rating</dt>
+      <dd><!-- EXPECTED_RATING e.g. 2100 — no leading * --></dd>
+    </dl>
+
+    <ul class="tags">
+      <!-- <li class="tag">data structures</li> -->
+    </ul>
+
+    <section id="statement">
+      <h2>Tóm tắt đề bài</h2>
+      <!-- Lore-stripped restatement. Highlight load-bearing facts with <mark>. Then constraints. If there are subtasks: globals, then every subtask. Do not name OI/IOI/ICPC. -->
+    </section>
+
+    <section id="tutorial">
+      <h2>Lời giải</h2>
+      <!--
+        Optional: <article class="card transform"><p class="card-label">Transformation</p>…</article>
+        Then observation / lemma cards, numbered in reader order.
+        Bridges between complexity jumps: <p class="bridge">…</p>
+        No pseudocode / algorithm box. A displayed recurrence or matrix is fine.
+      -->
+      <article class="card">
+        <p class="card-label">Nhận xét 1</p>
+        <p>Thay nội dung mẫu này.</p>
+      </article>
+    </section>
+
+    <!-- Subtasks only: one <section class="subtask" id="g1"> per rung, each with its own complexity. -->
+
+    <section id="complexity">
+      <h2>Độ phức tạp</h2>
+      <pre class="complexity">Thời gian: O(…)
+Bộ nhớ: O(…)</pre>
+      <!-- Drop query/update lines when they do not apply. -->
+    </section>
+
+    <!-- Optional other approaches. Delete the whole section if none.
+    <section id="other">
+      <h2>Cách giải khác</h2>
+      <p>We can solve the problem in \(O(N)\) using …</p>
+    </section>
+    -->
+
+    <!-- Fun fact: emit this section ONLY if the user asked. Delete otherwise.
+    <section id="fun" class="fun">
+      <p class="card-label">Thông tin thú vị</p>
+      <p>…</p>
+    </section>
+    -->
+
+    <footer class="page-end"><!-- PROBLEM_NAME --> · lời giải</footer>
+  </main>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\\[", right: "\\]", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</body>
+</html>

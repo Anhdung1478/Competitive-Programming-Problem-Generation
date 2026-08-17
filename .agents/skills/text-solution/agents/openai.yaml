@@ -1,4 +1,0 @@
-interface:
-  display_name: "Text Solution"
-  short_description: "Write concise Vietnamese solution explanations"
-  default_prompt: "Use $text-solution to write a concise Vietnamese explanation of the implemented solution."

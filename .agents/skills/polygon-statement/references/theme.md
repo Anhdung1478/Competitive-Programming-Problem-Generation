@@ -1,6 +1,5 @@
-# TRINITY FORCE ROUND — Theme Bible
+# Theme Bible
 
-**Contest:** HCMUS ICPC Training Round · 13 problems (A–M)
 **Theme:** League of Legends / Runeterra
 **Audience:** problem setters and statement writers. Read §7 and §8 before you write a single word of flavor.
 

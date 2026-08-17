@@ -1,8 +1,10 @@
 **Constraint**:
-* 2 <= N <= 2 x 10^5.
-* 1 <= X <= 10^6.
-* 1 <= A_i <= 10^6.
-* 1 <= B_i <= 10^6.
-* There is at least one ordered pair of distinct cores (U, V) with A_V < A_U and B_V < B_U.
+* 1 <= r, c <= 287
+* 1 <= k <= 412
 
-**Subtask**: không có subtask
+**Subtask**: 
+Subtask $1$ ($12$ điểm): $1 \le r \le 8$, $1 \le c \le 7$, $1 \le k \le 5$.
+
+Subtask $2$ ($38$ điểm): $1 \le r, c \le 50$, $1 \le k \le 400$.
+
+Subtask $3$ ($50$ điểm): Không có ràng buộc gì thêm.

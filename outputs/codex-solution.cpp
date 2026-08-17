@@ -1,103 +1,226 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-using int64 = long long;
+namespace {
 
-constexpr int64 MOD = 998244353;
+constexpr int INF = 1'000'000'000;
 
-int64 modularMultiply(int64 lhs, int64 rhs) {
-    return static_cast<int64>(static_cast<__int128>(lhs) * rhs % MOD);
-}
-
-struct Matrix {
-    int64 value[2][2]{};
+struct Node {
+    int minimum = INF;
+    int minimumCount = 0;
+    int lazy = 0;
 };
 
-Matrix operator*(const Matrix& lhs, const Matrix& rhs) {
-    Matrix result;
-    for (int i = 0; i < 2; ++i) {
-        for (int j = 0; j < 2; ++j) {
-            for (int k = 0; k < 2; ++k) {
-                result.value[i][j] =
-                    (result.value[i][j] +
-                     modularMultiply(lhs.value[i][k], rhs.value[k][j])) % MOD;
-            }
-        }
+class SegmentTree {
+public:
+    explicit SegmentTree(const vector<int>& gap)
+        : size_(static_cast<int>(gap.size()) - 1), tree_(4 * size_ + 4) {
+        build(1, 1, size_, gap);
     }
-    return result;
-}
 
-Matrix matrixPower(Matrix base, int64 exponent) {
-    Matrix result;
-    result.value[0][0] = result.value[1][1] = 1;
-
-    while (exponent > 0) {
-        if (exponent & 1LL) {
-            result = result * base;
-        }
-        base = base * base;
-        exponent >>= 1LL;
+    void add(int left, int right, int value) {
+        add(1, 1, size_, left, right, value);
     }
-    return result;
-}
 
-int64 modularPower(int64 base, int64 exponent) {
-    int64 result = 1;
-    base %= MOD;
-    while (exponent > 0) {
-        if (exponent & 1LL) {
-            result = modularMultiply(result, base);
-        }
-        base = modularMultiply(base, base);
-        exponent >>= 1LL;
+    Node query(int left, int right) {
+        return query(1, 1, size_, left, right);
     }
-    return result;
+
+    void assignPoint(int position, int value) {
+        assignPoint(1, 1, size_, position, value);
+    }
+
+    int findNegative(int left, int right, int& negativeGap) {
+        return findNegative(1, 1, size_, left, right, negativeGap);
+    }
+
+private:
+    int size_;
+    vector<Node> tree_;
+
+    static Node mergeNodes(const Node& left, const Node& right) {
+        Node result;
+        result.minimum = min(left.minimum, right.minimum);
+        if (left.minimum == result.minimum) {
+            result.minimumCount += left.minimumCount;
+        }
+        if (right.minimum == result.minimum) {
+            result.minimumCount += right.minimumCount;
+        }
+        return result;
+    }
+
+    void apply(int id, int value) {
+        tree_[id].minimum -= value;
+        tree_[id].lazy += value;
+    }
+
+    void push(int id) {
+        if (tree_[id].lazy == 0) {
+            return;
+        }
+        apply(id << 1, tree_[id].lazy);
+        apply(id << 1 | 1, tree_[id].lazy);
+        tree_[id].lazy = 0;
+    }
+
+    void pull(int id) {
+        tree_[id] = mergeNodes(tree_[id << 1], tree_[id << 1 | 1]);
+    }
+
+    void build(int id, int left, int right, const vector<int>& gap) {
+        if (left == right) {
+            tree_[id].minimum = gap[left];
+            tree_[id].minimumCount = 1;
+            return;
+        }
+        const int middle = (left + right) / 2;
+        build(id << 1, left, middle, gap);
+        build(id << 1 | 1, middle + 1, right, gap);
+        pull(id);
+    }
+
+    void add(int id, int left, int right, int queryLeft, int queryRight,
+             int value) {
+        if (queryLeft <= left && right <= queryRight) {
+            apply(id, value);
+            return;
+        }
+        push(id);
+        const int middle = (left + right) / 2;
+        if (queryLeft <= middle) {
+            add(id << 1, left, middle, queryLeft, queryRight, value);
+        }
+        if (middle < queryRight) {
+            add(id << 1 | 1, middle + 1, right, queryLeft, queryRight, value);
+        }
+        pull(id);
+    }
+
+    Node query(int id, int left, int right, int queryLeft, int queryRight) {
+        if (queryLeft <= left && right <= queryRight) {
+            return tree_[id];
+        }
+        push(id);
+        const int middle = (left + right) / 2;
+        if (queryRight <= middle) {
+            return query(id << 1, left, middle, queryLeft, queryRight);
+        }
+        if (middle < queryLeft) {
+            return query(id << 1 | 1, middle + 1, right, queryLeft, queryRight);
+        }
+        return mergeNodes(
+            query(id << 1, left, middle, queryLeft, queryRight),
+            query(id << 1 | 1, middle + 1, right, queryLeft, queryRight));
+    }
+
+    void assignPoint(int id, int left, int right, int position, int value) {
+        if (left == right) {
+            tree_[id] = Node{value, 1, 0};
+            return;
+        }
+        push(id);
+        const int middle = (left + right) / 2;
+        if (position <= middle) {
+            assignPoint(id << 1, left, middle, position, value);
+        } else {
+            assignPoint(id << 1 | 1, middle + 1, right, position, value);
+        }
+        pull(id);
+    }
+
+    int findNegative(int id, int left, int right, int queryLeft,
+                     int queryRight, int& negativeGap) {
+        if (right < queryLeft || queryRight < left || tree_[id].minimum >= 0) {
+            return -1;
+        }
+        if (left == right) {
+            negativeGap = tree_[id].minimum;
+            return left;
+        }
+        push(id);
+        const int middle = (left + right) / 2;
+        const int fromLeft =
+            findNegative(id << 1, left, middle, queryLeft, queryRight,
+                         negativeGap);
+        if (fromLeft != -1) {
+            return fromLeft;
+        }
+        return findNegative(
+            id << 1 | 1, middle + 1, right, queryLeft, queryRight,
+            negativeGap);
+    }
+};
+
+void generateLuckyNumbers(int value, vector<int>& lucky) {
+    if (value > 10'000) {
+        return;
+    }
+    if (value > 0) {
+        lucky.push_back(value);
+    }
+    generateLuckyNumbers(value * 10 + 4, lucky);
+    generateLuckyNumbers(value * 10 + 7, lucky);
 }
 
-// Count valid color sequences across a gap with both endpoint colors fixed.
-int64 waysBetween(int64 colorCount, int64 distance, bool sameColor) {
-    // equal(t): ways to reach the required right endpoint after t moves.
-    // total(t): all valid continuations after t moves, equal to (N - 1)^t.
-    // Therefore equal(t + 1) = total(t) - equal(t).
-    Matrix transition;
-    transition.value[0][0] = MOD - 1;
-    transition.value[0][1] = 1;
-    transition.value[1][1] = (colorCount - 1) % MOD;
-
-    const Matrix powered = matrixPower(transition, distance);
-    const int64 initialEqual = sameColor ? 1 : 0;
-    return (powered.value[0][0] * initialEqual + powered.value[0][1]) % MOD;
-}
+}  // namespace
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int64 colorCount, dayCount;
-    int fixedCount;
-    cin >> colorCount >> dayCount >> fixedCount;
+    int n, q;
+    cin >> n >> q;
 
-    vector<int64> day(fixedCount), color(fixedCount);
-    for (int i = 0; i < fixedCount; ++i) {
-        cin >> day[i] >> color[i];
+    vector<int> value(n + 1);
+    for (int i = 1; i <= n; ++i) {
+        cin >> value[i];
     }
 
-    if (fixedCount == 0) {
-        const int64 answer =
-            colorCount % MOD * modularPower(colorCount - 1, dayCount - 1) % MOD;
-        cout << answer << '\n';
-        return 0;
+    vector<int> lucky;
+    generateLuckyNumbers(0, lucky);
+    sort(lucky.begin(), lucky.end());
+    lucky.push_back(INF);  // Values never exceed 10^4, so this is only a sentinel.
+
+    vector<int> nextLucky(n + 1);
+    vector<int> gap(n + 1);
+    for (int i = 1; i <= n; ++i) {
+        nextLucky[i] = *lower_bound(lucky.begin(), lucky.end(), value[i]);
+        gap[i] = nextLucky[i] - value[i];
     }
 
-    int64 answer = modularPower(colorCount - 1, day.front() - 1);
-    for (int i = 1; i < fixedCount; ++i) {
-        const int64 distance = day[i] - day[i - 1];
-        answer = modularMultiply(
-            answer, waysBetween(colorCount, distance, color[i] == color[i - 1]));
-    }
-    answer = modularMultiply(
-        answer, modularPower(colorCount - 1, dayCount - day.back()));
+    SegmentTree tree(gap);
 
-    cout << answer << '\n';
+    while (q-- > 0) {
+        string operation;
+        int left, right;
+        cin >> operation >> left >> right;
+
+        if (operation == "count") {
+            const Node result = tree.query(left, right);
+            cout << (result.minimum == 0 ? result.minimumCount : 0) << '\n';
+            continue;
+        }
+
+        int delta;
+        cin >> delta;
+        tree.add(left, right, delta);
+
+        // Positive additions can pass one or more lucky numbers. Repair every
+        // affected leaf until all distances are nonnegative again.
+        while (true) {
+            int negativeGap = 0;
+            const int position = tree.findNegative(left, right, negativeGap);
+            if (position == -1) {
+                break;
+            }
+
+            value[position] = nextLucky[position] - negativeGap;
+            nextLucky[position] =
+                *lower_bound(lucky.begin(), lucky.end(), value[position]);
+            tree.assignPoint(position, nextLucky[position] - value[position]);
+        }
+    }
+
     return 0;
 }

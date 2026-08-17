@@ -1,49 +1,12 @@
+**Problem name**: Không phải quân xe
+
 **Legend**:
-The vents under Zaun breathe warm chem-fume into Viktor's workshop, and the
-night's work is already laid out on the bench: a row of hex-cores, each one a
-coil wound tight around a cell of charge.
+Trong bài tập này, ta xét một bàn cờ vua đặc biệt gồm $r$ hàng và $c$ cột. Trên đó, ta định nghĩa một quân cờ đặc biệt, đó là quân "không phải quân xe". Trong một nước đi, quân cờ "không phải quân xe" có thể đi tới bất kì ô nào trên bàn cờ mà quân xe bình thường không thể đi tới. Nói cách khác, quân cờ "không phải quân xe" trong một nước có thể đi tới tất cả các ô, trừ các ô cùng hàng, cùng cột với vị trí hiện tại. Chú ý rằng, quân cờ này trong một nước bắt buộc phải đi đến ô khác, không được đứng yên ở vị trí hiện tại.
 
-The bench holds $N$ hex-cores, numbered $1$ through $N$. Core $i$ carries a
-coil of power $A_i$ and a cell holding a charge $B_i$. The \emph{output} of the
-bench is
-\[
-  A_1 \cdot B_1 + A_2 \cdot B_2 + \cdots + A_N \cdot B_N .
-\]
-
-Tonight Viktor performs a single evolution, \textbf{exactly once} --- it is
-not optional. He chooses two cores, floods the greater one's cell with fresh
-reagent (setting its charge to $X$), and makes the two coils trade places.
-The other core must be strictly lesser in both coil and charge.
-
-Formally, choose an \emph{ordered} pair of distinct cores $(U, V)$ such that
-\[
-  A_V < A_U \qquad\text{and}\qquad B_V < B_U ,
-\]
-both comparisons made on the values as given in the input. Then, in one step:
-\begin{itemize}
-  \item the coil powers of $U$ and $V$ are swapped;
-  \item $B_U$ is set to $X$.
-\end{itemize}
-Nothing else changes: $B_V$ is left as it was, and no other core is touched.
-The output is then recomputed from the new values. At least one such pair
-$(U, V)$ is guaranteed to exist.
-
-Viktor wants the greatest output after this one operation. That value may be
-smaller than the output the bench gives now.
-
-\textbf{Task:} print the largest output achievable after performing the
-operation exactly once.
+Hãy đếm số chuỗi di chuyển hợp lệ độ dài $k$ của một quân "không phải quân xe" bắt đầu từ ô $(1, 1)$ và kết thúc tại ô $(r, c)$. Một chuỗi di chuyển hợp lệ là một dãy gồm $k + 1$ ô $(x_0, y_0)$, $(x_1, y_1)$, ..., $(x_k, y_k)$ sao cho với mọi $1 \le i \le k$, quân "không phải quân xe" có thể đi từ ô $(x_{i-1}, y_{i-1})$ đến ô $(x_i, y_i)$. Hai chuỗi di chuyển được coi là khác nhau nếu như tồn tại chỉ số $i$ sao cho ô thứ $i$ ở chuỗi này khác với ô thứ $i$ ở chuỗi kia.
 
 **Input format**:
-\begin{itemize}
-  \item The first line contains two integers $N$ and $X$ --- the number of
-        hex-cores and the charge that a flooded cell is left with.
-  \item The second line contains $N$ integers $A_1, A_2, \ldots, A_N$ --- the
-        coil powers of the cores.
-  \item The third line contains $N$ integers $B_1, B_2, \ldots, B_N$ --- the
-        charges of the cores.
-\end{itemize}
+Gồm một dòng duy nhất chứa ba số nguyên $r, c, k$ $(1 \le r, c \le 287, 1 \le k \le 412)$.
 
 **Output format**:
-Print one integer --- the largest output of the bench achievable after
-performing the operation exactly once.
+In ra một số nguyên duy nhất là cách di chuyển hợp lệ độ dài $k$ theo modulo $998244353$.

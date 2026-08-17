@@ -4,9 +4,10 @@ using namespace std;
 
 using ll = long long;
 
-const ll MAX_N = 1000000000LL;
-const ll MAX_M = 1000000000000000000LL;
-const int MAX_K = 10000;
+namespace {
+
+constexpr int FULL_LIMIT = 100000;
+constexpr int FULL_VALUE_CAP = 10000;
 
 vector<string> valueTypes({"minimum", "uniform", "logarit", "maximum"});
 
@@ -16,282 +17,423 @@ ll genValue(ll low, ll high, const string& type, int param = 3) {
     if (low != 1) {
         return low - 1 + genValue(1, high - low + 1, type, param);
     }
-
     if (type == "uniform") {
         return rnd.next(low, high);
     }
-
     if (type == "logarit") {
-        long double x = (long double)low * expl(
-            (long double)rnd.next() * logl((long double)high / (long double)low)
-        );
-        ll rounded = (ll)floorl(x + 0.5L);
+        const long double x = static_cast<long double>(low) *
+            expl(static_cast<long double>(rnd.next()) *
+                 logl(static_cast<long double>(high) /
+                      static_cast<long double>(low)));
+        const ll rounded = static_cast<ll>(floorl(x + 0.5L));
         return max(low, min(high, rounded));
     }
-
     if (type == "maximum") {
         return rnd.wnext(low, high, param);
     }
-
     if (type == "minimum") {
-        ll result = genValue(low, high, "logarit");
+        ll answer = genValue(low, high, "logarit");
         for (int i = 0; i < param; ++i) {
-            result = min(result, genValue(low, high, "logarit"));
+            answer = min(answer, genValue(low, high, "logarit"));
         }
-        return result;
+        return answer;
     }
-
     quitf(_fail, "unknown value type: %s", type.c_str());
 }
 
-ll rateCeiling(ll low, ll high, double rate) {
-    ensure(1 <= low && low <= high);
-    long double value = (long double)low
-        + floorl((long double)(high - low) * (long double)rate);
-    value = max((long double)low, min((long double)high, value));
-    return (ll)value;
+int scaledMax(int limit, double rate) {
+    return max(1, min(limit, static_cast<int>(floor(limit * rate))));
 }
 
-vector<ll> sampleUniqueRange(ll low, ll high, int count) {
-    ensure(count >= 0);
-    if (count == 0) return {};
-    ensure(low <= high);
+bool startsWith(const string& text, const string& prefix) {
+    return text.size() >= prefix.size() &&
+           equal(prefix.begin(), prefix.end(), text.begin());
+}
 
-    ll length = high - low + 1;
-    ensure((ll)count <= length);
+bool contains(const string& text, const string& fragment) {
+    return text.find(fragment) != string::npos;
+}
 
-    set<ll> selected;
-    for (ll j = length - count + 1; j <= length; ++j) {
-        ll candidate = rnd.next(1LL, j);
-        if (selected.count(candidate)) selected.insert(j);
-        else selected.insert(candidate);
+bool isLucky(int value) {
+    while (value > 0) {
+        const int digit = value % 10;
+        if (digit != 4 && digit != 7) {
+            return false;
+        }
+        value /= 10;
+    }
+    return true;
+}
+
+void buildLucky(int value, int cap, vector<int>& lucky) {
+    if (value > cap) {
+        return;
+    }
+    if (value > 0) {
+        lucky.push_back(value);
+    }
+    buildLucky(value * 10 + 4, cap, lucky);
+    buildLucky(value * 10 + 7, cap, lucky);
+}
+
+class RangeMaximum {
+public:
+    explicit RangeMaximum(const vector<int>& values)
+        : size_(static_cast<int>(values.size())), tree_(4 * size_ + 4),
+          lazy_(4 * size_ + 4) {
+        build(1, 0, size_ - 1, values);
     }
 
-    vector<ll> result;
-    result.reserve(count);
-    for (ll value : selected) result.push_back(low + value - 1);
-    return result;
+    int query(int left, int right) {
+        return query(1, 0, size_ - 1, left, right);
+    }
+
+    void add(int left, int right, int delta) {
+        add(1, 0, size_ - 1, left, right, delta);
+    }
+
+    int maximum() const {
+        return tree_[1];
+    }
+
+private:
+    int size_;
+    vector<int> tree_;
+    vector<int> lazy_;
+
+    void build(int id, int left, int right, const vector<int>& values) {
+        if (left == right) {
+            tree_[id] = values[left];
+            return;
+        }
+        const int middle = (left + right) / 2;
+        build(id << 1, left, middle, values);
+        build(id << 1 | 1, middle + 1, right, values);
+        tree_[id] = max(tree_[id << 1], tree_[id << 1 | 1]);
+    }
+
+    void apply(int id, int delta) {
+        tree_[id] += delta;
+        lazy_[id] += delta;
+    }
+
+    void push(int id) {
+        if (lazy_[id] == 0) {
+            return;
+        }
+        apply(id << 1, lazy_[id]);
+        apply(id << 1 | 1, lazy_[id]);
+        lazy_[id] = 0;
+    }
+
+    int query(int id, int left, int right, int queryLeft, int queryRight) {
+        if (queryLeft <= left && right <= queryRight) {
+            return tree_[id];
+        }
+        push(id);
+        const int middle = (left + right) / 2;
+        int answer = 0;
+        if (queryLeft <= middle) {
+            answer = max(answer,
+                         query(id << 1, left, middle, queryLeft, queryRight));
+        }
+        if (middle < queryRight) {
+            answer = max(answer, query(id << 1 | 1, middle + 1, right,
+                                       queryLeft, queryRight));
+        }
+        return answer;
+    }
+
+    void add(int id, int left, int right, int queryLeft, int queryRight,
+             int delta) {
+        if (queryLeft <= left && right <= queryRight) {
+            apply(id, delta);
+            return;
+        }
+        push(id);
+        const int middle = (left + right) / 2;
+        if (queryLeft <= middle) {
+            add(id << 1, left, middle, queryLeft, queryRight, delta);
+        }
+        if (middle < queryRight) {
+            add(id << 1 | 1, middle + 1, right, queryLeft, queryRight, delta);
+        }
+        tree_[id] = max(tree_[id << 1], tree_[id << 1 | 1]);
+    }
+};
+
+struct Operation {
+    bool isAdd;
+    int left;
+    int right;
+    int delta;
+};
+
+pair<int, int> chooseInterval(const string& profile, int n, int index) {
+    if (contains(profile, "point")) {
+        const int position = (index % 4 == 0 ? 1 :
+                              index % 4 == 1 ? n : rnd.next(1, n));
+        return {position, position};
+    }
+    if (contains(profile, "full") || profile == "max-work" ||
+        contains(profile, "threshold") || contains(profile, "staggered")) {
+        return {1, n};
+    }
+    if (contains(profile, "nested")) {
+        const int depthLimit = min((n - 1) / 2, 1000);
+        const int depth = (depthLimit == 0 ? 0 : index % (depthLimit + 1));
+        return {1 + depth, n - depth};
+    }
+    if (contains(profile, "alternating")) {
+        if (index % 3 == 0) {
+            return {1, max(1, n / 2)};
+        }
+        if (index % 3 == 1) {
+            return {min(n, n / 2 + 1), n};
+        }
+        return {1, n};
+    }
+
+    int left = rnd.next(1, n);
+    int right = rnd.next(1, n);
+    if (left > right) {
+        swap(left, right);
+    }
+    if (rnd.next(0, 4) == 0) {
+        left = 1;
+    }
+    if (rnd.next(0, 4) == 0) {
+        right = n;
+    }
+    return {left, right};
 }
 
-bool isOneOf(const string& value, initializer_list<const char*> choices) {
-    for (const char* choice : choices) {
-        if (value == choice) return true;
+int nonLuckyValue(int cap) {
+    int value = static_cast<int>(genValue(1, cap, valueTypes[rnd.next(0, 3)]));
+    while (isLucky(value)) {
+        value = (value == cap ? max(1, value - 1) : value + 1);
     }
-    return false;
+    return value;
 }
+
+}  // namespace
 
 int main(int argc, char* argv[]) {
     registerGen(argc, argv, 1);
     prepareOpts(argc, argv);
 
-    int subtask = opt<int>("subtask");
-    double rate = opt<double>("rate");
-    string profile = opt<string>("profile");
+    const int subtask = opt<int>("subtask");
+    const double rate = opt<double>("rate");
+    const string profile = opt<string>("profile");
 
-    ensure(1 <= subtask && subtask <= 5);
+    ensure(1 <= subtask && subtask <= 4);
     ensure(0.70 <= rate && rate <= 1.00);
 
     const set<string> allowedProfiles = {
-        "random", "sparse", "dense", "no-fixed",
-        "all-fixed-valid", "all-fixed-conflict", "edge-days",
-        "n-one", "n-two", "same-endpoints", "different-endpoints",
-        "max-values", "long-gap-same", "long-gap-different",
-        "free-random", "free-n-one", "free-n-two", "free-max"
+        "min-case", "random", "threshold-hit", "threshold-cross",
+        "multi-threshold", "staggered-thresholds", "mixed-duplicates",
+        "point-ops", "full-range", "nested-ranges", "alternating-ranges",
+        "query-heavy", "update-heavy", "all-lucky", "no-lucky",
+        "boundary-values", "wrong-killer", "max-work", "static-random",
+        "static-all-lucky", "static-no-lucky", "static-mixed",
+        "static-duplicates", "static-point", "static-full",
+        "static-nested", "static-boundary", "small-random",
+        "small-all-lucky", "small-no-lucky", "small-threshold-hit",
+        "small-threshold-cross", "small-point", "small-full-range",
+        "small-nested", "small-query-heavy", "small-update-heavy",
+        "small-duplicates", "small-staggered", "small-boundary"
     };
-    ensure(allowedProfiles.count(profile));
+    ensure(allowedProfiles.count(profile) == 1);
 
-    bool maximumProfile = isOneOf(profile, {"max-values", "free-max"});
-    string sizeType = maximumProfile ? "maximum" : valueTypes[rnd.next(0, 3)];
+    const int sizeLimit = (subtask == 1 ? 1000 : FULL_LIMIT);
+    const int valueCap = (subtask == 3 ? 100 : FULL_VALUE_CAP);
+    const int nCeil = scaledMax(sizeLimit, rate);
+    const int qCeil = scaledMax(sizeLimit, rate);
 
-    ll n = 1;
-    ll m = 1;
-    ll productCap = max(1LL, (ll)floor(1000000.0L * (long double)rate));
+    int n;
+    int q;
+    if (profile == "min-case" || profile == "wrong-killer") {
+        n = q = 1;
+    } else if (profile == "max-work") {
+        n = nCeil;
+        q = qCeil;
+    } else {
+        const int nLow = max(1, nCeil / 2);
+        const int qLow = max(1, qCeil / 2);
+        n = static_cast<int>(genValue(nLow, nCeil, valueTypes[rnd.next(0, 3)]));
+        q = static_cast<int>(genValue(qLow, qCeil, valueTypes[rnd.next(0, 3)]));
+    }
 
-    if (subtask == 1) {
-        int shape = rnd.next(0, 2);
-        if (shape == 0) {
-            n = genValue(1, min(MAX_N, productCap), sizeType);
-            m = genValue(1, productCap / n, sizeType);
-        } else if (shape == 1) {
-            m = genValue(1, productCap, sizeType);
-            n = genValue(1, min(MAX_N, productCap / m), sizeType);
+    vector<int> lucky;
+    buildLucky(0, valueCap, lucky);
+    sort(lucky.begin(), lucky.end());
+
+    vector<int> values(n);
+    if (profile == "min-case" || profile == "wrong-killer") {
+        fill(values.begin(), values.end(), 4);
+    } else if (contains(profile, "all-lucky")) {
+        for (int& value : values) {
+            value = lucky[rnd.next(0, static_cast<int>(lucky.size()) - 1)];
+        }
+    } else if (contains(profile, "no-lucky")) {
+        for (int& value : values) {
+            value = nonLuckyValue(valueCap);
+        }
+    } else if (contains(profile, "threshold-hit")) {
+        fill(values.begin(), values.end(), 3);
+    } else if (contains(profile, "threshold-cross")) {
+        fill(values.begin(), values.end(), 4);
+    } else if (profile == "multi-threshold") {
+        fill(values.begin(), values.end(), 1);
+    } else if (contains(profile, "staggered")) {
+        const int target = (valueCap == 100 ? 77 : 7777);
+        for (int i = 0; i < n; ++i) {
+            values[i] = max(1, target - i % 12);
+        }
+    } else if (contains(profile, "duplicates") || profile == "mixed-duplicates" ||
+               profile == "static-mixed") {
+        const vector<int> palette = (valueCap == 100)
+            ? vector<int>{3, 4, 5, 7, 8, 44, 45, 47}
+            : vector<int>{3, 4, 5, 7, 8, 44, 45, 47, 74, 77, 444, 777};
+        for (int i = 0; i < n; ++i) {
+            values[i] = palette[(i / max(1, n / 20)) % palette.size()];
+        }
+    } else if (contains(profile, "boundary")) {
+        vector<int> palette{1, valueCap};
+        for (int number : lucky) {
+            palette.push_back(number);
+            if (number > 1) {
+                palette.push_back(number - 1);
+            }
+            if (number < valueCap) {
+                palette.push_back(number + 1);
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            values[i] = palette[i % palette.size()];
+        }
+    } else if (profile == "max-work") {
+        fill(values.begin(), values.end(), 1);
+    } else {
+        for (int& value : values) {
+            value = static_cast<int>(
+                genValue(1, valueCap, valueTypes[rnd.next(0, 3)]));
+        }
+    }
+
+    RangeMaximum current(values);
+    vector<Operation> operations;
+    operations.reserve(q);
+
+    const bool staticOnly = subtask == 2 || startsWith(profile, "static-");
+    int countOperations = 0;
+
+    for (int index = 0; index < q; ++index) {
+        pair<int, int> interval = chooseInterval(profile, n, index);
+        int left = interval.first;
+        int right = interval.second;
+
+        bool wantAdd = !staticOnly && index + 1 < q;
+        if (profile == "min-case" || profile == "wrong-killer") {
+            wantAdd = false;
+        } else if (contains(profile, "query-heavy")) {
+            wantAdd = (index % 10 == 0);
+        } else if (contains(profile, "update-heavy")) {
+            wantAdd = (index % 10 != 0);
+        } else if (profile == "max-work") {
+            wantAdd = index < min(q - 1, valueCap - 1);
+            left = 1;
+            right = n;
+        } else if (index == 0 && (contains(profile, "threshold") ||
+                                  contains(profile, "staggered") ||
+                                  profile == "multi-threshold")) {
+            wantAdd = true;
+            left = 1;
+            right = n;
         } else {
-            ll middle = max(1LL, (ll)sqrt((long double)productCap));
-            n = genValue(1, middle, "maximum");
-            m = genValue(1, productCap / n, "maximum");
+            wantAdd = rnd.next(0, 99) < 55;
         }
-    } else if (subtask == 2) {
-        n = genValue(1, rateCeiling(1, MAX_N, rate), sizeType);
-        m = 2;
-    } else {
-        n = genValue(1, rateCeiling(1, MAX_N, rate), sizeType);
-        ll mLimit = (subtask == 4 ? 10 : MAX_M);
-        m = genValue(1, rateCeiling(1, mLimit, rate), sizeType);
-    }
 
-    if (isOneOf(profile, {"n-one", "free-n-one"})) n = 1;
-    if (isOneOf(profile, {"n-two", "free-n-two"})) n = 2;
-
-    bool needsTwoDays = isOneOf(profile, {
-        "all-fixed-conflict", "same-endpoints", "different-endpoints",
-        "long-gap-same", "long-gap-different"
-    });
-    bool needsTwoCandies = isOneOf(profile, {
-        "all-fixed-valid", "different-endpoints", "long-gap-different"
-    });
-
-    if (needsTwoCandies) n = max(2LL, n);
-    if (needsTwoDays) m = max(2LL, m);
-
-    if (maximumProfile) {
-        if (subtask != 1) {
-            ll nLimit = rateCeiling(1, MAX_N, rate);
-            ll mLimit = (subtask == 2 ? 2 : (subtask == 4 ? 10 : MAX_M));
-            mLimit = rateCeiling(1, mLimit, rate);
-            n = genValue(max(1LL, nLimit - min(1000000LL, nLimit - 1)), nLimit, "maximum");
-            m = (subtask == 2 ? 2 : genValue(max(1LL, mLimit - min(1000000LL, mLimit - 1)), mLimit, "maximum"));
+        // Exact subtask restrictions and the reserved final answer-producing
+        // query take precedence over every profile-specific probability.
+        if (staticOnly || index + 1 == q) {
+            wantAdd = false;
         }
-    }
 
-    if (isOneOf(profile, {"long-gap-same", "long-gap-different"}) && subtask != 1) {
-        ll mLimit = (subtask == 2 ? 2 : (subtask == 4 ? 10 : MAX_M));
-        m = rateCeiling(1, mLimit, rate);
-        m = max(2LL, m);
-    }
-
-    if (isOneOf(profile, {"all-fixed-valid", "all-fixed-conflict"})) {
-        m = min(m, (ll)MAX_K);
-        if (profile == "all-fixed-conflict") m = max(2LL, m);
-    }
-
-    if (subtask == 1) {
-        if (needsTwoDays) {
-            n = min(n, productCap / 2);
-            n = max(n, needsTwoCandies ? 2LL : 1LL);
-            m = max(2LL, min(m, productCap / n));
+        const int rangeMaximum = current.query(left - 1, right - 1);
+        const int budget = valueCap - rangeMaximum;
+        if (wantAdd && budget > 0) {
+            int delta;
+            if (profile == "max-work") {
+                delta = 1;
+            } else if (index == 0 && contains(profile, "threshold-hit")) {
+                delta = 1;
+            } else if (index == 0 && contains(profile, "threshold-cross")) {
+                delta = 1;
+            } else if (index == 0 && profile == "multi-threshold") {
+                delta = min(50, budget);
+            } else if (index == 0 && contains(profile, "staggered")) {
+                delta = 1;
+            } else {
+                const int deltaCap = min(budget,
+                    contains(profile, "update-heavy") ? 10 : 1000);
+                delta = static_cast<int>(genValue(
+                    1, deltaCap, valueTypes[rnd.next(0, 3)]));
+            }
+            operations.push_back({true, left, right, delta});
+            current.add(left - 1, right - 1, delta);
         } else {
-            m = min(m, productCap / n);
-            m = max(1LL, m);
+            operations.push_back({false, left, right, 0});
+            ++countOperations;
         }
     }
-    if (subtask == 2) m = 2;
-    if (subtask == 4) m = min(m, 10LL);
 
-    int kCap = (int)min<ll>(m, MAX_K);
-    int k = 0;
-
-    bool freeProfile = isOneOf(profile, {
-        "no-fixed", "free-random", "free-n-one", "free-n-two", "free-max"
-    });
-
-    if (subtask == 3 || freeProfile) {
-        k = 0;
-    } else if (isOneOf(profile, {"all-fixed-valid", "all-fixed-conflict"})) {
-        k = (int)m;
-    } else if (isOneOf(profile, {
-        "same-endpoints", "different-endpoints", "long-gap-same", "long-gap-different"
-    })) {
-        k = 2;
-    } else if (profile == "sparse") {
-        k = rnd.next(1, min(kCap, 10));
-    } else if (profile == "dense") {
-        int low = max(1, (int)((4LL * kCap + 4) / 5));
-        k = rnd.next(low, kCap);
-    } else if (profile == "edge-days") {
-        int minimum = (m == 1 ? 1 : 2);
-        k = rnd.next(minimum, min(kCap, 12));
-    } else if (profile == "max-values") {
-        int low = max(1, (9 * kCap + 9) / 10);
-        k = rnd.next(low, kCap);
-    } else {
-        string kType = valueTypes[rnd.next(0, 3)];
-        k = (int)genValue(0, kCap, kType);
+    if (countOperations == 0) {
+        operations.back() = {false, 1, n, 0};
+        ++countOperations;
     }
 
-    vector<ll> days;
-    if (k == 0) {
-        days.clear();
-    } else if (isOneOf(profile, {"all-fixed-valid", "all-fixed-conflict"})) {
-        days.resize(k);
-        iota(days.begin(), days.end(), 1LL);
-    } else if (isOneOf(profile, {
-        "same-endpoints", "different-endpoints", "long-gap-same", "long-gap-different"
-    })) {
-        days = {1, m};
-    } else if (profile == "edge-days") {
-        days.push_back(1);
-        if (m > 1) days.push_back(m);
-        int internal = k - (int)days.size();
-        if (internal > 0) {
-            vector<ll> middle = sampleUniqueRange(2, m - 1, internal);
-            days.insert(days.end(), middle.begin(), middle.end());
-            sort(days.begin(), days.end());
+    ensure(1 <= n && n <= sizeLimit);
+    ensure(1 <= q && q <= sizeLimit);
+    ensure(static_cast<int>(values.size()) == n);
+    ensure(static_cast<int>(operations.size()) == q);
+    ensure(countOperations >= 1);
+    for (int value : values) {
+        ensure(1 <= value && value <= valueCap);
+    }
+    for (const Operation& operation : operations) {
+        ensure(1 <= operation.left && operation.left <= operation.right &&
+               operation.right <= n);
+        if (operation.isAdd) {
+            ensure(1 <= operation.delta && operation.delta <= FULL_VALUE_CAP);
         }
-    } else {
-        days = sampleUniqueRange(1, m, k);
+    }
+    ensure(current.maximum() <= valueCap);
+    if (subtask == 2) {
+        for (const Operation& operation : operations) {
+            ensure(!operation.isAdd);
+        }
+    }
+    if (profile == "wrong-killer") {
+        ensure(n == 1 && q == 1 && values[0] == 4 && !operations[0].isAdd);
     }
 
-    vector<ll> candies(k, 1);
-    if (profile == "all-fixed-valid") {
-        for (int i = 0; i < k; ++i) candies[i] = 1 + i % n;
-    } else if (profile == "all-fixed-conflict") {
-        for (int i = 0; i < k; ++i) candies[i] = genValue(1, n, "uniform");
-        candies[1] = candies[0];
-    } else if (isOneOf(profile, {"same-endpoints", "long-gap-same"})) {
-        candies[0] = candies[1] = genValue(1, n, "uniform");
-    } else if (isOneOf(profile, {"different-endpoints", "long-gap-different"})) {
-        candies[0] = 1;
-        candies[1] = n;
-    } else if (profile == "dense" && k > 0) {
-        int pattern = rnd.next(0, 2);
-        if (pattern == 0) {
-            fill(candies.begin(), candies.end(), genValue(1, n, "uniform"));
-        } else if (pattern == 1) {
-            for (int i = 0; i < k; ++i) candies[i] = (n == 1 ? 1 : 1 + (i & 1) * (n - 1));
+    cout << n << ' ' << q << '\n';
+    for (int i = 0; i < n; ++i) {
+        if (i > 0) {
+            cout << ' ';
+        }
+        cout << values[i];
+    }
+    cout << '\n';
+
+    for (const Operation& operation : operations) {
+        if (operation.isAdd) {
+            cout << "add " << operation.left << ' ' << operation.right << ' '
+                 << operation.delta << '\n';
         } else {
-            ll alphabet = min(n, 3LL);
-            for (ll& candy : candies) candy = genValue(1, alphabet, "uniform");
+            cout << "count " << operation.left << ' ' << operation.right << '\n';
         }
-    } else {
-        for (ll& candy : candies) {
-            candy = genValue(1, n, valueTypes[rnd.next(0, 3)]);
-        }
-        if (isOneOf(profile, {"edge-days", "max-values"}) && k >= 1) candies[0] = 1;
-        if (isOneOf(profile, {"edge-days", "max-values"}) && k >= 2) candies[k - 1] = n;
-    }
-
-    ensure(1 <= n && n <= MAX_N);
-    ensure(1 <= m && m <= MAX_M);
-    ensure(0 <= k && k <= min<ll>(m, MAX_K));
-    ensure((int)days.size() == k && (int)candies.size() == k);
-    for (int i = 0; i < k; ++i) {
-        ensure(1 <= days[i] && days[i] <= m);
-        ensure(1 <= candies[i] && candies[i] <= n);
-        if (i > 0) ensure(days[i - 1] < days[i]);
-    }
-
-    if (subtask == 1) ensure(m <= 1000000LL / n);
-    if (subtask == 2) ensure(m == 2);
-    if (subtask == 3) ensure(k == 0);
-    if (subtask == 4) ensure(m <= 10);
-
-    if (profile == "all-fixed-valid") {
-        ensure(k == m);
-        for (int i = 1; i < k; ++i) ensure(candies[i - 1] != candies[i]);
-    }
-    if (profile == "all-fixed-conflict") {
-        ensure(k == m && k >= 2 && candies[0] == candies[1]);
-    }
-    if (isOneOf(profile, {"same-endpoints", "long-gap-same"})) {
-        ensure(k == 2 && days[0] == 1 && days[1] == m && candies[0] == candies[1]);
-    }
-    if (isOneOf(profile, {"different-endpoints", "long-gap-different"})) {
-        ensure(k == 2 && days[0] == 1 && days[1] == m && candies[0] != candies[1]);
-    }
-
-    cout << n << ' ' << m << ' ' << k << '\n';
-    for (int i = 0; i < k; ++i) {
-        cout << days[i] << ' ' << candies[i] << '\n';
     }
 
     return 0;

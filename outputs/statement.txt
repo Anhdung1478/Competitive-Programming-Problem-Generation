@@ -1,41 +1,46 @@
-\textbf{Tên bài:} Lịch ăn kẹo
+\textbf{Tên bài:} Số may mắn
 
 \textbf{Đề bài}
 
-Hà muốn lên lịch ăn kẹo trong nhiều ngày mà không ăn cùng một loại kẹo vào hai ngày liên tiếp.
+Dũng rất thích các số may mắn và muốn theo dõi chúng trong một dãy số thường xuyên thay đổi.
 
-Có $N$ loại kẹo khác nhau, được đánh số từ $1$ đến $N$. Trong $M$ ngày liên tiếp, mỗi ngày Hà ăn đúng một viên kẹo. Gọi $C_i$ là loại kẹo Hà ăn vào ngày thứ $i$. Lịch ăn phải thỏa mãn
+Một số nguyên dương được gọi là \textit{số may mắn} nếu biểu diễn thập phân của nó chỉ chứa các chữ số $4$ và $7$. Chẳng hạn, $4$, $74$ và $4744$ là các số may mắn, còn $15$, $42$ và $457$ thì không.
 
-$$C_i \ne C_{i+1}$$
+Cho dãy $a$ gồm $n$ số nguyên dương, được đánh số từ $1$ đến $n$. Cần thực hiện lần lượt $q$ thao tác thuộc một trong hai dạng:
 
-với mọi $1 \le i < M$.
+\begin{itemize}
+    \item \texttt{add l r d}: tăng mỗi phần tử $a_i$ với $l \le i \le r$ thêm $d$;
+    \item \texttt{count l r}: đếm số vị trí $i$ thỏa mãn $l \le i \le r$ và $a_i$ là số may mắn.
+\end{itemize}
 
-Có $K$ ngày đã được chỉ định trước. Với mỗi $1 \le i \le K$, vào ngày thứ $A_i$, Hà bắt buộc phải ăn loại kẹo $B_i$, tức là $C_{A_i} = B_i$. Trong những ngày không được chỉ định trước, Hà có thể chọn bất kỳ loại kẹo nào miễn là điều kiện trên được thỏa mãn.
+Các phần tử bằng nhau tại những vị trí khác nhau vẫn được tính riêng biệt. Các thao tác được thực hiện theo đúng thứ tự xuất hiện trong dữ liệu vào.
 
-Hai lịch ăn được xem là khác nhau nếu tồn tại ít nhất một ngày mà loại kẹo được chọn trong hai lịch là khác nhau.
-
-\textbf{Yêu cầu:} Hãy tính số lịch ăn kẹo trong $M$ ngày thỏa mãn tất cả các điều kiện. Vì kết quả có thể rất lớn, hãy in kết quả theo modulo $998244353$.
+\textbf{Yêu cầu:} Với mỗi thao tác \texttt{count}, hãy in số lượng số may mắn trong đoạn được hỏi.
 
 \textbf{Input}
 
-Dòng đầu tiên chứa ba số nguyên $N$, $M$, $K$ ($1 \le N \le 10^9$, $1 \le M \le 10^{18}$, $0 \le K \le \min(M, 10^4)$), lần lượt là số loại kẹo, số ngày và số ngày đã được chỉ định trước.
+Dòng đầu tiên chứa hai số nguyên $n$ và $q$ ($1 \le n, q \le 10^5$), lần lượt là số phần tử của dãy và số thao tác.
 
-$K$ dòng tiếp theo, dòng thứ $i$ chứa hai số nguyên $A_i$, $B_i$ ($1 \le A_i \le M$, $1 \le B_i \le N$), cho biết vào ngày thứ $A_i$, Hà phải ăn loại kẹo $B_i$.
+Dòng thứ hai chứa $n$ số nguyên $a_1, a_2, \ldots, a_n$ ($1 \le a_i \le 10^4$), mô tả dãy ban đầu.
 
-Các ngày được chỉ định trước được cho theo thứ tự tăng dần nghiêm ngặt: $A_1 < A_2 < \ldots < A_K$.
+Trong $q$ dòng tiếp theo, mỗi dòng mô tả một thao tác theo một trong hai dạng:
 
-Nếu $K = 0$ thì không có dòng nào sau dòng đầu tiên.
+\begin{itemize}
+    \item \texttt{add l r d}, với $1 \le l \le r \le n$ và $1 \le d \le 10^4$;
+    \item \texttt{count l r}, với $1 \le l \le r \le n$.
+\end{itemize}
+
+Đảm bảo rằng giá trị của mọi phần tử trong dãy không vượt quá $10^4$ tại bất kỳ thời điểm nào.
 
 \textbf{Output}
 
-In ra một số nguyên duy nhất là số lịch ăn kẹo thỏa mãn tất cả các điều kiện, lấy theo modulo $998244353$.
+Với mỗi thao tác \texttt{count}, in ra một dòng chứa số lượng số may mắn trong đoạn tương ứng.
 
 \textbf{Subtask}
 
 \begin{itemize}
-    \item Subtask $1$ ($20\%$ số điểm): $N \cdot M \le 10^6$.
-    \item Subtask $2$ ($20\%$ số điểm): $M = 2$.
-    \item Subtask $3$ ($20\%$ số điểm): $K = 0$.
-    \item Subtask $4$ ($20\%$ số điểm): $M \le 10$.
-    \item Subtask $5$ ($20\%$ số điểm): Không có ràng buộc gì thêm.
+    \item Subtask $1$ ($20\%$ số điểm): $n, q \le 1000$.
+    \item Subtask $2$ ($24\%$ số điểm): Không có thao tác \texttt{add}.
+    \item Subtask $3$ ($26\%$ số điểm): Mọi phần tử trong dãy không vượt quá $100$ tại bất kỳ thời điểm nào.
+    \item Subtask $4$ ($30\%$ số điểm): Không có ràng buộc gì thêm.
 \end{itemize}

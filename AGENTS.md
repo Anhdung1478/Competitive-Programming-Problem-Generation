@@ -13,7 +13,7 @@ The agent must execute these workflow steps in this exact order:
 5. create `outputs/test-script.txt`;
 6. create `outputs/generator-config.md`;
 7. create `outputs/gentest.cpp`;
-8. create `outputs/text-solution.txt`.
+8. create `outputs/editorial.html`.
 
 Do not reorder or skip a gate unless the user explicitly changes the workflow.
 
@@ -208,9 +208,9 @@ Load specialized skills only when applicable:
 
 If a problem needs another specialized structure, create a focused skill under `.agents/skills/` rather than bloating the generic generator skill.
 
-## Step 8 — `outputs/text-solution.txt`
+## Step 8 — `outputs/editorial.html`
 
-Use the `text-solution` skill.
+Use the `writing-editorials` skill. The editorial must be written in Vietnamese. Prefer the validated `source/solution.cpp` as the implementation to explain; use `outputs/codex-solution.cpp` only when the source solution is absent.
 
 ## Cross-artifact consistency gate
 
@@ -224,7 +224,7 @@ Before finishing, cross-check:
 - each subtask index/constraint agrees across `source/subtask.md`, statement, config, script, and generator;
 - checker semantics == statement output semantics;
 - multi-test format agrees everywhere;
-- `outputs/text-solution.txt` describes the algorithm and complexity of the implementation selected by the `text-solution` skill;
+- `outputs/editorial.html` describes in Vietnamese the algorithm and complexity of the validated `source/solution.cpp` when it exists, otherwise the validated `outputs/codex-solution.cpp`;
 - every generated test can be consumed by `outputs/codex-solution.cpp` and by `source/solution.cpp` when the latter exists.
 
 Compile `outputs/codex-solution.cpp` as GNU C++17. Compile `outputs/checker.cpp` and `outputs/gentest.cpp` with the same `testlib.h` environment used by Polygon when available.

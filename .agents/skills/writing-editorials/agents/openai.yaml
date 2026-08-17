@@ -1,0 +1,4 @@
+interface:
+  display_name: "Writing Editorials"
+  short_description: "Write Vietnamese HTML competitive programming editorials"
+  default_prompt: "Use $writing-editorials to write or review outputs/editorial.html in Vietnamese."
