@@ -1,36 +1,20 @@
 #include "testlib.h"
-#include <bits/stdc++.h>
-using namespace std;
 
 int main(int argc, char* argv[]) {
     registerTestlibCmd(argc, argv);
 
-    int tokenId = 0;
-    while (!ans.seekEof()) {
-        ++tokenId;
+    long long expected = ans.readLong();
+    long long found = ouf.readLong();
 
-        if (ouf.seekEof()) {
-            quitf(_wa, "participant output ended before token %d", tokenId);
-        }
-
-        string expected = ans.readToken();
-        string found = ouf.readToken();
-
-        if (found != expected) {
-            quitf(
-                _wa,
-                "token %d differs: expected '%s', found '%s'",
-                tokenId,
-                expected.c_str(),
-                found.c_str()
-            );
-        }
+    if (!ans.seekEof()) {
+        quitf(_fail, "jury output contains extra tokens");
     }
-
     if (!ouf.seekEof()) {
-        string extra = ouf.readToken();
-        quitf(_wa, "extra participant output starts with '%s'", extra.c_str());
+        quitf(_wa, "participant output contains extra tokens");
+    }
+    if (found != expected) {
+        quitf(_wa, "expected %lld, found %lld", expected, found);
     }
 
-    quitf(_ok, "outputs match");
+    quitf(_ok, "answer is %lld", found);
 }

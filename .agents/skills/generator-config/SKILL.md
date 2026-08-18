@@ -1,13 +1,15 @@
 ---
 name: generator-config
-description: Create or review generator-config.md for a competitive-programming problem. Use for workflow step B5 to turn problem constraints/subtasks into an explicit test-generation design contract before gentest.cpp is written.
+description: Create or review outputs/generator-config.md for a competitive-programming problem. Use for workflow Step 5 to turn constraints, subtasks, and solution weaknesses into the design contract that must be completed before test-script.txt and gentest.cpp.
 ---
 
 # Write `generator-config.md`
 
-This file is the bridge between the problem specification, test script, and generator implementation.
+This file is the bridge between the problem specification, the later test script, and the generator implementation. Create it before `outputs/test-script.txt`; do not infer the contract backward from an already-written script.
 
 Do not write generic filler. Every section must be specific to the current problem.
+
+Before designing profiles, read `outputs/solution/manifest.md` and the referenced solution sources when they exist. Treat AC candidates only as scoped correctness oracles. Treat documented WA/TLE candidates as test objectives, never as sources of problem semantics.
 
 ## Required sections
 
@@ -128,11 +130,27 @@ Make sure the eventual 100-test default has enough:
 - adversarial tests;
 - special-structure tests.
 
-### 9. Specialized skills
+### 9. Solution-kill matrix
+
+For every `WA` or `TLE` entry in `outputs/solution/manifest.md`, record:
+
+- candidate filename and documented failure mechanism;
+- smallest known counterexample or adversarial shape;
+- subtask(s) in which that case is legal;
+- generator profile/options needed to reproduce the weakness;
+- planned number or rough frequency of killing tests;
+- expected signal: wrong output, checker rejection, or timeout under the authoritative/provisional limit;
+- at least one concrete seed/profile after generator validation, or a clear explanation when the candidate cannot be distinguished safely.
+
+Do not distort the problem distribution merely to kill a synthetic bug. The profile must remain valid and contest-plausible.
+
+Also list which `AC` suite member can be used as a differential oracle for each subtask. Never run a subtask-only AC outside its declared scope.
+
+### 10. Specialized skills
 
 Name the specialized generator skills that `polygon-gentest` should load.
 
-### 10. Generator assertions
+### 11. Generator assertions
 
 List conditions `gentest.cpp` should `ensure(...)`/assert before printing.
 

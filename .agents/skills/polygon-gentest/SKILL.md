@@ -1,6 +1,6 @@
 ---
 name: polygon-gentest
-description: Create or review gentest.cpp for Codeforces Polygon using testlib.h. Use for workflow step B6 after generator-config.md and test-script.txt exist. Generates all concrete input values from semantic options such as subtask/rate/seed and delegates special structures to generator-tree/graph/array/number-theory/string skills.
+description: Create or review outputs/gentest.cpp for Codeforces Polygon using testlib.h. Use for workflow Step 7 after generator-config.md and test-script.txt exist. Generates all concrete input values from semantic options such as subtask/rate/seed and delegates special structures to generator-tree/graph/array/number-theory/string skills.
 ---
 
 # Write `gentest.cpp`
@@ -9,10 +9,11 @@ Read, in order:
 
 1. `problem-context.md`;
 2. `subtask.md` when present;
-3. `statement.txt`;
-4. `test-script.txt`;
+3. `outputs/solution/manifest.md` and referenced suite sources when present;
+4. `statement.txt`;
 5. `generator-config.md`;
-6. `solution.cpp` when present.
+6. `test-script.txt`;
+7. `solution.cpp` when present.
 
 If these artifacts disagree materially, stop and report the mismatch instead of choosing one silently.
 
@@ -214,3 +215,12 @@ For multiple representative script lines:
 4. run `solution.cpp` on the generated input when present;
 5. repeat the same command and confirm identical generated input;
 6. test subtask/rate boundaries.
+
+Then execute the solution-kill matrix from `generator-config.md`:
+
+1. run AC candidates only on generated tests inside their declared scopes and compare them with the official solution or semantic checker;
+2. confirm each WA candidate is killed by at least one valid generated test when feasible;
+3. stress each TLE candidate on its documented near-limit adversarial profile under the authoritative or announced provisional time limit;
+4. record concrete killing seeds/profiles back in `generator-config.md`, or report why a safe distinction was not achieved.
+
+Never weaken input validity, rely on undefined behavior, or alter expected output semantics merely to kill a candidate.

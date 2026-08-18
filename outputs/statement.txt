@@ -1,46 +1,36 @@
-\textbf{Tên bài:} Số may mắn
+\textbf{Tên bài:} Quân xe
 
 \textbf{Đề bài}
 
-Dũng rất thích các số may mắn và muốn theo dõi chúng trong một dãy số thường xuyên thay đổi.
+Cho một bàn cờ gồm $r$ hàng và $c$ cột. Ô ở hàng $i$, cột $j$ có trọng số nguyên $a_{i,j}$.
 
-Một số nguyên dương được gọi là \textit{số may mắn} nếu biểu diễn thập phân của nó chỉ chứa các chữ số $4$ và $7$. Chẳng hạn, $4$, $74$ và $4744$ là các số may mắn, còn $15$, $42$ và $457$ thì không.
+Trong một nước đi, quân xe phải chuyển từ ô hiện tại sang một ô khác nằm cùng hàng hoặc cùng cột. Quân xe không được đứng yên, nhưng được phép ghé lại một ô đã xuất hiện trước đó trong chuỗi di chuyển.
 
-Cho dãy $a$ gồm $n$ số nguyên dương, được đánh số từ $1$ đến $n$. Cần thực hiện lần lượt $q$ thao tác thuộc một trong hai dạng:
+Một chuỗi di chuyển độ dài $k$ gồm đúng $k+1$ ô
+$(x_0,y_0),(x_1,y_1),\ldots,(x_k,y_k)$, trong đó mỗi cặp ô liên tiếp tạo thành một nước đi hợp lệ. Chuỗi phải bắt đầu tại $(x,y)$ và kết thúc tại $(u,v)$.
 
-\begin{itemize}
-    \item \texttt{add l r d}: tăng mỗi phần tử $a_i$ với $l \le i \le r$ thêm $d$;
-    \item \texttt{count l r}: đếm số vị trí $i$ thỏa mãn $l \le i \le r$ và $a_i$ là số may mắn.
-\end{itemize}
+Điểm của chuỗi bằng tổng trọng số của tất cả $k+1$ lần ghé ô; vì vậy trọng số của ô bắt đầu, ô kết thúc và mọi lần ghé lại đều được tính.
 
-Các phần tử bằng nhau tại những vị trí khác nhau vẫn được tính riêng biệt. Các thao tác được thực hiện theo đúng thứ tự xuất hiện trong dữ liệu vào.
-
-\textbf{Yêu cầu:} Với mỗi thao tác \texttt{count}, hãy in số lượng số may mắn trong đoạn được hỏi.
+\textbf{Yêu cầu:} Tìm tổng điểm lớn nhất của một chuỗi di chuyển hợp lệ có độ dài đúng $k$ từ $(x,y)$ đến $(u,v)$.
 
 \textbf{Input}
 
-Dòng đầu tiên chứa hai số nguyên $n$ và $q$ ($1 \le n, q \le 10^5$), lần lượt là số phần tử của dãy và số thao tác.
+Dòng đầu tiên chứa ba số nguyên $r$, $c$, $k$ ($1 \le r,c,k \le 500$).
 
-Dòng thứ hai chứa $n$ số nguyên $a_1, a_2, \ldots, a_n$ ($1 \le a_i \le 10^4$), mô tả dãy ban đầu.
+Dòng thứ hai chứa bốn số nguyên $x$, $y$, $u$, $v$ ($1 \le x,u \le r$, $1 \le y,v \le c$), lần lượt là ô bắt đầu và ô kết thúc.
 
-Trong $q$ dòng tiếp theo, mỗi dòng mô tả một thao tác theo một trong hai dạng:
-
-\begin{itemize}
-    \item \texttt{add l r d}, với $1 \le l \le r \le n$ và $1 \le d \le 10^4$;
-    \item \texttt{count l r}, với $1 \le l \le r \le n$.
-\end{itemize}
-
-Đảm bảo rằng giá trị của mọi phần tử trong dãy không vượt quá $10^4$ tại bất kỳ thời điểm nào.
+$r$ dòng tiếp theo, mỗi dòng chứa $c$ số nguyên. Số thứ $j$ trên dòng thứ $i$ là $a_{i,j}$ ($|a_{i,j}| \le 10^9$).
 
 \textbf{Output}
 
-Với mỗi thao tác \texttt{count}, in ra một dòng chứa số lượng số may mắn trong đoạn tương ứng.
+Nếu tồn tại ít nhất một chuỗi di chuyển hợp lệ có độ dài đúng $k$, in ra một số nguyên duy nhất là tổng điểm lớn nhất có thể.
+
+Nếu không tồn tại chuỗi như vậy, in ra `impossible`. Chuỗi này phải được viết hoàn toàn bằng chữ thường.
 
 \textbf{Subtask}
 
 \begin{itemize}
-    \item Subtask $1$ ($20\%$ số điểm): $n, q \le 1000$.
-    \item Subtask $2$ ($24\%$ số điểm): Không có thao tác \texttt{add}.
-    \item Subtask $3$ ($26\%$ số điểm): Mọi phần tử trong dãy không vượt quá $100$ tại bất kỳ thời điểm nào.
-    \item Subtask $4$ ($30\%$ số điểm): Không có ràng buộc gì thêm.
+    \item Subtask $1$ ($10\%$ số điểm): $1 \le r,c,k \le 7$.
+    \item Subtask $2$ ($24\%$ số điểm): $1 \le r,c,k \le 80$.
+    \item Subtask $3$ ($66\%$ số điểm): không có ràng buộc bổ sung.
 \end{itemize}

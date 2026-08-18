@@ -1,18 +1,21 @@
 ---
 name: test-script
-description: Create or review test-script.txt for Codeforces Polygon. Use for workflow step B4 to plan the generated test set, assign subtask/rate/seed options, cover edge profiles, and produce generator script lines ending in jury solution output.
+description: Create or review outputs/test-script.txt for Codeforces Polygon. Use for workflow Step 6 after outputs/generator-config.md is complete, deriving the generated test set, subtask/rate/seed options, and adversarial profile coverage from that contract.
 ---
 
 # Write `test-script.txt`
 
 The script describes the test set. It does not directly choose exact problem input sizes such as exact `n` or `m`.
 
-Read:
+Read, in order:
 
 - `problem-context.md`;
 - `subtask.md` when present;
-- `generator-config.md` if it already exists;
+- `outputs/solution/manifest.md` when present;
+- `outputs/generator-config.md` — required and authoritative for profile/option design;
 - current generator option names if `gentest.cpp` already exists.
+
+If the config omits a profile, parameter, subtask rule, or WA/TLE target needed for adequate coverage, return to Step 5 and revise the config before writing the script. Do not introduce an undocumented script option locally.
 
 ## Default test count
 
@@ -96,6 +99,8 @@ If subtasks overlap, a test tagged with one subtask must obey that subtask's exa
 
 If there are no partial subtasks and the user confirms a single full-score group, use `subtask=1` consistently.
 
+When `outputs/solution/manifest.md` contains WA/TLE candidates, allocate meaningful tests to their documented adversarial profiles. Prefer profiles that distinguish several realistic candidates at once, but ensure each candidate has at least one planned killing test when feasible. Do not call a subtask-only AC outside its declared scope when validating those plans.
+
 ## No literal final sizes
 
 Do not write script parameters such as:
@@ -171,3 +176,4 @@ Before finishing:
 - about half are `>= 0.90`;
 - exactly 100 tests exist by default;
 - lines use `> $` when the jury answer should come from the official solution.
+- every WA/TLE target in `outputs/solution/manifest.md` is covered by a script profile or has a documented reason it cannot be targeted safely.

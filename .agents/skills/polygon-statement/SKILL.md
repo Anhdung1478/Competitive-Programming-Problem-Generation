@@ -1,6 +1,6 @@
 ---
 name: polygon-statement
-description: Create or review statement.txt for a Codeforces Polygon problem in Vietnamese Polygon simpleTex. Use for workflow step B3 or when writing the problem name, legend, input, output, and subtasks. Do not use the vnolymp standalone LaTeX/PDF workflow.
+description: Create or review outputs/statement.txt for a Codeforces Polygon problem in Vietnamese Polygon simpleTex. Use for workflow Step 4 or when writing the problem name, legend, input, output, and subtasks. Do not use the vnolymp standalone LaTeX/PDF workflow.
 ---
 
 # Write `statement.txt` for Polygon simpleTex

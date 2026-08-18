@@ -7,17 +7,27 @@ Expected layout:
 ```text
 <problem-root>/
 ├─ AGENTS.md
-├─ problem-context.md
-├─ solution.cpp                 # optional
-├─ subtask.md                   # optional
+├─ source/
+│  ├─ problem-context.md
+│  ├─ solution.cpp                 # optional official/full solution
+│  └─ subtask.md                   # optional
+├─ outputs/
+│  ├─ solution/
+│  │  ├─ manifest.md
+│  │  ├─ ac-full-<slug>.cpp         # optional full-scope AC
+│  │  ├─ ac-subtask-<id>-<slug>.cpp # optional scoped AC
+│  │  ├─ wa-<slug>.cpp              # optional plausible WA
+│  │  └─ tle-<slug>.cpp             # optional plausible TLE
+│  └─ validator.cpp                 # Polygon testlib input validator
 └─ .agents/
    └─ skills/
       ├─ validate-solution/
       ├─ polygon-checker/
       ├─ polygon-statement/
-      ├─ test-script/
       ├─ generator-config/
+      ├─ test-script/
       ├─ polygon-gentest/
+      ├─ polygon-validator/
       ├─ generator-tree/
       ├─ generator-graph/
       ├─ generator-array/
@@ -27,6 +37,10 @@ Expected layout:
 ```
 
 Codex discovers repository-local skills from `.agents/skills`. Each skill is intentionally focused on one part of the pipeline.
+
+Step 3 creates one or two independently designed correct candidates in `outputs/solution/` and, when meaningful, plausible WA/TLE candidates. `manifest.md` records every candidate's verdict, scope, complexity, validation evidence, known weakness, and the adversarial profiles used by later generator steps.
+
+The generation flow is config-first: Step 5 writes `outputs/generator-config.md`, Step 6 derives `outputs/test-script.txt` from it, Step 7 implements `outputs/gentest.cpp`, and Step 8 validates generated input with `outputs/validator.cpp` before Step 9 writes the editorial.
 
 Typical request to the agent:
 

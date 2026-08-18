@@ -1,0 +1,4 @@
+interface:
+  display_name: "Polygon Input Validator"
+  short_description: "Create strict Polygon testlib input validators"
+  default_prompt: "Use $polygon-validator to create or review outputs/validator.cpp for this problem."

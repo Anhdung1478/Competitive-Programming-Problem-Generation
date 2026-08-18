@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="space-dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#121014" />
+  <title>Quân xe — lời giải</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" />
+  <style>
+    /* Space dark — BrewBit / Caffeine tokens. Do not mix with another theme. */
+    :root,
+    [data-theme="space-dark"] {
+      --background: #121014;
+      --surface: #1A1820;
+      --surface-muted: #221F2A;
+      --espresso: #EDE8F0;
+      --mocha: #A098A8;
+      --latte: #2E2A38;
+      --caramel: #D4A0B8;
+      --gold: #E8C060;
+      --text: #E8E4EC;
+      --text-muted: #A098A8;
+      --heading: #F2EEF6;
+      --text-inverse: #121014;
+      --border: #2E2A38;
+      --accent: #D4A0B8;
+      --link: #D4A0B8;
+      --selection: #D4A0B8;
+      --success: #6ED890;
+      --success-bg: #1A2E28;
+      --success-text: #90E8B8;
+      --warning-bg: #2E2830;
+      --warning-text: #E8C8A0;
+      --code-bg: #0A080C;
+      --code-fg: #E8E4EC;
+      --wash-accent: rgba(212, 160, 184, 0.1);
+      --wash-accent-soft: rgba(212, 160, 184, 0.06);
+      --font: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      color-scheme: dark;
+      background: var(--background);
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: color-mix(in oklab, var(--selection) 35%, transparent);
+    }
+
+    a { color: var(--link); }
+
+    .bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+      background: var(--background);
+    }
+
+    .bar-inner {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    .bar-kicker {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--heading);
+    }
+
+    .bar-name {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 2.25rem 1.25rem 4.5rem;
+    }
+
+    mark {
+      background: var(--wash-accent);
+      color: var(--heading);
+      padding: 0.05em 0.28em;
+      border-radius: 0;
+      box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 28%, transparent);
+    }
+
+    .kicker {
+      margin: 0 0 0.45rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    h1, h2, h3 {
+      color: var(--heading);
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.25;
+    }
+
+    h1 {
+      margin: 0 0 1.25rem;
+      font-size: 1.85rem;
+    }
+
+    h2 {
+      margin: 2.4rem 0 0.7rem;
+      font-size: 1.05rem;
+    }
+
+    h3 {
+      margin: 1.5rem 0 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    p { margin: 0.75em 0; }
+
+    ul, ol {
+      margin: 0.75em 0;
+      padding-left: 1.25rem;
+    }
+
+    li + li { margin-top: 0.2rem; }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 9.5rem 1fr;
+      gap: 0.35rem 1rem;
+      margin: 0 0 1rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .meta dt {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .meta dd {
+      margin: 0;
+      color: var(--heading);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0 0 2rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--surface-muted);
+      color: var(--text-muted);
+      box-shadow: inset 0 0 0 1px var(--border);
+      font-size: 0.75rem;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 0;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 0;
+      padding: 0.95rem 1.05rem 1.05rem;
+      margin: 1.1rem 0;
+    }
+
+    .card-label {
+      margin: 0 0 0.45rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .card.lemma .card-label { color: var(--gold); }
+    .card.transform .card-label { color: var(--success-text); }
+
+    .card p:first-of-type { margin-top: 0; }
+    .card p:last-child { margin-bottom: 0; }
+
+    .bridge {
+      margin: 1.35rem 0;
+      padding: 0.15rem 0 0.15rem 1rem;
+      border-left: 2px solid var(--accent);
+      color: var(--text);
+    }
+
+    .complexity {
+      margin: 1.5rem 0;
+      padding: 0.95rem 1.05rem;
+      border: 1px solid var(--border);
+      background: var(--surface-muted);
+      white-space: pre-wrap;
+    }
+
+    .fun {
+      margin: 1.5rem 0;
+      padding: 0.95rem 1.05rem;
+      border: 1px solid var(--border);
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .fun .card-label { color: var(--warning-text); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+      font-size: 0.9em;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+    }
+
+    th {
+      background: var(--surface-muted);
+      font-weight: 500;
+      color: var(--heading);
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: var(--font);
+      font-size: 0.85em;
+      line-height: 1.5;
+    }
+
+    :not(pre) > code {
+      background: var(--surface-muted);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    .katex { font-size: 1.05em; color: var(--text); }
+    .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.25rem 0; }
+
+    .subtask {
+      margin: 2rem 0 0;
+      padding: 0 0 0.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .subtask h2 { margin-top: 1.4rem; }
+
+    svg { max-width: 100%; height: auto; display: block; margin: 1rem 0; }
+
+    footer.page-end {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      html, body {
+        margin: 0;
+        background: var(--background);
+      }
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      .bar { position: static; }
+      .bar-inner,
+      .page {
+        max-width: none;
+        padding-left: 14mm;
+        padding-right: 14mm;
+      }
+      .page {
+        padding-top: 8mm;
+        padding-bottom: 10mm;
+      }
+      .katex-display,
+      pre {
+        overflow: visible;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-inner">
+      <span class="bar-kicker">Lời giải</span>
+      <span class="bar-name">Quân xe</span>
+    </div>
+  </div>
+
+  <main class="page">
+    <p class="kicker">Bài toán</p>
+    <h1>Quân xe</h1>
+
+    <dl class="meta">
+      <dt>Giới hạn thời gian</dt>
+      <dd>2 giây</dd>
+      <dt>Expected rating</dt>
+      <dd>1800</dd>
+    </dl>
+
+    <ul class="tags">
+      <li class="tag">dynamic programming</li>
+      <li class="tag">matrix exponentiation</li>
+      <li class="tag">combinatorics</li>
+      <li class="tag">math</li>
+    </ul>
+
+    <section id="statement">
+      <h2>Tóm tắt đề bài</h2>
+      <p>Trên bàn cờ <mark>\(r \times c\)</mark>, quân cờ đi từ \((x,y)\) tới \((u,v)\) khi và chỉ khi <mark>\(u \ne x\) và \(v \ne y\)</mark>: mỗi bước phải đổi cả hàng lẫn cột. Cần đếm số chuỗi gồm đúng \(k\) bước từ \((1,1)\) tới \((r,c)\), lấy modulo \(998244353\).</p>
+      <ul>
+        <li>\(1 \le r,c,k \le 10^{18}\).</li>
+        <li>Subtask 1 — 9 điểm: \(r \le 8\), \(c \le 7\), \(k \le 5\).</li>
+        <li>Subtask 2 — 14 điểm: \(r,c \le 50\), \(k \le 400\).</li>
+        <li>Subtask 3 — 27 điểm: \(r,c \le 287\), \(k \le 412\).</li>
+        <li>Subtask 4 — 25 điểm: \(k \le 10^6\).</li>
+        <li>Subtask 5 — 25 điểm: không có ràng buộc bổ sung.</li>
+      </ul>
+    </section>
+
+    <section class="subtask" id="g1">
+      <h2>Subtask 1: quy hoạch động trên từng ô</h2>
+      <p>Gọi \(dp_t[x][y]\) là số cách đứng tại ô \((x,y)\) sau \(t\) bước. Với mỗi ô nguồn, ta cộng giá trị của nó vào mọi ô khác cả hàng lẫn cột. Vì kích thước ở subtask này rất nhỏ, có thể duyệt trực tiếp mọi cặp ô nguồn–đích.</p>
+      <pre class="complexity">Thời gian: O(k · r² · c²)
+Bộ nhớ: O(r · c)</pre>
+    </section>
+
+    <section class="subtask" id="g23">
+      <h2>Subtask 2–3: tổng theo hàng và cột</h2>
+      <p>Vẫn giữ DP trên từng ô, nhưng tính trước tổng toàn bảng \(S\), tổng hàng \(R_x\) và tổng cột \(C_y\). Các ô nguồn hợp lệ của \((x,y)\) là những ô không thuộc hàng \(x\) và không thuộc cột \(y\), nên theo nguyên lý bù trừ:</p>
+      <p>\[dp_{t+1}[x][y] = S-R_x-C_y+dp_t[x][y].\]</p>
+      <p>Mỗi lớp DP lúc này chỉ cần duyệt toàn bộ bàn cờ một số lần hằng số.</p>
+      <pre class="complexity">Thời gian: O(k · r · c)
+Bộ nhớ: O(r · c)</pre>
+    </section>
+
+    <section id="tutorial">
+      <h2>Lời giải đầy đủ</h2>
+
+      <article class="card transform">
+        <p class="card-label">Nén trạng thái</p>
+        <p>Ta không thể lưu từng ô khi \(r,c\) rất lớn. Đích luôn là \((r,c)\), vì vậy đối với mỗi tọa độ chỉ cần biết nó đang <em>bằng</em> hay <em>khác</em> tọa độ đích.</p>
+      </article>
+
+      <article class="card">
+        <p class="card-label">Nhận xét 1</p>
+        <p>Dùng hai bit \((x,y)\): \(x=1\) nếu hàng hiện tại bằng \(r\), và \(y=1\) nếu cột hiện tại bằng \(c\). Bốn nhóm ô là \((0,0),(0,1),(1,0),(1,1)\). Gọi \(dp[x][y]\) là tổng số đường đi đang kết thúc trong cả nhóm đó.</p>
+        <p>Trạng thái ban đầu là \(( [r=1], [c=1] )\); trạng thái cần lấy sau \(k\) bước là \((1,1)\).</p>
+      </article>
+
+      <article class="card lemma">
+        <p class="card-label">Bổ đề 1</p>
+        <p>Mọi ô trong cùng một nhóm có cùng số lựa chọn chuyển tới từng nhóm khác.</p>
+        <p>Thật vậy, số cách chọn hàng mới chỉ phụ thuộc hàng hiện tại có phải hàng đích hay không. Điều tương tự đúng cho cột, còn danh tính cụ thể của ô không ảnh hưởng.</p>
+      </article>
+
+      <article class="card">
+        <p class="card-label">Nhận xét 2</p>
+        <p>Với hàng, đặt \(R[a][b]\) là số cách chuyển từ trạng thái \(a\) sang \(b\), trong đó \(0\) nghĩa là khác hàng đích và \(1\) nghĩa là bằng hàng đích. Ta có:</p>
+        <p>\[
+          R = \begin{pmatrix}
+            \max(r-2,0) &amp; \min(r-1,1) \\
+            r-1 &amp; 0
+          \end{pmatrix}.
+        \]</p>
+        <p>Nếu đang khác hàng đích, sau khi bắt buộc đổi hàng có một lựa chọn đi vào hàng đích (khi \(r&gt;1\)) và \(r-2\) lựa chọn vẫn khác hàng đích. Nếu đang ở hàng đích, có \(r-1\) lựa chọn rời nó và không thể ở lại. Ma trận \(C\) cho cột được xây hoàn toàn tương tự bằng cách thay \(r\) bởi \(c\).</p>
+      </article>
+
+      <article class="card">
+        <p class="card-label">Nhận xét 3</p>
+        <p>Một nước đi hợp lệ phải đồng thời đổi hàng và đổi cột. Hai lựa chọn này độc lập, nên số cách chuyển từ nhóm \((x,y)\) tới \((z,t)\) là:</p>
+        <p>\[A[2x+y][2z+t] = R[x][z]\cdot C[y][t] \pmod {998244353}.\]</p>
+        <p>Như vậy toàn bộ bàn cờ được thay bởi ma trận chuyển \(4\times4\).</p>
+      </article>
+
+      <article class="card lemma">
+        <p class="card-label">Chứng minh đúng</p>
+        <p>Ta chứng minh bằng quy nạp theo số bước rằng mỗi phần tử của vector trạng thái bằng tổng số đường đi kết thúc trong nhóm tương ứng. Mệnh đề đúng ở bước \(0\), vì chỉ có đường đi rỗng tại \((1,1)\). Giả sử đúng ở bước \(t\). Theo Bổ đề 1, mỗi đường đi thuộc nhóm \((x,y)\) có đúng \(R[x][z]C[y][t']\) cách nối thêm một bước để vào nhóm \((z,t')\). Phép nhân với \(A\) cộng tất cả và chỉ các cách nối hợp lệ, nên mệnh đề đúng ở bước \(t+1\). Do đó sau \(k\) bước, thành phần \((1,1)\) chính là số đường đi tới \((r,c)\).</p>
+      </article>
+
+      <p class="bridge">Với \(k\le 10^6\), áp dụng ma trận chuyển tuần tự \(k\) lần đã đủ. Ở giới hạn đầy đủ \(k\le10^{18}\), ta thay phép lặp đó bằng lũy thừa nhị phân.</p>
+    </section>
+
+    <section class="subtask" id="g4">
+      <h2>Subtask 4: lặp trên bốn trạng thái</h2>
+      <p>Sau khi nén bàn cờ thành bốn nhóm, mỗi bước chỉ cần xét \(16\) cặp trạng thái cũ–mới. Lặp phép chuyển \(k\) lần.</p>
+      <pre class="complexity">Thời gian: O(k)
+Bộ nhớ: O(1)</pre>
+    </section>
+
+    <section class="subtask" id="g5">
+      <h2>Subtask 5: lũy thừa ma trận</h2>
+      <p>Gọi \(X\) là vector hàng ban đầu. Vector sau đúng \(k\) bước là \(X A^k\). Tính \(A^k\) bằng bình phương nhanh; mọi phép cộng và nhân đều lấy modulo \(998244353\). Vì ma trận luôn có kích thước \(4\times4\), mỗi phép nhân tốn thời gian hằng số.</p>
+    </section>
+
+    <section id="complexity">
+      <h2>Độ phức tạp</h2>
+      <pre class="complexity">Thời gian: O(log k)
+Bộ nhớ: O(1)</pre>
+    </section>
+
+    <footer class="page-end">Quân xe · lời giải</footer>
+  </main>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\\[", right: "\\]", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</body>
+</html>
