@@ -1,48 +1,65 @@
-# Solution suite — Quân xe
+# Solution suite manifest
 
-## Time limit
+## Authoritative limit
 
-The authoritative time limit is **2 seconds**, from `source/problem-context.md`.
-
-All suite sources mirror the official guarded `antirook.inp`/`antirook.out` redirection and otherwise use standard input/output.
+The authoritative time limit is **1 second**, from `source/problem-context.md`. All candidates use GNU C++17 and preserve the guarded `tunnel.inp` / `tunnel.out` local-file behavior of `source/solution.cpp`, with standard input/output as fallback.
 
 ## Candidates
 
-| File | Verdict | Scope | Algorithm | Time | Memory |
-|---|---|---|---|---:|---:|
-| `ac-full-coordinate-factorization.cpp` | AC | Full constraints | Factor row and column choices into two independent 2-state matrix powers | `O(log k)` | `O(1)` |
-| `wa-only-forbids-current-cell.cpp` | WA | Full input domain | Treat the board as a complete graph without self-loops | `O(log k)` | `O(1)` |
-| `tle-iterate-four-states.cpp` | TLE | Semantically correct full algorithm | Apply the correct four-category transition once per move | `O(k)` | `O(1)` |
+### `ac-full-maximin-then-dijkstra.cpp` — AC
 
-Only one AC solution is generated. The useful full alternatives use the same constant-size state compression; coordinate factorization is the materially different implementation retained here.
+- **Scope:** full constraints (subtask 4 and every earlier subtask).
+- **Algorithm:** a max-priority traversal computes, for each city, the maximum bottleneck height reachable from `X`. A second Dijkstra run keeps only roads whose height is at least the optimum for `Y`, minimizes total length, and stores parents.
+- **Complexity:** `O((N + M) log N)` time and `O(N + M)` memory.
+- **Material difference from the official source:** it computes the bottleneck directly with a maximin Dijkstra traversal instead of binary-searching the height and running Dijkstra for every feasibility check.
+- **Validation evidence:** compiled with GNU C++17 and strict warnings; matched the official solution semantically on 1,200 random simple graphs, including disconnected graphs and `X = Y`. Step 1 independently checked the official solution against a brute oracle on 2,504 cases.
+- **Supported domain:** all valid inputs, including `M = 0`, unreachable `Y`, and `X = Y`.
 
-## AC design
+### `ac-subtask-1-tree-dfs.cpp` — AC
 
-### `ac-full-coordinate-factorization.cpp`
+- **Scope:** exactly subtask 1 (the graph is a connected tree).
+- **Algorithm:** iterative DFS records parents; the unique path from `X` to `Y` is reconstructed from the parent array. Since there is only one simple path, it is automatically optimal under both criteria.
+- **Complexity:** `O(N + M)` time and `O(N + M)` memory.
+- **Material difference from the official source:** it uses only the unique-path property and performs no threshold search or shortest-path computation.
+- **Validation evidence:** compiled with GNU C++17 and strict warnings; matched the official solution semantically on 500 random trees, including `X = Y`.
+- **Supported domain:** subtask 1 only; it must not be used as an oracle for other subtasks.
 
-Every legal move independently changes the row and the column. Therefore a board path is exactly a pair consisting of a valid row-coordinate sequence and a valid column-coordinate sequence. For each dimension, a 2-state matrix tracks whether the coordinate equals its target. This differs from `source/solution.cpp`, which combines both predicates in one 4-state matrix.
+### `wa-shortest-path-first.cpp` — WA
 
-Validation evidence: matched `source/solution.cpp` on 1,405 cases, including dimensions equal to one, zero-answer cases, ordinary random values, multiples of the modulus, and values near `10^18`. Five maximum-scale local runs took about 0.009 seconds each.
+- **Scope claimed by the candidate:** full constraints.
+- **Attempt:** one Dijkstra run minimizes total length over every road and reconstructs that path.
+- **Complexity:** `O((N + M) log N)` time and `O(N + M)` memory.
+- **Precise defect:** it optimizes length before height, reversing the required lexicographic priority. It ignores every road height.
+- **Counterexample:**
 
-## Potential wrong and slow solutions
+  ```text
+  4 1 4
+  4
+  1 2 5 100
+  2 4 5 100
+  1 3 4 1
+  3 4 4 1
+  ```
 
-### `wa-only-forbids-current-cell.cpp`
+  The candidate prints `1 3 4`, whose `(height, length)` is `(4, 2)`. The required path is `1 2 4`, whose objective is `(5, 200)` because height has priority.
+- **Validation evidence:** the counterexample was executed and rejected by `outputs/checker.cpp`.
+- **Generation target:** profile `competing-paths`, especially a short low tunnel path versus a longer high tunnel path. This profile is valid in subtasks 2–4 and can also be embedded in a tree only when the two routes are not both present.
 
-Defect: it misreads “not in the same row or column” as merely “not the current cell”, allowing moves that change only one coordinate.
+### `tle-enumerate-thresholds.cpp` — TLE
 
-Counterexample:
+- **Scope:** logically correct for full constraints.
+- **Algorithm:** sort all distinct road heights descending and run Dijkstra independently for each threshold until `Y` becomes reachable.
+- **Complexity:** `O(U (N + M) log N)` time and `O(N + M)` memory, where `U` is the number of distinct heights (`U <= 10,000`).
+- **Bottleneck:** thousands of nearly full Dijkstra runs when many height values occur and `Y` becomes reachable only at a low threshold.
+- **Classification limit:** the authoritative 1-second limit.
+- **Validation evidence:** compiled with GNU C++17 and strict warnings; matched the official solution semantically on 150 random small graphs. A valid `N = 100,000`, `M = 99,999` long-chain instance with 10,000 height levels did not finish within 3 seconds.
+- **Generation target:** profile `threshold-chain`, using a long path, many distinct/repeated height levels, and a final height-1 edge. Apply near the subtask-4 limit; small versions are also suitable for subtask 2 correctness coverage.
 
-```text
-1 2 1
-```
+## Oracle routing
 
-The correct output is `0`; this candidate prints `1`. A future generator should include one-row and one-column boards.
+| Scope | Differential oracle |
+|---|---|
+| Subtask 1 | `ac-subtask-1-tree-dfs.cpp` and `ac-full-maximin-then-dijkstra.cpp` |
+| Subtasks 2–4 | `ac-full-maximin-then-dijkstra.cpp` |
 
-### `tle-iterate-four-states.cpp`
-
-The recurrence is correct and matched the official solution on 1,403 moderate-`k` cases, but it iterates once for every move. It passes the first three subtasks and can pass weak tests with moderate `k`, while `r=c=2`, `k=10^18` exceeded the authoritative 2-second limit locally. A future generator should include `k` near `10^18` and nondegenerate dimensions.
-
-## Oracle policy
-
-- Full domain: `source/solution.cpp` and `ac-full-coordinate-factorization.cpp`.
-- Intentional WA/TLE candidates are never used as oracles.
+All AC comparisons are semantic because multiple optimal paths may exist. `outputs/checker.cpp` independently recomputes the optimum and validates the submitted witness rather than comparing it structurally with the jury path.

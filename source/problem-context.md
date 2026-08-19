@@ -1,13 +1,38 @@
-**Problem name**: Quân xe
-**Time limit**: 2s
+**Problem name**: Dãy con tăng dài nhất (bản khó)
+**Time limit**: 1s
 
 **Legend**:
-Trong bài tập này, ta xét một bàn cờ vua đặc biệt gồm $r$ hàng và $c$ cột. Trên đó, ta định nghĩa một quân cờ đặc biệt, đó là quân "không phải quân xe". Trong một nước đi, quân cờ "không phải quân xe" có thể đi tới bất kì ô nào trên bàn cờ mà quân xe bình thường không thể đi tới. Nói cách khác, quân cờ "không phải quân xe" trong một nước có thể đi tới tất cả các ô, trừ các ô cùng hàng, cùng cột với vị trí hiện tại. Chú ý rằng, quân cờ này trong một nước bắt buộc phải đi đến ô khác, không được đứng yên ở vị trí hiện tại.
+Bên dưới Zaun là một mạng lưới đường hầm chật hẹp. Ekko cần chọn lộ trình cho một phương tiện đi qua mạng lưới này.
 
-Hãy đếm số chuỗi di chuyển hợp lệ độ dài $k$ của một quân "không phải quân xe" bắt đầu từ ô $(1, 1)$ và kết thúc tại ô $(r, c)$. Một chuỗi di chuyển hợp lệ là một dãy gồm $k + 1$ ô $(x_0, y_0)$, $(x_1, y_1)$, ..., $(x_k, y_k)$ sao cho với mọi $1 \le i \le k$, quân "không phải quân xe" có thể đi từ ô $(x_{i-1}, y_{i-1})$ đến ô $(x_i, y_i)$. Hai chuỗi di chuyển được coi là khác nhau nếu như tồn tại chỉ số $i$ sao cho ô thứ $i$ ở chuỗi này khác với ô thứ $i$ ở chuỗi kia.
+Có $N$ thành phố được đánh số từ $1$ đến $N$ và $M$ con đường hai chiều. Mỗi con đường nối hai thành phố phân biệt, có giới hạn chiều cao $H$ và độ dài $D$. Giữa một cặp thành phố có không quá một con đường.
+
+Một đường đi từ $X$ đến $Y$ là một dãy thành phố bắt đầu tại $X$, kết thúc tại $Y$, trong đó hai thành phố liên tiếp được nối bởi một con đường. Chiều cao cho phép của đường đi là giá trị $H$ nhỏ nhất trong các con đường thuộc đường đi. Tổng độ dài của đường đi là tổng các giá trị $D$ tương ứng.
+
+\textbf{Yêu cầu:} Hãy tìm một đường đi từ $X$ đến $Y$ có chiều cao cho phép lớn nhất. Nếu có nhiều đường đi như vậy, hãy chọn một đường đi có tổng độ dài nhỏ nhất. Có thể in ra bất kỳ đường đi nào nếu vẫn còn nhiều đáp án tối ưu.
+
+Nếu $X = Y$, đường đi chỉ gồm thành phố $X$ là hợp lệ. Nếu không tồn tại đường đi từ $X$ đến $Y$, hãy thông báo rằng yêu cầu không thể thực hiện.
 
 **Input format**:
-Gồm một dòng duy nhất chứa ba số nguyên $r, c, k$ $(1 \le r, c \le 10^{18}, 1 \le k \le 10^{18})$.
+Dòng đầu tiên chứa ba số nguyên $N$, $X$, $Y$.
+
+Dòng thứ hai chứa số nguyên $M$.
+
+Mỗi trong $M$ dòng tiếp theo chứa bốn số nguyên $i$, $j$, $H$, $D$, mô tả một con đường hai chiều nối thành phố $i$ và thành phố $j$, có giới hạn chiều cao $H$ và độ dài $D$.
+
+Các ràng buộc:
+
+\begin{itemize}
+    \item $1 \le N \le 10^5$;
+    \item $1 \le X, Y \le N$;
+    \item $0 \le M \le 10^5$;
+    \item $1 \le i, j \le N$ và $i \ne j$;
+    \item $1 \le H, D \le 10^4$;
+    \item không có hai con đường nối cùng một cặp thành phố.
+\end{itemize}
 
 **Output format**:
-In ra một số nguyên duy nhất là cách di chuyển hợp lệ độ dài $k$ theo modulo $998244353$.
+Nếu không tồn tại đường đi từ $X$ đến $Y$, in ra một dòng chứa $-1$.
+
+Ngược lại, dòng đầu tiên chứa số nguyên $K$ là số thành phố trên đường đi, kể cả $X$ và $Y$.
+
+Dòng thứ hai chứa $K$ số nguyên là các thành phố theo đúng thứ tự trên đường đi. Số đầu tiên phải là $X$ và số cuối cùng phải là $Y$.

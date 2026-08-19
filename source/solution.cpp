@@ -1,122 +1,82 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-#pragma GCC target ("avx2")
-#pragma GCC optimization ("O3")
-#pragma GCC optimization ("unroll-loops")
-
+#define inf 0x3f3f3f3f
 #define fi first
 #define se second
+#define sz(x) int((x).size())
 typedef long long ll;
 typedef pair<int, int> ii;
 
-template<class X, class Y>
-	inline bool maximize(X &x, const Y &y) {return (x < y ? x = y, 1 : 0);}
-template<class X, class Y>
-	inline bool minimize(X &x, const Y &y) {return (x > y ? x = y, 1 : 0);}
+const int MAXN = 200005;
+const bool isMultiTest = 0;
 
-mt19937 rng(chrono::steady_clock::now().time_since_epoch().count());
-int Random(int l, int r) {
-    return uniform_int_distribution<int>(l, r)(rng);
+vector<int> idx;
+int a[MAXN], na[MAXN], dp[MAXN][3], fen[3][2 * MAXN], nTree, nArr;
+
+void modify(int id, int i, int v) {
+    for (; i <= nTree; i += i & -i)
+        fen[id][i] = max(fen[id][i], v);
 }
 
-const int MOD = 998244353;
+int get(int id, int i) {
+    int res(0);
+    for (; i > 0; i -= i & -i)
+        res = max(res, fen[id][i]);
 
-struct Matrix {
-    ll val[4][4];
-    int nRow, nCol;
+    return res;
+}
 
-    Matrix(int _r = 0, int _c = 0) {
-        nRow = _r, nCol = _c;
-        for (int i = 0; i < nRow; ++i) for (int j = 0; j < nCol; ++j) val[i][j] = 0;
+int magicFunc(void) {
+    for (int i = 1; i <= nArr; ++i) {
+        dp[i][0] = get(0, a[i] - 1) + 1;
+        dp[i][1] = 1 + max(get(0, na[i] - 1), get(1, na[i] - 1));
+        dp[i][2] = 1 + max(get(1, a[i] - 1), get(2, a[i] - 1));
+
+        modify(0, a[i], dp[i][0]);
+        modify(1, na[i], dp[i][1]);
+        modify(2, a[i], dp[i][2]);
     }
 
-    Matrix operator * (const Matrix &other) {
-        assert(nCol == other.nRow);
-        Matrix res(nRow, other.nCol);
-        for (int i = 0; i < res.nRow; ++i) {
-            for (int j = 0; j < res.nCol; ++j) {
-                for (int k = 0; k < nCol; ++k) res.val[i][j] += val[i][k] * other.val[k][j] % MOD;
-                res.val[i][j] %= MOD;
-            }
-        }
-
-        return res;
-    }
-
-    Matrix powerMatrix(ll k) {
-        assert(nRow == nCol);
-        Matrix res(nRow, nCol), A = (*this);
-        for (int i = 0; i < nRow; ++i) res.val[i][i] = 1;
-
-        while(k > 0) {
-            if(k & 1) res = res * A;
-            A = A * A;
-            k >>= 1;
-        }
-
-        return res;
-    }
-
-} A, X;
-
-ll numRow, numCol, k;
-
-#define id(x, y) (x) * 2 + (y)
+    return max({get(0, nTree), get(1, nTree), get(2, nTree)});
+}
 
 void process() {
-    cin >> numRow >> numCol >> k;
-
-    // dp[i][j] = num way go to row (i == 1: row == numRow, i == 0: row != numRow)
-                             // col (j == 1: col == numCol, j == 0: col != numCol)
-
-    ll row_way[2][2];
-    ll col_way[2][2];
-
-    row_way[0][0] = max(numRow - 2, 0LL) % MOD;
-    row_way[0][1] = min(numRow - 1, 1LL);
-    row_way[1][0] = (numRow - 1) % MOD;
-    row_way[1][1] = 0;
-
-    col_way[0][0] = max(numCol - 2, 0LL) % MOD;
-    col_way[0][1] = min(numCol - 1, 1LL);
-    col_way[1][0] = (numCol - 1) % MOD;
-    col_way[1][1] = 0;
-
-    X = Matrix(1, 4);
-    X.val[0][id(numRow == 1, numCol == 1)] = 1;
-
-    A = Matrix(4, 4);
-    for (int x = 0; x < 2; ++x) {
-        for (int y = 0; y < 2; ++y) {
-            for (int z = 0; z < 2; ++z) {
-                for (int t = 0; t < 2; ++t) {
-                    // (x, y) of the last step contributes to (z, t) of the next step = row_way[x][z] * col_way[y][t]
-                    A.val[id(x, y)][id(z, t)] = row_way[x][z] * col_way[y][t] % MOD;
-                }
-            }
-        }
+    cin >> nArr;
+    for (int i = 1; i <= nArr; ++i) {
+        cin >> a[i];
+        na[i] = -a[i];
+        idx.push_back(na[i]);
+        idx.push_back(a[i]);
     }
 
-    A = A.powerMatrix(k);
-    X = X * A;
-    
-    ll ans = X.val[0][id(1, 1)] % MOD;
-    cout << ans << '\n';
+    sort(idx.begin(), idx.end());
+    idx.erase(unique(idx.begin(), idx.end()), idx.end());
+
+    nTree = idx.size();
+    for (int i = 1; i <= nArr; ++i) {
+        a[i] = lower_bound(idx.begin(), idx.end(), a[i]) - idx.begin() + 1;
+        na[i] = lower_bound(idx.begin(), idx.end(), na[i]) - idx.begin() + 1;
+    }
+
+    cout << magicFunc() << '\n';
 }
 
 int main() {
     ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
 
-    #define TASK "antirook"
+    #define TASK "lis"
     if(fopen(TASK".inp", "r")) {
         freopen(TASK".inp", "r", stdin);
         freopen(TASK".out", "w", stdout);
     }
 
-    clock_t time = clock();
-    process();
+    int numTest = 1;
+    if(isMultiTest)
+        cin >> numTest;
 
-    cerr << "Time run: " << (clock() - time) / CLOCKS_PER_SEC << " ms.\n";
+    while(numTest--)
+        process();
+
     return 0;
 }

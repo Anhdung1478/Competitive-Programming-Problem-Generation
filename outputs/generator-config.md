@@ -1,121 +1,141 @@
-# Generator configuration — Đếm đường đi
+# Generator configuration — Các đường hầm
 
-## 1. Authoritative input schema
+This file is the design contract for `test-script.txt` and `gentest.cpp`.
+
+## 1. Normalized input schema
 
 There is exactly one test case.
 
-```text
-r c
-grid[1]
-...
-grid[r]
-```
+| Field | Type | Scope and order | Legal range | Relations |
+|---|---|---|---|---|
+| `N` | integer | first token of line 1 | `1..100000` | number of vertices |
+| `X`, `Y` | integer | remaining tokens of line 1 | `1..N` | equality is allowed |
+| `M` | integer | only token of line 2 | `0..100000` | also `M <= N(N-1)/2` because the graph is simple |
+| `i`, `j` | integer | first two tokens of each of the next `M` lines | `1..N` | `i != j`; unordered pairs are unique |
+| `H` | integer | third road token | `1..10000` | tunnel height limit |
+| `D` | integer | fourth road token | `1..10000` | positive road length |
 
-- `r` and `c` are integers with `1 <= r, c <= 2087`.
-- Each `grid[i]` is a token of exactly `c` characters from the alphabet `.` and `#`.
-- `grid[1][1] = grid[r][c] = '.'`.
-- There are no spaces inside a grid row and no fields after the last row.
-- A move lands at displacement `(0,1)`, `(1,0)`, `(1,3)`, or `(3,1)`. Only the landing cell must be open; long moves do not inspect intermediate cells.
+## 2. Structural invariants
 
-## 2. Subtask limits
+- The graph is undirected and simple: no self-loop and no repeated unordered pair.
+- The graph need not be connected; in particular, `Y` may be unreachable from `X`.
+- Vertex labels are exactly in `1..N`.
+- Exactly `M` road records are printed.
+- There is no test-count field and no cross-test sum constraint.
+- `X = Y` is legal and its answer is the one-vertex path.
 
-| `subtask` | Score | Row limit | Column limit |
-|---:|---:|---:|---:|
-| 1 | 50 | 8 | 7 |
-| 2 | 50 | 2087 | 2087 |
+## 3. Subtasks
 
-Every generated test must satisfy the selected row and column limits. Subtask 2 is the full constraint set, not a disjoint group.
-
-## 3. Command-line parameters
-
-Canonical invocation:
-
-```text
-gentest SEED --subtask S --rate R --profile P
-```
-
-- `SEED`: required first positional argument; controls `testlib` randomness and reproducibility. There is no named `--seed` option.
-- `subtask`: required integer, either `1` or `2`.
-- `rate`: required real number in `[0.70, 1.00]`.
-- `profile`: required string from the profile table below.
-
-No option specifies literal `r`, `c`, a grid row, or an obstacle count.
+| ID | Score | Limits/restrictions | Generator enforcement |
+|---|---:|---|---|
+| 1 | 15 | connected tree, `M=N-1` | construct a tree; never use disconnected or two-route profiles |
+| 2 | 20 | `N,M <= 200` | cap both quantities at 200; all global invariants remain active |
+| 3 | 25 | every `D=1` | overwrite/generated road lengths with 1 |
+| 4 | 40 | full constraints | no additional restriction |
 
 ## 4. Interpretation of `rate`
 
-For a selected subtask with limits `Rmax` and `Cmax`, define:
+`rate` is in `[0.70,1.00]` and determines the size envelope within the selected subtask.
+
+- `scaledN = clamp(round(Nmax * rate), 1, Nmax)` and `scaledM = clamp(round(Mmax * rate), 0, Mmax)`.
+- Size-oriented profiles (`random-sparse`, `near-limit`, `threshold-chain`) choose sizes close to these envelopes.
+- `tree-*` profiles set `M=N-1` after choosing `N`; the equality is never scaled independently.
+- `dense` first chooses `M` near `scaledM`, then chooses the smallest useful `N` whose simple-graph capacity can hold that many edges. Thus density is not destroyed by blindly scaling `N`.
+- `minimum`, `x-equals-y`, and small handcrafted adversarial cores may deliberately choose below the envelope; `rate` remains reproducibility metadata and controls any filler appended around the core.
+- All derived sizes are clamped again to the selected subtask and to `N(N-1)/2`.
+
+## 5. Generator options
+
+Invocation shape:
 
 ```text
-Rscaled = max(1, round(Rmax * rate))
-Cscaled = max(1, round(Cmax * rate))
+gentest <positional-seed> --subtask <S> --rate <R> --profile <P>
 ```
 
-Large profiles choose dimensions close to these scaled maxima. `boundary` chooses the scaled maxima exactly. `open`, `near-open`, `random`, `dense`, and `checkerboard` normally choose each dimension from roughly 85% through 100% of its scaled maximum, with occasional narrow dimensions to exercise boundary recurrences.
+- `subtask`: one of `1`, `2`, `3`, `4`.
+- `rate`: real value in `[0.70,1.00]`.
+- `profile`: one of the profiles below. The generator rejects a profile/subtask combination that cannot satisfy that subtask.
+- The positional seed is consumed by `registerGen(argc, argv, 1)` and is never exposed as `--seed`.
 
-Structural micro-profiles (`minimum` and `long-only`) intentionally override scale: their purpose is to isolate semantic edge cases, so `rate` remains a reproducibility/test-plan classification rather than forcing a large board. `zero-answer` uses dimensions at least `4 x 4` and otherwise follows the scaled limits.
+No literal `N`, `M`, `H`, or `D` option is allowed in the script.
 
-## 5. Profiles
+## 6. Generation profiles
 
-| Profile | Construction and purpose |
-|---|---|
-| `minimum` | Internally choose dimensions in `[1, min(4, scaled limit)]`, including `1x1`, one-row, and one-column grids. Mix all-open grids and legal blocked cells. Covers initialization, unreachable narrow boards, and endpoint overlap. |
-| `open` | All cells are `.`; dimensions are near the scaled maximum. Maximizes the number of paths and kills exponential enumeration. |
-| `near-open` | Near-scaled dimensions with independently blocked cells at a low rate of about 2%–10%; endpoints are reopened. Preserves large branching while perturbing uniform structure. |
-| `random` | Near-scaled dimensions with obstacle probability selected in about 15%–55%; endpoints are reopened. General coverage. |
-| `dense` | Near-scaled dimensions with about 70%–92% blocked cells; endpoints are reopened. Covers sparse reachability, many zero DP states, and accidental assumptions about connectivity. |
-| `checkerboard` | Alternating/short-period `.` and `#` row strings, optionally with one phase disruption; endpoints are reopened. Exercises periodic structure rather than only uniform random strings. |
-| `long-only` | Generate either `2x4` or `4x2`, mark only start and target open, and block every other cell. Exactly one long move reaches the target while ordinary right/down DP returns zero. |
-| `zero-answer` | Use at least `4x4`; reopen endpoints, then block every legal successor of `(1,1)` that is inside the grid. The answer must be zero. |
-| `boundary` | Dimensions equal the rate-scaled maxima. Choose an internal pattern among open, long runs, alternating rows, and random obstacles. At `rate = 1.00`, this reaches the exact subtask maxima. |
-
-The grid is a rectangular family of strings over the exact alphabet `.#`. String-pattern generation therefore includes repeated characters, alternating strings, short periods, long runs, and one disruptive cell, not only independent uniform characters.
-
-## 6. Numeric generation strategy
-
-Except for fixed structural profiles, numeric choices use a shared `genValue(low, high, mode)` helper with modes biased toward minima, maxima, boundaries, or uniform values. Dimension generation must not rely on unexplained constants in `gentest.cpp`; the ranges and probabilities are defined above.
-
-Obstacle percentages are selected once per generated grid and then applied per cell. Endpoints are always explicitly restored to `.` after pattern construction.
-
-## 7. Adversarial coverage and candidate-kill matrix
-
-| Risk/candidate | Required profiles | Expected observation |
+| Profile | Legal subtasks | Construction and purpose |
 |---|---|---|
-| `wa-standard-moves-only.cpp` omits `(1,3)` and `(3,1)` | `long-only` is mandatory in both subtasks; also `open` | Correct answer differs; on `long-only`, official answer is `1` and candidate answer is `0`. |
-| `tle-naive-dfs.cpp` has exponential recomputation | Full-subtask `open`, `near-open`, and `boundary`, preferably with `rate >= 0.95` | Timeout under the authoritative 0.5-second limit. |
-| Off-by-one in long predecessors | Narrow grids, `minimum`, `long-only`, `checkerboard` | Differential mismatch near rows/columns 1, 2, 4. |
-| Incorrect blocked-cell semantics | `dense`, `zero-answer`, disrupted periodic grids | Nonzero value through a blocked landing cell or incorrect reachability. |
-| Overflow/no modulo | Large full-subtask `open` grids | Output diverges from the modulo oracle. |
+| `minimum` | 1–4 | smallest legal cases, including `N=1,M=0`, two isolated vertices, and one-road graphs when the selected subtask permits them |
+| `x-equals-y` | 1–4 | choose `X=Y`; surround it with a valid graph of profile-appropriate size |
+| `disconnected` | 2–4 | place `X` and `Y` in distinct components; include isolated and two-large-component variants |
+| `tree-random` | 1,4 | random recursive tree with shuffled labels/edge order |
+| `tree-path` | 1,4 | long path, stressing reconstruction and distance accumulation |
+| `tree-star` | 1,4 | high-degree hub with varied boundary weights |
+| `tree-balanced` | 1,4 | binary-parent tree, covering shallow balanced depth |
+| `tree-broom` | 1,4 | long path feeding a high-degree hub, mixing depth and degree stress |
+| `random-sparse` | 2–4 | random simple graph with `M=O(N)` where limits permit |
+| `dense` | 2–4 | choose enough vertices for `M` near its envelope, enumerate unique candidate pairs, and sample many of them |
+| `height-ties` | 1–4 | use a small set dominated by `H=1` and `H=10000`, creating many equal bottlenecks |
+| `distance-ties` | 1–4 | many `D=1` or repeated lengths; in subtask 3 every length is 1 |
+| `competing-paths` | 2–4 | embed a short low-height route and a longer high-height route between `X` and `Y`; filler must not create a route with a better objective |
+| `threshold-chain` | 1–4 | make the only `X-Y` route a long chain; cycle through all height values `1..10000` and force its final edge to height 1 |
+| `near-limit` | 1–4 | sizes near the rate envelope, mixed boundary/random weights, valid simple structure |
 
-At least half of all commands use `rate >= 0.90`; both subtasks receive all semantic micro-profiles. Large open/near-open full tests are mandatory, not probabilistic accidents.
+Numeric generation uses `minimum`, `uniform`, `logarit`, and `maximum` distributions from the shared `genValue` strategy. Boundary profiles explicitly include `1` and `10000` for both `H` and `D` (except subtask 3, where `D=1`).
 
-## 8. Test-set distribution goals
+## 7. Subtask-specific logic
 
-- Exactly 100 commands.
-- 35 commands for Subtask 1 and 65 for Subtask 2.
-- Exactly 15 rates in `[0.70, 0.80)`, 35 in `[0.80, 0.90)`, and 50 in `[0.90, 1.00]`.
-- Distinct positional seeds on every command.
-- Mix profiles and subtasks throughout the file rather than placing one homogeneous family in a single block.
-- Include multiple exact `rate = 1.00` `boundary`/`open` tests for maximum dimensions.
+- **Subtask 1:** construct exactly one of the tree shapes and guarantee connectedness. `minimum` uses the one-vertex tree. `x-equals-y`, `height-ties`, `distance-ties`, `threshold-chain`, and `near-limit` are implemented on top of a tree. Dedicated shapes cover path, star, balanced, broom, and random trees. `disconnected`, `dense`, `random-sparse`, and `competing-paths` are rejected for this subtask unless the named profile has a dedicated tree interpretation listed above.
+- **Subtask 2:** both `N` and `M` remain at most 200 even for `rate=1.00`.
+- **Subtask 3:** every construction assigns `D=1`, including adversarial cores and filler roads.
+- **Subtask 4:** full profile set and full limits.
 
-## 9. Required invariants and assertions
+## 8. Coverage plan for 100 tests
 
-Before printing, `gentest.cpp` must assert:
+Allocate exactly 15/20/25/40 tests to subtasks 1/2/3/4, matching their scores. Across all tests use 15 rates in `[0.70,0.80)`, 35 in `[0.80,0.90)`, and 50 in `[0.90,1.00]`.
 
-- selected `subtask`, `rate`, and `profile` are valid;
-- `1 <= r <= Rmax` and `1 <= c <= Cmax`;
-- exactly `r` rows exist and every row has exactly `c` characters;
-- every character belongs to `.#`;
-- the first and last cells are `.`;
-- profile-specific guarantees (`long-only` direct path, `zero-answer` blocked successors) hold.
+- Boundary/degenerate (`minimum`, `x-equals-y`, `disconnected`): about 14 tests.
+- Tree shapes and reconstruction: about 17 tests.
+- Random sparse/dense graphs: about 30 tests.
+- Height/distance tie patterns: about 14 tests.
+- `competing-paths`: at least 10 tests spread over subtasks 2–4.
+- `threshold-chain`: at least 8 tests, including near-limit subtask 1, 3, and 4 instances.
+- Remaining near-limit tests mix boundary weights and adversarial degree distributions.
 
-## 10. Applicable generator skills
+## 9. Solution-kill matrix
 
-- Generic Polygon `testlib.h` generator rules.
-- String generation for the rectangular `.#` row tokens, especially repeated, alternating, periodic, long-run, and disrupted patterns.
-- No tree, general-graph, permutation/array, or number-theory generator is required.
+| Candidate | Failure mechanism | Adversarial profile | Legal subtasks | Planned coverage | Expected signal |
+|---|---|---|---|---|---|
+| `wa-shortest-path-first.cpp` | minimizes distance before height | `competing-paths`: direct/short low route versus longer high route | 2–4 | at least 10 script lines | checker rejection for nonmaximum bottleneck |
+| `tle-enumerate-thresholds.cpp` | runs Dijkstra for up to 10,000 thresholds | `threshold-chain`: long unique path, many height levels, final edge `H=1` | 1–4 | at least 8 lines, with near-limit instances in 1,3,4 | timeout under the authoritative 1s limit |
 
-## 11. Validated candidate kills
+Concrete Step 7 evidence:
 
-- All 12 scripted `long-only` tests make `source/solution.cpp` print `1` and `wa-standard-moves-only.cpp` print `0`.
-- `PATH075X93925 --subtask 2 --rate 1.00 --profile open` exceeded the authoritative 0.5-second limit with `tle-naive-dfs.cpp` in local validation.
-- The same seed and options regenerate byte-identical input.
+- Every `competing-paths` script seed kills `wa-shortest-path-first.cpp`: `TUNNEL056X`, `TUNNEL060X`, `TUNNEL063X`, `TUNNEL066X`, `TUNNEL072X`, `TUNNEL075X`, `TUNNEL077X`, `TUNNEL078X`, `TUNNEL079X`, `TUNNEL082X`, `TUNNEL084X`, and `TUNNEL085X`.
+- `TUNNEL086X --subtask 4 --rate 1.00 --profile threshold-chain` did not finish `tle-enumerate-thresholds.cpp` within 2 seconds, already twice the authoritative limit. The independent manual full-size chain also exceeded 3 seconds.
+
+### Differential oracles
+
+| Subtask | Oracle(s) |
+|---|---|
+| 1 | `ac-subtask-1-tree-dfs.cpp`, cross-checked with `ac-full-maximin-then-dijkstra.cpp` |
+| 2–4 | `ac-full-maximin-then-dijkstra.cpp` |
+
+The official source remains the jury oracle for all subtasks; comparisons are semantic through `checker.cpp` when paths differ structurally.
+
+## 10. Specialized generator skill
+
+Use both `generator-graph` and `generator-tree`. The final generator remains self-contained and adapts the relevant line, star, binary-balanced, random, and broom parent constructions from the tree reference. No array, string, or number-theory helper is needed.
+
+## 11. Generator assertions
+
+Before printing, `gentest.cpp` must ensure:
+
+- valid subtask id, rate, and profile/subtask combination;
+- `1 <= N <= Nmax`, `0 <= M <= Mmax`, and `M <= N(N-1)/2`;
+- `X,Y` are in `1..N`;
+- every endpoint is in range and differs from its mate;
+- every unordered endpoint pair occurs once;
+- every `H,D` lies in `1..10000`;
+- subtask 1 has exactly `N-1` edges and is connected;
+- subtask 2 has `N,M <= 200`;
+- subtask 3 has `D=1` on every edge;
+- the emitted road-vector size equals `M`.

@@ -1,141 +1,42 @@
 ---
 name: polygon-checker
-description: Create or review checker.cpp for a Codeforces Polygon problem using testlib.h. Use for workflow step B2, unique-output comparison, non-unique constructive outputs, optimization witnesses, or any custom output validation.
+description: Create or review outputs/checker.cpp for Codeforces Polygon using testlib.h, including deterministic, constructive, optimization, and special-output checkers.
 ---
 
-# Write `checker.cpp`
+# Write `outputs/checker.cpp`
 
-Read `problem-context.md`, `solution.cpp` when present, `subtask.md` when relevant, and the current output specification.
+Read the source-of-truth files and final output specification. Classify the output as deterministic, non-unique witness, optimization, floating-point, or special protocol before implementing the checker.
 
-Before coding, classify output as one of:
+Use C++17, `testlib.h`, and `registerTestlibCmd(argc, argv)`. Treat participant data as untrusted. Report participant errors with `_wa`, jury/package inconsistencies with `_fail`, and success with `_ok`.
 
-1. **unique/deterministic** — every correct solution should produce equivalent fixed tokens;
-2. **non-unique witness** — many outputs may be valid;
-3. **optimization** — many witnesses, but an objective must match/beat a required value;
-4. **floating-point** — tolerance matters;
-5. **special protocol** — output contains conditional branches, certificates, or unusual formatting.
+## Token readers required by Polygon
 
-If the classification or tolerance is not determined by the source files, ask the user before writing the checker.
-
-## Polygon/testlib skeleton
-
-A checker must:
+Whenever reading a token from `ouf` or `ans`, use the named pattern overload:
 
 ```cpp
-#include "testlib.h"
-#include <bits/stdc++.h>
-using namespace std;
-
-int main(int argc, char* argv[]) {
-    registerTestlibCmd(argc, argv);
-
-    // inf: input
-    // ouf: participant output
-    // ans: jury answer
-
-    // validation...
-
-    quitf(_ok, "accepted");
-}
+string token = ouf.readToken("[0-9]+", "answer");
+string expected = ans.readToken("-?[0-9]+", "jury answer");
 ```
 
-Use `quitf(_wa, ...)` for a wrong participant answer and `_fail` for an inconsistent/broken jury package.
+Do not use unnamed `readToken()` or `readWord()` calls. Polygon emits review warnings for them because they provide neither an accepted format nor a variable name. Choose the narrowest testlib pattern that matches the statement. Give repeated values meaningful names such as `path vertex`, `edge endpoint`, or `answer token`.
 
-Checker diagnostics should be short and in English.
+Prefer typed readers such as `readInt(min, max, variableName)` or `readLong(min, max, variableName)` when numeric normalization is intended. If textual representation itself matters, use `readToken(pattern, variableName)` and validate/convert it safely.
 
-## Default checker: unique output
+To reject extra output, checking `!ouf.seekEof()` is sufficient; do not consume the extra token with an unnamed reader merely for diagnostics.
 
-When the statement has no special output semantics, use a token-wise comparison that ignores irrelevant whitespace but rejects any missing, different, or extra token:
+## Deterministic output
 
-```cpp
-#include "testlib.h"
-#include <bits/stdc++.h>
-using namespace std;
+Compare every required participant token with the corresponding jury token, reject missing or differing tokens, then require participant EOF. Use named pattern readers for both streams.
 
-int main(int argc, char* argv[]) {
-    registerTestlibCmd(argc, argv);
+## Non-unique and optimization output
 
-    int tokenId = 0;
-    while (!ans.seekEof()) {
-        ++tokenId;
+Parse the original input, validate the participant witness semantically, recompute all claimed properties, and consume the complete participant output. Never compare a valid witness structurally with the jury witness. Use the jury output only for information genuinely required from it, such as a validated optimum.
 
-        if (ouf.seekEof()) {
-            quitf(_wa, "participant output ended before token %d", tokenId);
-        }
+For paths and other bounded sequences, validate counts before allocation, validate every element range, verify adjacency/constraints, guard accumulated arithmetic against overflow, and reject surplus output.
 
-        string expected = ans.readToken();
-        string found = ouf.readToken();
+## Final review
 
-        if (found != expected) {
-            quitf(
-                _wa,
-                "token %d differs: expected '%s', found '%s'",
-                tokenId,
-                expected.c_str(),
-                found.c_str()
-            );
-        }
-    }
-
-    if (!ouf.seekEof()) {
-        string extra = ouf.readToken();
-        quitf(_wa, "extra participant output starts with '%s'", extra.c_str());
-    }
-
-    quitf(_ok, "outputs match");
-}
-```
-
-If numeric textual normalization matters (for example `01` versus `1`), parse typed numbers instead of comparing strings. Do not choose this silently; it changes semantics.
-
-## Non-unique witness checker
-
-Never require the participant witness to equal the jury witness.
-
-Instead:
-
-1. parse the original input from `inf`;
-2. parse participant output from `ouf`;
-3. validate ranges/counts/format;
-4. validate every constraint of the witness;
-5. recompute the property claimed by the participant;
-6. reject extra tokens unless permitted;
-7. use `ans` only for information that truly must come from the jury, such as a known optimum.
-
-Examples of non-unique outputs:
-
-- any valid path;
-- any valid matching;
-- any edge orientation;
-- any permutation meeting constraints;
-- any partition/coloring;
-- any certificate.
-
-## Optimization checker
-
-Typical pattern:
-
-1. read input;
-2. read/recompute the participant objective and witness;
-3. validate the witness;
-4. read the jury optimum from `ans`;
-5. compare objectives exactly or with the specified tolerance;
-6. return `_fail` if the jury package is internally inconsistent.
-
-Never accept an invalid witness merely because its objective matches the jury.
-
-## Floating point
-
-Tolerance must come from the problem specification or user confirmation.
-
-Use testlib numeric readers and an explicit absolute/relative error rule. Document that rule in `statement.txt`.
-
-## Final self-review
-
-Ensure:
-
-- no legal output is rejected because of irrelevant ordering unless ordering is required;
-- participant cannot exploit missing tokens, duplicates, out-of-range indices, NaN/Inf, overflow, or extra output;
-- all data read from `ouf` is treated as untrusted;
-- jury inconsistencies lead to `_fail`, not `_wa`;
-- checker semantics exactly match `statement.txt`.
+- Every `ouf`/`ans` token reader has both a pattern and variable name, or is a typed bounded reader with a variable name.
+- Missing and extra output are rejected.
+- Jury failures use `_fail`; participant failures use `_wa`.
+- Checker semantics exactly match the statement, including non-unique witnesses and optimization priority.

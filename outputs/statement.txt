@@ -1,36 +1,49 @@
-\textbf{Tên bài:} Quân xe
+\textbf{Tên bài:} Các đường hầm
 
 \textbf{Đề bài}
 
-Cho một bàn cờ gồm $r$ hàng và $c$ cột. Ô ở hàng $i$, cột $j$ có trọng số nguyên $a_{i,j}$.
+Bên dưới Zaun là một mạng lưới đường hầm chật hẹp. Ekko cần chọn lộ trình cho một phương tiện đi qua mạng lưới này.
 
-Trong một nước đi, quân xe phải chuyển từ ô hiện tại sang một ô khác nằm cùng hàng hoặc cùng cột. Quân xe không được đứng yên, nhưng được phép ghé lại một ô đã xuất hiện trước đó trong chuỗi di chuyển.
+Có $N$ thành phố được đánh số từ $1$ đến $N$ và $M$ con đường hai chiều. Mỗi con đường nối hai thành phố phân biệt, có giới hạn chiều cao $H$ và độ dài $D$. Giữa một cặp thành phố có không quá một con đường.
 
-Một chuỗi di chuyển độ dài $k$ gồm đúng $k+1$ ô
-$(x_0,y_0),(x_1,y_1),\ldots,(x_k,y_k)$, trong đó mỗi cặp ô liên tiếp tạo thành một nước đi hợp lệ. Chuỗi phải bắt đầu tại $(x,y)$ và kết thúc tại $(u,v)$.
+Một đường đi từ $X$ đến $Y$ là một dãy thành phố bắt đầu tại $X$, kết thúc tại $Y$, trong đó hai thành phố liên tiếp được nối bởi một con đường. Chiều cao cho phép của đường đi là giá trị $H$ nhỏ nhất trong các con đường thuộc đường đi. Tổng độ dài của đường đi là tổng các giá trị $D$ tương ứng.
 
-Điểm của chuỗi bằng tổng trọng số của tất cả $k+1$ lần ghé ô; vì vậy trọng số của ô bắt đầu, ô kết thúc và mọi lần ghé lại đều được tính.
+\textbf{Yêu cầu:} Hãy tìm một đường đi từ $X$ đến $Y$ có chiều cao cho phép lớn nhất. Nếu có nhiều đường đi như vậy, hãy chọn một đường đi có tổng độ dài nhỏ nhất. Có thể in ra bất kỳ đường đi nào nếu vẫn còn nhiều đáp án tối ưu.
 
-\textbf{Yêu cầu:} Tìm tổng điểm lớn nhất của một chuỗi di chuyển hợp lệ có độ dài đúng $k$ từ $(x,y)$ đến $(u,v)$.
+Nếu $X = Y$, đường đi chỉ gồm thành phố $X$ là hợp lệ. Nếu không tồn tại đường đi từ $X$ đến $Y$, hãy thông báo rằng yêu cầu không thể thực hiện.
 
 \textbf{Input}
 
-Dòng đầu tiên chứa ba số nguyên $r$, $c$, $k$ ($1 \le r,c,k \le 500$).
+Dòng đầu tiên chứa ba số nguyên $N$, $X$, $Y$.
 
-Dòng thứ hai chứa bốn số nguyên $x$, $y$, $u$, $v$ ($1 \le x,u \le r$, $1 \le y,v \le c$), lần lượt là ô bắt đầu và ô kết thúc.
+Dòng thứ hai chứa số nguyên $M$.
 
-$r$ dòng tiếp theo, mỗi dòng chứa $c$ số nguyên. Số thứ $j$ trên dòng thứ $i$ là $a_{i,j}$ ($|a_{i,j}| \le 10^9$).
+Mỗi trong $M$ dòng tiếp theo chứa bốn số nguyên $i$, $j$, $H$, $D$, mô tả một con đường hai chiều nối thành phố $i$ và thành phố $j$, có giới hạn chiều cao $H$ và độ dài $D$.
+
+Các ràng buộc:
+
+\begin{itemize}
+    \item $1 \le N \le 10^5$;
+    \item $1 \le X, Y \le N$;
+    \item $0 \le M \le 10^5$;
+    \item $1 \le i, j \le N$ và $i \ne j$;
+    \item $1 \le H, D \le 10^4$;
+    \item không có hai con đường nối cùng một cặp thành phố.
+\end{itemize}
 
 \textbf{Output}
 
-Nếu tồn tại ít nhất một chuỗi di chuyển hợp lệ có độ dài đúng $k$, in ra một số nguyên duy nhất là tổng điểm lớn nhất có thể.
+Nếu không tồn tại đường đi từ $X$ đến $Y$, in ra một dòng chứa $-1$.
 
-Nếu không tồn tại chuỗi như vậy, in ra `impossible`. Chuỗi này phải được viết hoàn toàn bằng chữ thường.
+Ngược lại, dòng đầu tiên chứa số nguyên $K$ là số thành phố trên đường đi, kể cả $X$ và $Y$.
+
+Dòng thứ hai chứa $K$ số nguyên là các thành phố theo đúng thứ tự trên đường đi. Số đầu tiên phải là $X$ và số cuối cùng phải là $Y$.
 
 \textbf{Subtask}
 
 \begin{itemize}
-    \item Subtask $1$ ($10\%$ số điểm): $1 \le r,c,k \le 7$.
-    \item Subtask $2$ ($24\%$ số điểm): $1 \le r,c,k \le 80$.
-    \item Subtask $3$ ($66\%$ số điểm): không có ràng buộc bổ sung.
+    \item Subtask $1$ ($15\%$ số điểm): đồ thị là một cây liên thông, tức $M = N - 1$.
+    \item Subtask $2$ ($20\%$ số điểm): $N, M \le 200$.
+    \item Subtask $3$ ($25\%$ số điểm): $D = 1$ trên mọi con đường.
+    \item Subtask $4$ ($40\%$ số điểm): không có ràng buộc bổ sung.
 \end{itemize}

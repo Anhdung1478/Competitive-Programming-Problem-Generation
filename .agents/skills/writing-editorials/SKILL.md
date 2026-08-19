@@ -25,6 +25,8 @@ Require all prerequisite workflow gates to have completed successfully. Select t
 
 When the source solution and suite ACs exist and are valid, prioritize the algorithm and implementation choices in `source/solution.cpp`; use the AC suite as cross-check evidence or to explain genuinely different subtask approaches. A subtask-only AC may support only the matching subtask section and must never be presented as a full solution. Never explain a WA/TLE candidate as the intended solution. File existence alone is not proof of validation. If `source/solution.cpp` failed Step 1, the workflow is under a hard stop and the editorial must not be generated. If no validated full-scope implementation is available, or the selected implementation conflicts with a source-of-truth file, stop and report the inconsistency instead of inventing an algorithm.
 
+Compare the validated source solution with every validated full-scope AC in `outputs/solution/manifest.md`. If a suite AC is materially better in asymptotic complexity, memory, robustness, or implementation simplicity, keep the required source-solution explanation as the main editorial, then add a brief `Lời giải tốt hơn` section near the bottom. State the improved idea, its complexity, and why it improves on the main approach. Do not add this section for cosmetic differences or equal-quality reformulations. Never promote an unvalidated candidate.
+
 Take the problem name and mathematical semantics from the source-of-truth files. Use the final statement to confirm contestant-facing notation. Never infer time limits, memory limits, subtasks, points, samples, or constraints that are not provided. Omit unavailable metadata rows. If `source/subtask.md` is absent, do not invent subtasks.
 
 ## Write in Vietnamese
@@ -117,6 +119,7 @@ Verify all of the following:
 - a representative inline inequality and the main displayed formula render through the template's KaTeX initialization rather than appearing as raw TeX;
 - the explained algorithm, variables, edge cases, and complexity match the selected implementation;
 - `source/solution.cpp` is selected whenever it exists and passed Step 1; otherwise a validated full-scope AC from `outputs/solution/manifest.md` is selected;
+- when a validated full-scope AC is materially better than the selected source solution, a brief bottom section introduces that improvement and gives its correct complexity;
 - the restatement and constraints match the source-of-truth files;
 - the checker semantics and described output semantics agree;
 - the validator's accepted input semantics and described input semantics agree;
