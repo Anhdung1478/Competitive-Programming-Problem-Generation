@@ -13,7 +13,21 @@ Read:
 2. `subtask.md` — when present.
 3. `solution.cpp` — when present.
 
-Never edit these files during validation unless the user separately asks for a fix.
+Never edit these files during validation unless the user separately asks for a fix, except for the local-I/O normalization below.
+
+## Normalize unconditional local-file redirection
+
+Before compilation, inspect `solution.cpp` for `freopen` calls targeting the task `.inp` and `.out` files. If those calls are unconditional and there is no `fopen` existence guard, edit only the redirection block into this guarded form:
+
+```cpp
+#define TASK "taskname"
+if (fopen(TASK ".inp", "r")) {
+    freopen(TASK ".inp", "r", stdin);
+    freopen(TASK ".out", "w", stdout);
+}
+```
+
+Preserve the existing task basename and file extensions. Do not alter algorithmic code. The program must continue using standard input/output when the local input file is absent, so automated local tests can pipe input normally. This is a standing, narrowly scoped exception to the usual prohibition on editing source-of-truth files.
 
 ## If `solution.cpp` is absent
 

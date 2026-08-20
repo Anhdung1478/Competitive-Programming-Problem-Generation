@@ -1,100 +1,50 @@
-gentest TUNNEL001X --subtask 1 --rate 0.70 --profile minimum > $
-gentest TUNNEL002X --subtask 2 --rate 0.72 --profile minimum > $
-gentest TUNNEL003X --subtask 3 --rate 0.75 --profile minimum > $
-gentest TUNNEL004X --subtask 4 --rate 0.78 --profile minimum > $
-gentest TUNNEL005X --subtask 4 --rate 0.79 --profile x-equals-y > $
-gentest TUNNEL006X --subtask 3 --rate 0.70 --profile x-equals-y > $
-gentest TUNNEL007X --subtask 4 --rate 0.72 --profile disconnected > $
-gentest TUNNEL008X --subtask 2 --rate 0.75 --profile x-equals-y > $
-gentest TUNNEL009X --subtask 4 --rate 0.78 --profile disconnected > $
-gentest TUNNEL010X --subtask 3 --rate 0.79 --profile disconnected > $
-gentest TUNNEL011X --subtask 1 --rate 0.70 --profile x-equals-y > $
-gentest TUNNEL012X --subtask 2 --rate 0.72 --profile disconnected > $
-gentest TUNNEL013X --subtask 3 --rate 0.75 --profile disconnected > $
-gentest TUNNEL014X --subtask 4 --rate 0.78 --profile disconnected > $
-gentest TUNNEL015X --subtask 4 --rate 0.79 --profile tree-random > $
-gentest TUNNEL016X --subtask 3 --rate 0.80 --profile random-sparse > $
-gentest TUNNEL017X --subtask 4 --rate 0.82 --profile tree-balanced > $
-gentest TUNNEL018X --subtask 2 --rate 0.85 --profile disconnected > $
-gentest TUNNEL019X --subtask 4 --rate 0.87 --profile tree-path > $
-gentest TUNNEL020X --subtask 3 --rate 0.89 --profile random-sparse > $
-gentest TUNNEL021X --subtask 1 --rate 0.80 --profile tree-random > $
-gentest TUNNEL022X --subtask 2 --rate 0.82 --profile random-sparse > $
-gentest TUNNEL023X --subtask 3 --rate 0.85 --profile random-sparse > $
-gentest TUNNEL024X --subtask 4 --rate 0.87 --profile tree-broom > $
-gentest TUNNEL025X --subtask 4 --rate 0.89 --profile tree-star > $
-gentest TUNNEL026X --subtask 3 --rate 0.80 --profile random-sparse > $
-gentest TUNNEL027X --subtask 4 --rate 0.82 --profile tree-star > $
-gentest TUNNEL028X --subtask 2 --rate 0.85 --profile random-sparse > $
-gentest TUNNEL029X --subtask 4 --rate 0.87 --profile random-sparse > $
-gentest TUNNEL030X --subtask 3 --rate 0.89 --profile dense > $
-gentest TUNNEL031X --subtask 1 --rate 0.80 --profile tree-balanced > $
-gentest TUNNEL032X --subtask 2 --rate 0.82 --profile random-sparse > $
-gentest TUNNEL033X --subtask 3 --rate 0.85 --profile dense > $
-gentest TUNNEL034X --subtask 4 --rate 0.87 --profile random-sparse > $
-gentest TUNNEL035X --subtask 4 --rate 0.89 --profile random-sparse > $
-gentest TUNNEL036X --subtask 3 --rate 0.80 --profile dense > $
-gentest TUNNEL037X --subtask 4 --rate 0.82 --profile random-sparse > $
-gentest TUNNEL038X --subtask 2 --rate 0.85 --profile dense > $
-gentest TUNNEL039X --subtask 4 --rate 0.87 --profile random-sparse > $
-gentest TUNNEL040X --subtask 3 --rate 0.89 --profile height-ties > $
-gentest TUNNEL041X --subtask 1 --rate 0.80 --profile tree-broom > $
-gentest TUNNEL042X --subtask 2 --rate 0.82 --profile dense > $
-gentest TUNNEL043X --subtask 3 --rate 0.85 --profile height-ties > $
-gentest TUNNEL044X --subtask 4 --rate 0.87 --profile random-sparse > $
-gentest TUNNEL045X --subtask 4 --rate 0.89 --profile dense > $
-gentest TUNNEL046X --subtask 3 --rate 0.80 --profile distance-ties > $
-gentest TUNNEL047X --subtask 4 --rate 0.82 --profile dense > $
-gentest TUNNEL048X --subtask 2 --rate 0.85 --profile dense > $
-gentest TUNNEL049X --subtask 4 --rate 0.87 --profile dense > $
-gentest TUNNEL050X --subtask 3 --rate 0.89 --profile distance-ties > $
-gentest TUNNEL051X --subtask 1 --rate 0.90 --profile tree-path > $
-gentest TUNNEL052X --subtask 2 --rate 0.92 --profile height-ties > $
-gentest TUNNEL053X --subtask 3 --rate 0.95 --profile distance-ties > $
-gentest TUNNEL054X --subtask 4 --rate 0.97 --profile dense > $
-gentest TUNNEL055X --subtask 4 --rate 0.99 --profile dense > $
-gentest TUNNEL056X --subtask 3 --rate 1.00 --profile competing-paths > $
-gentest TUNNEL057X --subtask 4 --rate 0.90 --profile height-ties > $
-gentest TUNNEL058X --subtask 2 --rate 0.92 --profile height-ties > $
-gentest TUNNEL059X --subtask 4 --rate 0.95 --profile height-ties > $
-gentest TUNNEL060X --subtask 3 --rate 0.97 --profile competing-paths > $
-gentest TUNNEL061X --subtask 1 --rate 0.99 --profile tree-path > $
-gentest TUNNEL062X --subtask 2 --rate 1.00 --profile distance-ties > $
-gentest TUNNEL063X --subtask 3 --rate 0.90 --profile competing-paths > $
-gentest TUNNEL064X --subtask 4 --rate 0.92 --profile height-ties > $
-gentest TUNNEL065X --subtask 4 --rate 0.95 --profile height-ties > $
-gentest TUNNEL066X --subtask 3 --rate 0.97 --profile competing-paths > $
-gentest TUNNEL067X --subtask 4 --rate 0.99 --profile distance-ties > $
-gentest TUNNEL068X --subtask 2 --rate 1.00 --profile distance-ties > $
-gentest TUNNEL069X --subtask 4 --rate 0.90 --profile distance-ties > $
-gentest TUNNEL070X --subtask 3 --rate 0.92 --profile threshold-chain > $
-gentest TUNNEL071X --subtask 1 --rate 0.95 --profile tree-path > $
-gentest TUNNEL072X --subtask 2 --rate 0.97 --profile competing-paths > $
-gentest TUNNEL073X --subtask 3 --rate 0.99 --profile threshold-chain > $
-gentest TUNNEL074X --subtask 4 --rate 1.00 --profile distance-ties > $
-gentest TUNNEL075X --subtask 4 --rate 0.90 --profile competing-paths > $
-gentest TUNNEL076X --subtask 3 --rate 0.92 --profile threshold-chain > $
-gentest TUNNEL077X --subtask 4 --rate 0.95 --profile competing-paths > $
-gentest TUNNEL078X --subtask 2 --rate 0.97 --profile competing-paths > $
-gentest TUNNEL079X --subtask 4 --rate 0.99 --profile competing-paths > $
-gentest TUNNEL080X --subtask 3 --rate 1.00 --profile near-limit > $
-gentest TUNNEL081X --subtask 1 --rate 0.90 --profile tree-star > $
-gentest TUNNEL082X --subtask 2 --rate 0.92 --profile competing-paths > $
-gentest TUNNEL083X --subtask 3 --rate 0.95 --profile near-limit > $
-gentest TUNNEL084X --subtask 4 --rate 0.97 --profile competing-paths > $
-gentest TUNNEL085X --subtask 4 --rate 0.99 --profile competing-paths > $
-gentest TUNNEL086X --subtask 4 --rate 1.00 --profile threshold-chain > $
-gentest TUNNEL087X --subtask 2 --rate 0.90 --profile threshold-chain > $
-gentest TUNNEL088X --subtask 4 --rate 0.92 --profile threshold-chain > $
-gentest TUNNEL089X --subtask 1 --rate 0.95 --profile tree-star > $
-gentest TUNNEL090X --subtask 2 --rate 0.97 --profile near-limit > $
-gentest TUNNEL091X --subtask 4 --rate 0.99 --profile threshold-chain > $
-gentest TUNNEL092X --subtask 4 --rate 1.00 --profile near-limit > $
-gentest TUNNEL093X --subtask 4 --rate 0.90 --profile near-limit > $
-gentest TUNNEL094X --subtask 2 --rate 0.92 --profile near-limit > $
-gentest TUNNEL095X --subtask 4 --rate 0.95 --profile near-limit > $
-gentest TUNNEL096X --subtask 1 --rate 0.97 --profile height-ties > $
-gentest TUNNEL097X --subtask 1 --rate 0.99 --profile distance-ties > $
-gentest TUNNEL098X --subtask 1 --rate 1.00 --profile threshold-chain > $
-gentest TUNNEL099X --subtask 1 --rate 0.90 --profile threshold-chain > $
-gentest TUNNEL100X --subtask 1 --rate 0.92 --profile near-limit > $
+gen 81401 --test 1 > $
+gen 81402 --test 2 > $
+gen 81403 --test 3 > $
+gen 81404 --test 4 > $
+gen 81405 --test 5 > $
+gen 81406 --test 6 > $
+gen 81407 --test 7 > $
+gen 81408 --test 8 > $
+gen 81409 --test 9 > $
+gen 81410 --test 10 > $
+gen 81411 --test 11 > $
+gen 81412 --test 12 > $
+gen 81413 --test 13 > $
+gen 81414 --test 14 > $
+gen 81415 --test 15 > $
+gen 81416 --test 16 > $
+gen 81417 --test 17 > $
+gen 81418 --test 18 > $
+gen 81419 --test 19 > $
+gen 81420 --test 20 > $
+gen 81421 --test 21 > $
+gen 81422 --test 22 > $
+gen 81423 --test 23 > $
+gen 81424 --test 24 > $
+gen 81425 --test 25 > $
+gen 81426 --test 26 > $
+gen 81427 --test 27 > $
+gen 81428 --test 28 > $
+gen 81429 --test 29 > $
+gen 81430 --test 30 > $
+gen 81431 --test 31 > $
+gen 81432 --test 32 > $
+gen 81433 --test 33 > $
+gen 81434 --test 34 > $
+gen 81435 --test 35 > $
+gen 81436 --test 36 > $
+gen 81437 --test 37 > $
+gen 81438 --test 38 > $
+gen 81439 --test 39 > $
+gen 81440 --test 40 > $
+gen 81441 --test 41 > $
+gen 81442 --test 42 > $
+gen 81443 --test 43 > $
+gen 81444 --test 44 > $
+gen 81445 --test 45 > $
+gen 81446 --test 46 > $
+gen 81447 --test 47 > $
+gen 81448 --test 48 > $
+gen 81449 --test 49 > $
+gen 81450 --test 50 > $

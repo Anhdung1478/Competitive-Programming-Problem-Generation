@@ -28,7 +28,7 @@ At repository root:
 
 Generated artifacts must never silently redefine the problem. If generated files disagree with source-of-truth files, the source-of-truth files win and the inconsistency must be reported.
 
-Do not edit `source/problem-context.md`, `source/solution.cpp`, or `source/subtask.md` unless the user explicitly asks.
+Do not edit `source/problem-context.md`, `source/solution.cpp`, or `source/subtask.md` unless the user explicitly asks. The local-I/O normalization rule in Step 1 is the sole standing exception for `source/solution.cpp`.
 
 ## Mandatory ambiguity gate
 
@@ -61,6 +61,7 @@ Use the `validate-solution` skill.
 
 If `source/solution.cpp` exists:
 
+- before compiling, inspect its local-file redirection. If it calls `freopen` for the task `.inp`/`.out` files but has no `fopen` existence guard, modify only that redirection block to use `if (fopen(TASK ".inp", "r")) { ... }`. Keep the same task basename and `.inp`/`.out` behavior. The standard-input/standard-output fallback when the local input file is absent is mandatory so the agent can run the solution locally. This narrow normalization is allowed even without a separate request to edit source files; do not change algorithmic code under this exception;
 - check that it solves exactly the problem in `source/problem-context.md`;
 - check it against every constraint/subtask in `source/subtask.md` when present;
 - compile it;

@@ -1,49 +1,54 @@
-\textbf{Tên bài:} Các đường hầm
+\textbf{Tên bài:} Đường về căn cứ
 
 \textbf{Đề bài}
 
-Bên dưới Zaun là một mạng lưới đường hầm chật hẹp. Ekko cần chọn lộ trình cho một phương tiện đi qua mạng lưới này.
+Sau khi hoàn thành phi vụ, Lâm cần trở về căn cứ nhanh nhất qua mạng lưới đường bộ và các trạm dịch chuyển trong thành phố.
 
-Có $N$ thành phố được đánh số từ $1$ đến $N$ và $M$ con đường hai chiều. Mỗi con đường nối hai thành phố phân biệt, có giới hạn chiều cao $H$ và độ dài $D$. Giữa một cặp thành phố có không quá một con đường.
+Thành phố gồm $n$ khu phố được đánh số từ $1$ đến $n$ và $m$ con đường hai chiều. Con đường thứ $i$ nối hai khu phố khác nhau $u_i$, $v_i$ và cần $w_i$ đơn vị thời gian để đi qua. Mạng lưới đường bộ liên thông. Có thể có nhiều con đường nối cùng một cặp khu phố.
 
-Một đường đi từ $X$ đến $Y$ là một dãy thành phố bắt đầu tại $X$, kết thúc tại $Y$, trong đó hai thành phố liên tiếp được nối bởi một con đường. Chiều cao cho phép của đường đi là giá trị $H$ nhỏ nhất trong các con đường thuộc đường đi. Tổng độ dài của đường đi là tổng các giá trị $D$ tương ứng.
+Tại khu phố $i$, giá trị $a_i$ là tham số chi phí của trạm dịch chuyển và $b_i$ mô tả các loại trạm có tại đó:
 
-\textbf{Yêu cầu:} Hãy tìm một đường đi từ $X$ đến $Y$ có chiều cao cho phép lớn nhất. Nếu có nhiều đường đi như vậy, hãy chọn một đường đi có tổng độ dài nhỏ nhất. Có thể in ra bất kỳ đường đi nào nếu vẫn còn nhiều đáp án tối ưu.
+\begin{itemize}
+    \item $b_i=0$: không có trạm;
+    \item $b_i=1$: có trạm loại $1$;
+    \item $b_i=2$: có trạm loại $2$;
+    \item $b_i=3$: có cả hai loại trạm.
+\end{itemize}
 
-Nếu $X = Y$, đường đi chỉ gồm thành phố $X$ là hợp lệ. Nếu không tồn tại đường đi từ $X$ đến $Y$, hãy thông báo rằng yêu cầu không thể thực hiện.
+Lâm chỉ có thể dịch chuyển giữa hai khu phố $i$ và $j$ nếu cả hai khu phố đều có trạm thuộc loại được sử dụng. Chi phí dịch chuyển là:
+
+\begin{itemize}
+    \item $a_i+a_j$ khi sử dụng trạm loại $1$;
+    \item $\min(a_i,a_j)$ khi sử dụng trạm loại $2$.
+\end{itemize}
+
+Trong hành trình, Lâm có thể sử dụng đường bộ và trạm dịch chuyển theo bất kỳ thứ tự nào.
+
+\textbf{Yêu cầu:} Hãy tìm tổng thời gian nhỏ nhất để đi từ khu phố $1$ đến khu phố $n$.
 
 \textbf{Input}
 
-Dòng đầu tiên chứa ba số nguyên $N$, $X$, $Y$.
+Dòng đầu tiên chứa hai số nguyên $n$, $m$ $(2 \le n,m \le 200000)$ — số khu phố và số con đường.
 
-Dòng thứ hai chứa số nguyên $M$.
+Dòng thứ hai chứa $n$ số nguyên $a_1,a_2,\ldots,a_n$ $(0 \le a_i \le 200000)$.
 
-Mỗi trong $M$ dòng tiếp theo chứa bốn số nguyên $i$, $j$, $H$, $D$, mô tả một con đường hai chiều nối thành phố $i$ và thành phố $j$, có giới hạn chiều cao $H$ và độ dài $D$.
+Dòng thứ ba chứa $n$ số nguyên $b_1,b_2,\ldots,b_n$ $(0 \le b_i \le 3)$.
 
-Các ràng buộc:
+Mỗi trong $m$ dòng tiếp theo chứa ba số nguyên $u_i$, $v_i$, $w_i$ $(1 \le u_i,v_i \le n; u_i \ne v_i; 1 \le w_i \le 200000)$, mô tả một con đường hai chiều.
 
-\begin{itemize}
-    \item $1 \le N \le 10^5$;
-    \item $1 \le X, Y \le N$;
-    \item $0 \le M \le 10^5$;
-    \item $1 \le i, j \le N$ và $i \ne j$;
-    \item $1 \le H, D \le 10^4$;
-    \item không có hai con đường nối cùng một cặp thành phố.
-\end{itemize}
+Đảm bảo rằng có thể đi giữa mọi cặp khu phố chỉ bằng các con đường.
 
 \textbf{Output}
 
-Nếu không tồn tại đường đi từ $X$ đến $Y$, in ra một dòng chứa $-1$.
-
-Ngược lại, dòng đầu tiên chứa số nguyên $K$ là số thành phố trên đường đi, kể cả $X$ và $Y$.
-
-Dòng thứ hai chứa $K$ số nguyên là các thành phố theo đúng thứ tự trên đường đi. Số đầu tiên phải là $X$ và số cuối cùng phải là $Y$.
+In ra một số nguyên duy nhất: tổng thời gian nhỏ nhất để đi từ khu phố $1$ đến khu phố $n$.
 
 \textbf{Subtask}
 
 \begin{itemize}
-    \item Subtask $1$ ($15\%$ số điểm): đồ thị là một cây liên thông, tức $M = N - 1$.
-    \item Subtask $2$ ($20\%$ số điểm): $N, M \le 200$.
-    \item Subtask $3$ ($25\%$ số điểm): $D = 1$ trên mọi con đường.
-    \item Subtask $4$ ($40\%$ số điểm): không có ràng buộc bổ sung.
+    \item Subtask $1$ ($12\%$ số điểm): $b_i=0$ với mọi $1 \le i \le n$.
+    \item Subtask $2$ ($13\%$ số điểm): $n,m \le 5000$.
+    \item Subtask $3$ ($15\%$ số điểm): có nhiều nhất $100$ chỉ số $i$ thỏa mãn $b_i>0$.
+    \item Subtask $4$ ($15\%$ số điểm): $b_i \in \{0,1\}$ với mọi $1 \le i \le n$.
+    \item Subtask $5$ ($20\%$ số điểm): $b_i \in \{0,2\}$ với mọi $1 \le i \le n$.
+    \item Subtask $6$ ($25\%$ số điểm): không có ràng buộc bổ sung.
 \end{itemize}

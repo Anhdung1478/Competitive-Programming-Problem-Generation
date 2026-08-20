@@ -1,65 +1,50 @@
-# Solution suite manifest
+# Solution suite: Truy tìm kho báu
 
-## Authoritative limit
+Authoritative time limit: **2.25 seconds**. Every source uses guarded courses.inp/courses.out redirection and falls back to standard input/output when courses.inp is absent.
 
-The authoritative time limit is **1 second**, from `source/problem-context.md`. All candidates use GNU C++17 and preserve the guarded `tunnel.inp` / `tunnel.out` local-file behavior of `source/solution.cpp`, with standard input/output as fallback.
+Only one AC solution is included. Any full solution within the constraints must resolve the ordering of up to 17 required monochromatic blocks; the natural efficient formulations all reduce to the same subset DP over used letters. A second implementation would therefore differ mainly in preprocessing details rather than algorithmic substance.
 
-## Candidates
+## ac-full-earliest-block-subset-dp.cpp — AC
 
-### `ac-full-maximin-then-dijkstra.cpp` — AC
+- Intended verdict: **AC**.
+- Claimed scope: full constraints and all five subtasks.
+- Independently chosen algorithm: binary-search the answer len. For every letter and starting position, precompute the earliest compatible length-len block. A subset DP stores the smallest ending position after placing one nonoverlapping block for every letter in the mask, in any order.
+- Complexity: O((nk + k·2^k) log n) time and O(nk + 2^k) memory.
+- Material difference from source/solution.cpp: the candidate stores prefix counts of positions incompatible with each letter and records earliest valid block starts. The official source counts the requested letter together with wildcards and stores valid block ends. Both use the same necessary subset-ordering state.
+- Validation evidence: compiled under GNU C++17 with warnings enabled; matched the official solution on 400 randomized suite cases and on maximum n=200000, k=17 all-wildcard, all-a, and periodic fixed-string profiles. Local times for those maximum profiles were approximately 312 ms, 194 ms, and 196 ms, all within 2.25 seconds.
+- Supported domain: every valid n, k, and S from the source specification.
+- Generation properties for future work: k=1, k>n, all wildcards, no wildcards, missing letters, reverse block order, alternating fixed letters, long forced runs, and n=200000, k=17.
 
-- **Scope:** full constraints (subtask 4 and every earlier subtask).
-- **Algorithm:** a max-priority traversal computes, for each city, the maximum bottleneck height reachable from `X`. A second Dijkstra run keeps only roads whose height is at least the optimum for `Y`, minimizes total length, and stores parents.
-- **Complexity:** `O((N + M) log N)` time and `O(N + M)` memory.
-- **Material difference from the official source:** it computes the bottleneck directly with a maximin Dijkstra traversal instead of binary-searching the height and running Dijkstra for every feasibility check.
-- **Validation evidence:** compiled with GNU C++17 and strict warnings; matched the official solution semantically on 1,200 random simple graphs, including disconnected graphs and `X = Y`. Step 1 independently checked the official solution against a brute oracle on 2,504 cases.
-- **Supported domain:** all valid inputs, including `M = 0`, unreachable `Y`, and `X = Y`.
+## wa-fixed-letter-order.cpp — WA
 
-### `ac-subtask-1-tree-dfs.cpp` — AC
+- Intended verdict: **WA**.
+- Claimed scope: full constraints.
+- Algorithm: binary-search the answer and greedily place the earliest compatible block for a, then b, and so on.
+- Complexity: O(nk log n) time and O(n) input memory.
+- Precise defect: a feasible collection of blocks may occur in a different left-to-right letter order. Greedy earliest placement is valid only after an order has been fixed; fixing alphabetical order loses valid schedules.
+- Valid counterexample:
 
-- **Scope:** exactly subtask 1 (the graph is a connected tree).
-- **Algorithm:** iterative DFS records parents; the unique path from `X` to `Y` is reconstructed from the parent array. Since there is only one simple path, it is automatically optimal under both criteria.
-- **Complexity:** `O(N + M)` time and `O(N + M)` memory.
-- **Material difference from the official source:** it uses only the unique-path property and performs no threshold search or shortest-path computation.
-- **Validation evidence:** compiled with GNU C++17 and strict warnings; matched the official solution semantically on 500 random trees, including `X = Y`.
-- **Supported domain:** subtask 1 only; it must not be used as an oracle for other subtasks.
+      2 2
+      ba
 
-### `wa-shortest-path-first.cpp` — WA
+  The correct answer is 1, using the block for b before the block for a; this candidate prints 0.
+- Validation evidence: compiles and follows the exact input/output format. The counterexample was executed: official 1, full AC 1, WA 0.
+- Generation target: fixed strings whose required letter blocks appear in a nonalphabetical order, especially reverse order with few or no wildcards.
 
-- **Scope claimed by the candidate:** full constraints.
-- **Attempt:** one Dijkstra run minimizes total length over every road and reconstructs that path.
-- **Complexity:** `O((N + M) log N)` time and `O(N + M)` memory.
-- **Precise defect:** it optimizes length before height, reversing the required lexicographic priority. It ignores every road height.
-- **Counterexample:**
+## tle-enumerate-letter-orders.cpp — TLE
 
-  ```text
-  4 1 4
-  4
-  1 2 5 100
-  2 4 5 100
-  1 3 4 1
-  3 4 4 1
-  ```
+- Intended verdict: **TLE**.
+- Claimed scope: semantically correct for the full constraints.
+- Algorithm: for each binary-search value, enumerate every permutation of the k letters and greedily place the earliest compatible block in that order.
+- Complexity: O((nk + k·k!) log n) time and O(nk) memory.
+- Correctness rationale: if a feasible completion exists, choose one qualifying run for each letter and sort these disjoint runs by position. For that permutation, earliest compatible placement never ends later than the chosen runs, so the enumeration finds a solution.
+- Bottleneck and authoritative limit: an adversarial infeasible case forces all permutations. A local k=11 case already took about 206 ms; increasing from 11! to 17! multiplies the permutation count by 12·13·14·15·16·17, far beyond the **2.25-second** limit.
+- Validation evidence: compiles, matched the official solution on 400 randomized small cases, succeeds on weak/small inputs, and returns the correct result on the WA counterexample.
+- Generation target: k=17 with fixed characters making every candidate block length infeasible only after testing many order prefixes; avoid all-wildcard instances because the first permutation succeeds immediately.
 
-  The candidate prints `1 3 4`, whose `(height, length)` is `(4, 2)`. The required path is `1 2 4`, whose objective is `(5, 200)` because height has priority.
-- **Validation evidence:** the counterexample was executed and rejected by `outputs/checker.cpp`.
-- **Generation target:** profile `competing-paths`, especially a short low tunnel path versus a longer high tunnel path. This profile is valid in subtasks 2–4 and can also be embedded in a tree only when the two routes are not both present.
+## Oracle and kill summary for later generation work
 
-### `tle-enumerate-thresholds.cpp` — TLE
-
-- **Scope:** logically correct for full constraints.
-- **Algorithm:** sort all distinct road heights descending and run Dijkstra independently for each threshold until `Y` becomes reachable.
-- **Complexity:** `O(U (N + M) log N)` time and `O(N + M)` memory, where `U` is the number of distinct heights (`U <= 10,000`).
-- **Bottleneck:** thousands of nearly full Dijkstra runs when many height values occur and `Y` becomes reachable only at a low threshold.
-- **Classification limit:** the authoritative 1-second limit.
-- **Validation evidence:** compiled with GNU C++17 and strict warnings; matched the official solution semantically on 150 random small graphs. A valid `N = 100,000`, `M = 99,999` long-chain instance with 10,000 height levels did not finish within 3 seconds.
-- **Generation target:** profile `threshold-chain`, using a long path, many distinct/repeated height levels, and a final height-1 edge. Apply near the subtask-4 limit; small versions are also suitable for subtask 2 correctness coverage.
-
-## Oracle routing
-
-| Scope | Differential oracle |
-|---|---|
-| Subtask 1 | `ac-subtask-1-tree-dfs.cpp` and `ac-full-maximin-then-dijkstra.cpp` |
-| Subtasks 2–4 | `ac-full-maximin-then-dijkstra.cpp` |
-
-All AC comparisons are semantic because multiple optimal paths may exist. `outputs/checker.cpp` independently recomputes the optimum and validates the submitted witness rather than comparing it structurally with the jury path.
+| Candidate | Failure mechanism | Target profile | Relevant subtasks | Differential oracle |
+|---|---|---|---|---|
+| wa-fixed-letter-order.cpp | Assumes alphabetical left-to-right block order | reverse-order, fixed or nearly fixed | 1, 2, 3, 4, 5 | official solution or full AC |
+| tle-enumerate-letter-orders.cpp | Enumerates up to k! orders | permutation-exhaustion, k=17 | 4, 5 | official solution or full AC |

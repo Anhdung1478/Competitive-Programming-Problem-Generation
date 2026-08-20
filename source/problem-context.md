@@ -1,38 +1,18 @@
-**Problem name**: Dãy con tăng dài nhất (bản khó)
+**Problem name**: Chia dãy số
 **Time limit**: 1s
 
 **Legend**:
-Bên dưới Zaun là một mạng lưới đường hầm chật hẹp. Ekko cần chọn lộ trình cho một phương tiện đi qua mạng lưới này.
+Cho dãy số $a_1, a_2,...,a_n$. Ta ký hiệu $s_{l,r} = a_{l + 1} + a_{l + 2} + ... + a_{r}$ với $1 \le l \le r \le n$.
 
-Có $N$ thành phố được đánh số từ $1$ đến $N$ và $M$ con đường hai chiều. Mỗi con đường nối hai thành phố phân biệt, có giới hạn chiều cao $H$ và độ dài $D$. Giữa một cặp thành phố có không quá một con đường.
+Ví dụ, ta có dãy số $a_1 = 10, a_2 = 7, a_3 = -5$ thì khi đó $s_{1,2} = 17, s_{1,3} = 12, s_{2,3} = 2$ và $s_{1,1}, s_{2,2} = s_{3,3} = 0$.
 
-Một đường đi từ $X$ đến $Y$ là một dãy thành phố bắt đầu tại $X$, kết thúc tại $Y$, trong đó hai thành phố liên tiếp được nối bởi một con đường. Chiều cao cho phép của đường đi là giá trị $H$ nhỏ nhất trong các con đường thuộc đường đi. Tổng độ dài của đường đi là tổng các giá trị $D$ tương ứng.
-
-\textbf{Yêu cầu:} Hãy tìm một đường đi từ $X$ đến $Y$ có chiều cao cho phép lớn nhất. Nếu có nhiều đường đi như vậy, hãy chọn một đường đi có tổng độ dài nhỏ nhất. Có thể in ra bất kỳ đường đi nào nếu vẫn còn nhiều đáp án tối ưu.
-
-Nếu $X = Y$, đường đi chỉ gồm thành phố $X$ là hợp lệ. Nếu không tồn tại đường đi từ $X$ đến $Y$, hãy thông báo rằng yêu cầu không thể thực hiện.
+Hãy tìm năm chỉ số $x, y, z, t$ và $u$ sao cho $0 \le x \le y \le z \le t \le u \le n$ và $-s_{0,x} + s_{x,y} - s_{y,z} + s_{z,t} - s_{t,u} + s_{u,n}$ lớn nhất.
 
 **Input format**:
-Dòng đầu tiên chứa ba số nguyên $N$, $X$, $Y$.
+Dòng đầu tiên chứa số nguyên $n$ $(1 \le n \le 10^6)$.
 
-Dòng thứ hai chứa số nguyên $M$.
+Dòng thứ hai chứa $n$ số nguyên $a_1,a_2,...,a_n$ $(1 \le a_i \le 10^9)$.
 
-Mỗi trong $M$ dòng tiếp theo chứa bốn số nguyên $i$, $j$, $H$, $D$, mô tả một con đường hai chiều nối thành phố $i$ và thành phố $j$, có giới hạn chiều cao $H$ và độ dài $D$.
-
-Các ràng buộc:
-
-\begin{itemize}
-    \item $1 \le N \le 10^5$;
-    \item $1 \le X, Y \le N$;
-    \item $0 \le M \le 10^5$;
-    \item $1 \le i, j \le N$ và $i \ne j$;
-    \item $1 \le H, D \le 10^4$;
-    \item không có hai con đường nối cùng một cặp thành phố.
-\end{itemize}
 
 **Output format**:
-Nếu không tồn tại đường đi từ $X$ đến $Y$, in ra một dòng chứa $-1$.
-
-Ngược lại, dòng đầu tiên chứa số nguyên $K$ là số thành phố trên đường đi, kể cả $X$ và $Y$.
-
-Dòng thứ hai chứa $K$ số nguyên là các thành phố theo đúng thứ tự trên đường đi. Số đầu tiên phải là $X$ và số cuối cùng phải là $Y$.
+Gồm một số nguyên duy nhất là giá trị lớn nhất của tổng $-s_{0,x} + s_{x,y} - s_{y,z} + s_{z,t} - s_{t,u} + s_{u,n}$ với $0 \le x \le y \le z \le t \le u \le n$.
