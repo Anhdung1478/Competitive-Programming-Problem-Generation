@@ -1,12 +1,15 @@
-**Constraints**: (có trong đề)
+**Constraints**: 
+* 1 ≤ 𝑁 ≤ 36.
+* 0 ≤ 𝑀 ≤ 𝑁(𝑁−1)/2.
+* 1 ≤ 𝑈 ≤ 𝑁, 1 ≤ 𝑉 ≤ 𝑁 and 𝑈 ≠ 𝑉 for every edge.
 
 **Subtasks**:
-Subtask $1$ ($14$ điểm): $n \le 10^1$.
+\item Subtask $1$ ($5 \%$ số điểm): $N = 1$.
 
-Subtask $2$ ($20$ điểm): $n \le 10^2$.
+\item Subtask $2$ ($5 \%$ số điểm): $N = 2$.
 
-Subtask $3$ ($12$ điểm): $n \le 10^3$.
+\item Subtask $3$ ($20 \%$ số điểm): $N \le 10$
 
-Subtask $4$ ($24$ điểm): $n \le 10^5$.
+\item Subtask $4$ ($25 \%$ số điểm): $M = 0$.
 
-Subtask $5$ ($30$ điểm): $n \le 10^6$.
+\item Subtask $5$ ($45 \%$ số điểm): Không có ràng buộc gì thêm.

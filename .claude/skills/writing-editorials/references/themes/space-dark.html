@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#121014" />
-  <title>Đăng ký học phần — lời giải</title>
+  <title><!-- PROBLEM_NAME --> — lời giải</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -345,106 +345,70 @@
   <div class="bar">
     <div class="bar-inner">
       <span class="bar-kicker">Lời giải</span>
-      <span class="bar-name">Đăng ký học phần</span>
+      <span class="bar-name"><!-- PROBLEM_NAME --></span>
     </div>
   </div>
 
   <main class="page">
     <p class="kicker">Bài toán</p>
-    <h1>Đăng ký học phần</h1>
+    <h1><!-- PROBLEM_NAME --></h1>
 
     <dl class="meta">
       <dt>Giới hạn thời gian</dt>
-      <dd>1 giây</dd>
+      <dd><!-- TIME_LIMIT e.g. 2 s --></dd>
+      <dt>Giới hạn bộ nhớ</dt>
+      <dd><!-- MEMORY_LIMIT e.g. 256 MB --></dd>
       <dt>Expected rating</dt>
-      <dd>1900 (ước lượng)</dd>
+      <dd><!-- EXPECTED_RATING e.g. 2100 — no leading * --></dd>
     </dl>
 
     <ul class="tags">
-      <li class="tag">binary search</li>
-      <li class="tag">bitmasks</li>
-      <li class="tag">dynamic programming</li>
-      <li class="tag">strings</li>
-      <li class="tag">greedy</li>
+      <!-- <li class="tag">data structures</li> -->
     </ul>
 
     <section id="statement">
       <h2>Tóm tắt đề bài</h2>
-      <p>Thời khóa biểu gồm \(n\) tiết và \(k\) môn, tương ứng với \(k\) chữ cái thường đầu tiên. Chuỗi \(S\) mô tả lịch học: một chữ cái là môn đã cố định, còn dấu <code>?</code> có thể được thay bằng bất kỳ môn nào.</p>
-      <p>Với mỗi môn, độ tập trung là độ dài lớn nhất của một đoạn liên tiếp chỉ gồm môn đó. Ta cần điền các dấu <code>?</code> để <mark>giá trị nhỏ nhất trong độ tập trung của cả \(k\) môn</mark> lớn nhất có thể.</p>
-      <div class="panel">
-        <ul>
-          <li>\(1 \le n \le 2\times 10^5\), \(1 \le k \le 17\).</li>
-          <li>\(|S|=n\); mỗi ký tự là <code>?</code> hoặc một trong \(k\) chữ cái thường đầu tiên.</li>
-          <li>Subtask 1 (20 điểm): \(k=2\).</li>
-          <li>Subtask 2 (20 điểm): \(n\le12\).</li>
-          <li>Subtask 3 (20 điểm): \(k\le5\).</li>
-          <li>Subtask 4 (20 điểm): \(n\le5000\).</li>
-          <li>Subtask 5 (20 điểm): không có ràng buộc bổ sung.</li>
-        </ul>
-      </div>
+      <!-- Lore-stripped restatement. Highlight load-bearing facts with <mark>. Then constraints. If there are subtasks: globals, then every subtask. Do not name OI/IOI/ICPC. -->
     </section>
 
     <section id="tutorial">
       <h2>Lời giải</h2>
-
-      <article class="card transform">
-        <p class="card-label">Biến đổi bài toán</p>
-        <p>Giả sử ta muốn kiểm tra liệu đáp án có ít nhất là \(x\). Điều này tương đương với việc chọn cho mỗi chữ cái một đoạn dài \(x\), sao cho đoạn của chữ \(c\) chỉ chứa <code>?</code> hoặc \(c\).</p>
-        <p>Các đoạn của hai chữ khác nhau không thể giao nhau. Ngược lại, nếu chọn được \(k\) đoạn đôi một không giao nhau như vậy, ta thay các dấu <code>?</code> trong từng đoạn bằng chữ tương ứng; các vị trí còn lại có thể điền tùy ý. Khi đó mọi môn đều có độ tập trung ít nhất \(x\).</p>
-      </article>
-
+      <!--
+        Optional: <article class="card transform"><p class="card-label">Transformation</p>…</article>
+        Then observation / lemma cards, numbered in reader order.
+        Bridges between complexity jumps: <p class="bridge">…</p>
+        No pseudocode / algorithm box. A displayed recurrence or matrix is fine.
+      -->
       <article class="card">
-        <p class="card-label">Nhận xét 1 — tính đơn điệu</p>
-        <p>Nếu đạt được độ tập trung tối thiểu \(x\), ta cũng đạt được mọi giá trị nhỏ hơn \(x\) bằng cách lấy đoạn con của các đoạn đã chọn. Vì vậy có thể binary search đáp án trong khoảng từ \(0\) đến \(\lfloor n/k\rfloor\).</p>
+        <p class="card-label">Nhận xét 1</p>
+        <p>Thay nội dung mẫu này.</p>
       </article>
-
-      <p class="bridge">Với một giá trị \(x\) cố định, ta còn phải quyết định thứ tự xuất hiện từ trái sang phải của \(k\) đoạn. Có tới \(k!\) thứ tự, nhưng \(k\le17\) cho phép lưu tập các chữ đã dùng bằng bitmask.</p>
-
-      <article class="card">
-        <p class="card-label">Nhận xét 2 — đoạn hợp lệ sớm nhất</p>
-        <p>Gọi \(nxt[p][c]\) là vị trí kết thúc nhỏ nhất của một đoạn dài \(x\), bắt đầu không trước \(p\), và tương thích với chữ \(c\). Nếu không có đoạn như vậy, giá trị là \(n+1\).</p>
-        <p>Có thể tính toàn bộ bảng này trong \(O(nk)\). Với mỗi chữ \(c\), dùng prefix sum đếm số vị trí bằng \(c\) và số dấu <code>?</code>; một cửa sổ dài \(x\) hợp lệ khi tổng hai lượng đếm trong cửa sổ đúng bằng \(x\). Sau đó quét vị trí bắt đầu từ phải sang trái để lưu vị trí kết thúc hợp lệ sớm nhất.</p>
-        <p>Khi thứ tự chữ đã cố định, luôn chọn đoạn hợp lệ sớm nhất là tối ưu: lựa chọn này kết thúc không muộn hơn bất kỳ lựa chọn nào khác, nên chỉ để lại nhiều chỗ hơn cho các đoạn phía sau.</p>
-      </article>
-
-      <article class="card">
-        <p class="card-label">Nhận xét 3 — subset DP</p>
-        <p>Đặt \(dp[mask]\) là vị trí kết thúc nhỏ nhất sau khi đã đặt các đoạn của đúng những chữ có bit trong \(mask\). Ban đầu \(dp[0]=0\). Với mỗi chữ \(c\) chưa thuộc \(mask\), ta chuyển sang:</p>
-        <p>\[
-          dp[mask\cup\{c\}]
-          =\min\left(dp[mask\cup\{c\}],\ nxt[dp[mask]+1][c]\right).
-        \]</p>
-        <p>Giá trị \(x\) khả thi khi và chỉ khi \(dp[2^k-1]\le n\). Mỗi trạng thái thử nhiều nhất \(k\) chữ tiếp theo, nên phần DP tốn \(O(k2^k)\).</p>
-      </article>
-
-      <p class="bridge">Thực hiện phép kiểm tra trên cho từng giá trị giữa của binary search. Giá trị khả thi lớn nhất là đáp án cần in.</p>
     </section>
 
-    <section id="correctness">
-      <h2>Tính đúng đắn</h2>
-      <article class="card lemma">
-        <p class="card-label">Bổ đề 1</p>
-        <p>Một giá trị \(x\) khả thi khi và chỉ khi tồn tại \(k\) đoạn dài \(x\), mỗi đoạn tương thích với một chữ khác nhau và các đoạn đôi một không giao nhau. Chiều thuận thu được bằng cách chọn một đoạn con dài \(x\) trong run của từng chữ; chiều ngược thu được bằng cách điền từng đoạn bằng chữ được gán cho nó.</p>
-      </article>
-      <article class="card lemma">
-        <p class="card-label">Bổ đề 2</p>
-        <p>Với một thứ tự chữ cố định, đặt mỗi đoạn tại vị trí hợp lệ sớm nhất không làm mất nghiệm. Sau từng bước, đoạn greedy kết thúc không muộn hơn đoạn tương ứng của bất kỳ cách đặt nào theo cùng thứ tự; lập luận quy nạp này bảo toàn đủ không gian cho mọi đoạn còn lại.</p>
-      </article>
-      <article class="card lemma">
-        <p class="card-label">Bổ đề 3</p>
-        <p>Với mọi \(mask\), \(dp[mask]\) là vị trí kết thúc nhỏ nhất trong tất cả cách đặt các chữ thuộc \(mask\). Mỗi cách đặt có một chữ cuối cùng; bỏ đoạn cuối cho ta một trạng thái nhỏ hơn, còn chuyển tiếp bằng \(nxt\) chọn vị trí tốt nhất cho chữ cuối đó. Vì DP thử mọi chữ cuối, nó xét đủ mọi thứ tự.</p>
-      </article>
-      <p>Từ ba bổ đề, phép kiểm tra trả về đúng tính khả thi của \(x\). Tính đơn điệu bảo đảm binary search chọn đúng giá trị khả thi lớn nhất.</p>
-    </section>
+    <!-- Subtasks only: one <section class="subtask" id="g1"> per rung, each with its own complexity. -->
 
     <section id="complexity">
       <h2>Độ phức tạp</h2>
-      <pre class="complexity">Thời gian: O((n·k + k·2^k) log n)
-Bộ nhớ: O(n·k + 2^k)</pre>
+      <pre class="complexity">Thời gian: O(…)
+Bộ nhớ: O(…)</pre>
+      <!-- Drop query/update lines when they do not apply. -->
     </section>
 
-    <footer class="page-end">Đăng ký học phần · lời giải</footer>
+    <!-- Optional other approaches. Delete the whole section if none.
+    <section id="other">
+      <h2>Cách giải khác</h2>
+      <p>We can solve the problem in \(O(N)\) using …</p>
+    </section>
+    -->
+
+    <!-- Fun fact: emit this section ONLY if the user asked. Delete otherwise.
+    <section id="fun" class="fun">
+      <p class="card-label">Thông tin thú vị</p>
+      <p>…</p>
+    </section>
+    -->
+
+    <footer class="page-end"><!-- PROBLEM_NAME --> · lời giải</footer>
   </main>
 
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>

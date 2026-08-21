@@ -30,6 +30,17 @@ Generated artifacts must never silently redefine the problem. If generated files
 
 Do not edit `source/problem-context.md`, `source/solution.cpp`, or `source/subtask.md` unless the user explicitly asks. The local-I/O normalization rule in Step 1 is the sole standing exception for `source/solution.cpp`.
 
+## C++ I/O convention
+
+Every C++ file the agent writes or edits must use the C++ stream API instead of the C stdio API. This covers `outputs/gentest.cpp`, `outputs/validator.cpp`, `outputs/checker.cpp`, every file in `outputs/solution/`, and any scratch/brute-force program used during validation.
+
+- Use `cin`/`cout` (or the appropriate `testlib` stream) for reading and writing; do not use `scanf`, `printf`, `fscanf`, `fprintf`, `puts`, `getchar`, or `putchar`.
+- In solution-style programs that read from standard input, start `main` with `ios_base::sync_with_stdio(false);` and `cin.tie(nullptr);`, and end lines with `'\n'` rather than `endl`.
+- Inside `testlib` programs the testlib readers still win: use `inf.read*`, `ouf.read*`, and `ans.read*` for input, and `cout` for generator output. Never mix `scanf`/`printf` into them.
+- Formatted output that would be natural with `printf` must use stream manipulators instead, e.g. `cout << fixed << setprecision(9) << x << '\n';` from `<iomanip>`.
+- `freopen` remains allowed solely for the guarded local `.inp`/`.out` redirection described in Step 1 and Step 3; it redirects the standard streams, so `cin`/`cout` keep working.
+- When reviewing or fixing an existing generated file that uses `scanf`/`printf`, convert it. Do not rewrite `source/solution.cpp` for this reason — it is a source-of-truth file, and this convention is not one of the allowed exceptions to the no-edit rule. Report the deviation instead.
+
 ## Mandatory ambiguity gate
 
 Before generating or modifying any Step 1-9 artifact, read every available source-of-truth file.
@@ -102,7 +113,7 @@ Design candidate algorithms independently from the problem specification. Do not
 
 ### Required directory contract
 
-Create `outputs/solution/manifest.md` and self-contained GNU C++17 sources using these names:
+Create `outputs/solution/manifest.md` and self-contained GNU C++17 sources using these names. Every source must follow the C++ I/O convention above: `cin`/`cout` with `ios_base::sync_with_stdio(false); cin.tie(nullptr);`, never `scanf`/`printf` — including the TLE candidates, whose slowness must come from the algorithm and not from I/O.
 
 - `ac-full-<slug>.cpp` — correct for all constraints;
 - `ac-subtask-<id>-<slug>.cpp` — correct exactly for the declared subtask scope;
