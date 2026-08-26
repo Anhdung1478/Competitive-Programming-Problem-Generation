@@ -1,15 +1,10 @@
-**Constraints**: 
-* 1 ≤ 𝑁 ≤ 36.
-* 0 ≤ 𝑀 ≤ 𝑁(𝑁−1)/2.
-* 1 ≤ 𝑈 ≤ 𝑁, 1 ≤ 𝑉 ≤ 𝑁 and 𝑈 ≠ 𝑉 for every edge.
+**Constraints**: (có trong đề)
+
 
 **Subtasks**:
-\item Subtask $1$ ($5 \%$ số điểm): $N = 1$.
-
-\item Subtask $2$ ($5 \%$ số điểm): $N = 2$.
-
-\item Subtask $3$ ($20 \%$ số điểm): $N \le 10$
-
-\item Subtask $4$ ($25 \%$ số điểm): $M = 0$.
-
-\item Subtask $5$ ($45 \%$ số điểm): Không có ràng buộc gì thêm.
+* Subtask 1 (20% số điểm): N, Q <= 200.
+* Subtask 2 (10% số điểm): N, Q <= 2000.
+* Subtask 3 (15% số điểm): Vị trí của các con ruồi trước và sau mỗi truy vấn đều không vượt quá 100.
+* Subtask 4 (15% số điểm): Vị trí của các con ruồi trước và sau mỗi truy vấn đều không vượt quá 10^5.
+* Subtask 5 (15% số điểm): N, Q <= 50000.
+* Subtask 6 (25% số điểm): Không có ràng buộc gì thêm.

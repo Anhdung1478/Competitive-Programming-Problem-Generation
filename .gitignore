@@ -2,3 +2,8 @@
 source/solution.exe
 source/solution.inp
 source/solution.out
+/.tmp-validator-testlib/
+outputs/tex-statement.aux
+outputs/tex-statement.log
+outputs/tex-statement.fls
+outputs/tex-statement.fdb_latexmk

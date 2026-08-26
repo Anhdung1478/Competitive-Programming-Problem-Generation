@@ -33,14 +33,17 @@ Expected layout:
       ├─ generator-array/
       ├─ generator-number-theory/
       ├─ generator-string/
-      └─ writing-editorials/
+      ├─ writing-editorials/
+      └─ tex-statement/
 ```
 
 Codex discovers repository-local skills from `.agents/skills`. Each skill is intentionally focused on one part of the pipeline.
 
-Step 3 creates one or two independently designed correct candidates in `outputs/solution/` and, when meaningful, plausible WA/TLE candidates. `manifest.md` records every candidate's verdict, scope, complexity, validation evidence, known weakness, and the adversarial profiles used by later generator steps.
+Step 4 creates one or two independently designed correct candidates in `outputs/solution/` and, when meaningful, plausible WA/TLE candidates. `manifest.md` records every candidate's verdict, scope, complexity, validation evidence, known weakness, and the adversarial profiles used by later generator steps.
 
-The generation flow is config-first: Step 5 writes `outputs/generator-config.md`, Step 6 derives `outputs/test-script.txt` from it, Step 7 implements `outputs/gentest.cpp`, and Step 8 validates generated input with `outputs/validator.cpp` before Step 9 writes the editorial.
+The statement comes early: Step 2 writes `outputs/statement.txt` so that the checker (Step 3) and the solution suite (Step 4) are built against finished, authoritative wording.
+
+The generation flow is config-first: Step 5 writes `outputs/generator-config.md`, Step 6 derives `outputs/test-script.txt` from it, and Step 7 implements `outputs/gentest.cpp`. Step 8 validates generated input with `outputs/validator.cpp`, but it is optional and skipped by default — ask for it explicitly. Step 9 writes the editorial.
 
 Typical request to the agent:
 
@@ -50,7 +53,7 @@ Read the project sources and execute the problem-preparation workflow in AGENTS.
 
 If you only want one artifact regenerated, state that explicitly. The agent should still run all prerequisite consistency/ambiguity gates that affect that artifact.
 
-The supplied `writing-statements-SKILL.md` was used as a source for statement-writing discipline, but this package intentionally targets **Polygon simpleTex** rather than the vnolymp LaTeX/PDF build workflow.
+The supplied `writing-statements.md` was used as a source for statement-writing discipline. The pipeline's mandatory Step 2 targets **Polygon simpleTex** (`polygon-statement` → `outputs/statement.txt`). Its vnolymp LaTeX/PDF build workflow now lives in the optional `tex-statement` skill, which renders that finished statement into `outputs/tex-statement.tex` on request; it is a rendering step, not a second author.
 
 The supplied `gentest.txt` was used as a source for the generator style, especially `testlib.h`, named options, `genValue`, and tree-generation profiles. The reusable tree material in this package also fixes/avoids fragile patterns from a one-off problem-specific generator.
 

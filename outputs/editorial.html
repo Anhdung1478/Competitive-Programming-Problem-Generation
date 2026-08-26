@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="space-dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#121014" />
+  <title>Ếch ham ăn — lời giải</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css" />
+  <style>
+    /* Space dark — BrewBit / Caffeine tokens. Do not mix with another theme. */
+    :root,
+    [data-theme="space-dark"] {
+      --background: #121014;
+      --surface: #1A1820;
+      --surface-muted: #221F2A;
+      --espresso: #EDE8F0;
+      --mocha: #A098A8;
+      --latte: #2E2A38;
+      --caramel: #D4A0B8;
+      --gold: #E8C060;
+      --text: #E8E4EC;
+      --text-muted: #A098A8;
+      --heading: #F2EEF6;
+      --text-inverse: #121014;
+      --border: #2E2A38;
+      --accent: #D4A0B8;
+      --link: #D4A0B8;
+      --selection: #D4A0B8;
+      --success: #6ED890;
+      --success-bg: #1A2E28;
+      --success-text: #90E8B8;
+      --warning-bg: #2E2830;
+      --warning-text: #E8C8A0;
+      --code-bg: #0A080C;
+      --code-fg: #E8E4EC;
+      --wash-accent: rgba(212, 160, 184, 0.1);
+      --wash-accent-soft: rgba(212, 160, 184, 0.06);
+      --font: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      color-scheme: dark;
+      background: var(--background);
+    }
+
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    ::selection {
+      background: color-mix(in oklab, var(--selection) 35%, transparent);
+    }
+
+    a { color: var(--link); }
+
+    .bar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
+      background: var(--background);
+    }
+
+    .bar-inner {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    .bar-kicker {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--heading);
+    }
+
+    .bar-name {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page {
+      max-width: 60rem;
+      margin: 0 auto;
+      padding: 2.25rem 1.25rem 4.5rem;
+    }
+
+    mark {
+      background: var(--wash-accent);
+      color: var(--heading);
+      padding: 0.05em 0.28em;
+      border-radius: 0;
+      box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 28%, transparent);
+    }
+
+    .kicker {
+      margin: 0 0 0.45rem;
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    h1, h2, h3 {
+      color: var(--heading);
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.25;
+    }
+
+    h1 {
+      margin: 0 0 1.25rem;
+      font-size: 1.85rem;
+    }
+
+    h2 {
+      margin: 2.4rem 0 0.7rem;
+      font-size: 1.05rem;
+    }
+
+    h3 {
+      margin: 1.5rem 0 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    p { margin: 0.75em 0; }
+
+    ul, ol {
+      margin: 0.75em 0;
+      padding-left: 1.25rem;
+    }
+
+    li + li { margin-top: 0.2rem; }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 9.5rem 1fr;
+      gap: 0.35rem 1rem;
+      margin: 0 0 1rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .meta dt {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .meta dd {
+      margin: 0;
+      color: var(--heading);
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0 0 2rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: var(--surface-muted);
+      color: var(--text-muted);
+      box-shadow: inset 0 0 0 1px var(--border);
+      font-size: 0.75rem;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 0;
+      padding: 1rem 1.05rem;
+      margin: 1rem 0;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 0;
+      padding: 0.95rem 1.05rem 1.05rem;
+      margin: 1.1rem 0;
+    }
+
+    .card-label {
+      margin: 0 0 0.45rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .card.lemma .card-label { color: var(--gold); }
+    .card.transform .card-label { color: var(--success-text); }
+
+    .card p:first-of-type { margin-top: 0; }
+    .card p:last-child { margin-bottom: 0; }
+
+    .bridge {
+      margin: 1.35rem 0;
+      padding: 0.15rem 0 0.15rem 1rem;
+      border-left: 2px solid var(--accent);
+      color: var(--text);
+    }
+
+    .complexity {
+      margin: 1.5rem 0;
+      padding: 0.95rem 1.05rem;
+      border: 1px solid var(--border);
+      background: var(--surface-muted);
+      white-space: pre-wrap;
+    }
+
+    .fun {
+      margin: 1.5rem 0;
+      padding: 0.95rem 1.05rem;
+      border: 1px solid var(--border);
+      background: var(--warning-bg);
+      color: var(--warning-text);
+    }
+
+    .fun .card-label { color: var(--warning-text); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+      font-size: 0.9em;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.6rem;
+      text-align: left;
+    }
+
+    th {
+      background: var(--surface-muted);
+      font-weight: 500;
+      color: var(--heading);
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: var(--font);
+      font-size: 0.85em;
+      line-height: 1.5;
+    }
+
+    :not(pre) > code {
+      background: var(--surface-muted);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    .katex { font-size: 1.05em; color: var(--text); }
+    .katex-display { overflow-x: auto; overflow-y: hidden; padding: 0.25rem 0; }
+
+    .subtask {
+      margin: 2rem 0 0;
+      padding: 0 0 0.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .subtask h2 { margin-top: 1.4rem; }
+
+    svg { max-width: 100%; height: auto; display: block; margin: 1rem 0; }
+
+    footer.page-end {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      html, body {
+        margin: 0;
+        background: var(--background);
+      }
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      .bar { position: static; }
+      .bar-inner,
+      .page {
+        max-width: none;
+        padding-left: 14mm;
+        padding-right: 14mm;
+      }
+      .page {
+        padding-top: 8mm;
+        padding-bottom: 10mm;
+      }
+      .katex-display,
+      pre {
+        overflow: visible;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <div class="bar-inner">
+      <span class="bar-kicker">Lời giải</span>
+      <span class="bar-name">Ếch ham ăn</span>
+    </div>
+  </div>
+
+  <main class="page">
+    <p class="kicker">Bài toán</p>
+    <h1>Ếch ham ăn</h1>
+
+    <dl class="meta">
+      <dt>Giới hạn thời gian</dt>
+      <dd>2 giây</dd>
+      <dt>Giới hạn bộ nhớ</dt>
+      <dd>512 MB</dd>
+      <dt>Expected rating</dt>
+      <dd>1900 (ước lượng)</dd>
+    </dl>
+
+    <ul class="tags">
+      <li class="tag">data structures</li>
+      <li class="tag">binary indexed tree</li>
+      <li class="tag">sortings</li>
+      <li class="tag">binary search</li>
+      <li class="tag">math</li>
+    </ul>
+
+    <section id="statement">
+      <h2>Tóm tắt đề bài</h2>
+      <p>Trên trục số vô hạn \(1, 2, 3, \ldots\) có \(N\) con ruồi; con ruồi thứ \(i\) đang ở vị trí
+      \(x_i\). <mark>Nhiều con ruồi có thể cùng nằm ở một vị trí và chúng vẫn là những con ruồi khác
+      nhau</mark>, nên tập vị trí của các con ruồi là một multiset chứ không phải một tập hợp.</p>
+
+      <p>Ta phải xử lí \(Q\) truy vấn thuộc hai loại:</p>
+      <ul>
+        <li><b>Loại 1 — \(1\ u\ y\):</b> chuyển con ruồi thứ \(u\) sang vị trí \(y\).</li>
+        <li><b>Loại 2 — \(2\ x\):</b> đặt con ếch ở vị trí \(x\) rồi lặp lại: nếu còn con ruồi
+        chưa bị ăn ở vị trí <mark>không vượt quá</mark> vị trí hiện tại của con ếch thì con ếch ăn con
+        gần nó nhất trong số đó, và nếu con ruồi đó ở vị trí \(y'\) thì con ếch nhảy từ \(x'\) sang
+        \(x' + y'\). In ra vị trí cuối cùng và số con ruồi đã ăn.</li>
+      </ul>
+
+      <p>Hai chi tiết quyết định lời giải: <mark>con ruồi nằm đúng vị trí của con ếch cũng bị ăn</mark>
+      (điều kiện là \(\le\), không phải \(&lt;\)), và <mark>truy vấn loại 2 chỉ là giả sử</mark> —
+      sau khi trả lời, mọi con ruồi vẫn còn nguyên trên đầm lầy cho các truy vấn sau.</p>
+
+      <p><b>Ràng buộc.</b> \(1 \le N, Q \le 2 \cdot 10^5\); \(1 \le x_i \le 10^9\); với truy
+      vấn loại 1 thì \(1 \le u \le N\) và \(1 \le y \le 10^9\); với truy vấn loại 2 thì
+      \(1 \le x \le 10^9\).</p>
+
+      <p><b>Các subtask.</b></p>
+      <ul>
+        <li>Subtask 1 (20% số điểm): \(N, Q \le 200\).</li>
+        <li>Subtask 2 (10% số điểm): \(N, Q \le 2000\).</li>
+        <li>Subtask 3 (15% số điểm): vị trí của các con ruồi trước và sau mỗi truy vấn đều không vượt
+        quá \(100\).</li>
+        <li>Subtask 4 (15% số điểm): vị trí của các con ruồi trước và sau mỗi truy vấn đều không vượt
+        quá \(10^5\).</li>
+        <li>Subtask 5 (15% số điểm): \(N, Q \le 50000\).</li>
+        <li>Subtask 6 (25% số điểm): không có ràng buộc gì thêm.</li>
+      </ul>
+    </section>
+
+    <section id="tutorial">
+      <h2>Lời giải</h2>
+      <p>Mô tả trong đề là một quá trình tuần tự: ăn con gần nhất, nhảy, rồi xét lại. Bước đầu tiên là
+      loại bỏ tính tuần tự đó.</p>
+
+      <article class="card lemma">
+        <p class="card-label">Nhận xét 1 — thứ tự ăn không quan trọng</p>
+        <p>Trong một truy vấn loại 2, gọi \(F\) là vị trí cuối cùng của con ếch. Khi đó tập các con
+        ruồi bị ăn đúng bằng tập các con ruồi có vị trí không vượt quá \(F\), và</p>
+        \[ F = x + \sum_{i \,:\, x_i \le F} x_i . \]
+        <p>Thật vậy, vị trí của con ếch chỉ tăng (mọi \(x_i \ge 1\)), nên một con ruồi đã lọt vào
+        tầm với thì sẽ không bao giờ ra khỏi tầm với nữa: quá trình chỉ dừng khi mọi con ruồi chưa bị
+        ăn đều ở vị trí lớn hơn \(F\). Ngược lại, mọi con ruồi ở vị trí \(\le F\) đều đã bị ăn,
+        vì nếu còn một con như thế thì quá trình chưa thể dừng. Vì vậy dù ta chọn ăn con nào trước,
+        tập bị ăn — và do đó \(F\) cùng số con ruồi bị ăn — vẫn không đổi.</p>
+      </article>
+
+      <p class="bridge">Nhận xét 1 biến câu hỏi thành một bài toán điểm bất động. Đặt</p>
+
+      \[ f(t) = x + \sum_{i \,:\, x_i \le t} x_i . \]
+
+      <article class="card">
+        <p class="card-label">Nhận xét 2 — lặp từ \(x\) là đủ</p>
+        <p>Hàm \(f\) không giảm theo \(t\). Đặt \(t_0 = x\) và \(t_{k+1} = f(t_k)\). Vì
+        \(t_1 = f(x) \ge x = t_0\) và \(f\) không giảm, dãy \(t_k\) không giảm; nó bị chặn trên
+        bởi \(x + \sum_i x_i\) nên phải dừng, và giá trị dừng \(t_{k+1} = t_k\) chính là điểm bất
+        động nhỏ nhất của \(f\) không nhỏ hơn \(x\). Đó đúng là \(F\): mọi bước lặp chỉ thêm vào
+        những con ruồi mà con ếch bắt buộc phải ăn, nên \(t_k \le F\) với mọi \(k\); mà \(F\)
+        cũng là một điểm bất động, nên giá trị dừng bằng \(F\).</p>
+        <p>Số con ruồi bị ăn là số con ruồi có vị trí \(\le F\), tức là giá trị đếm tương ứng với
+        cùng một tiền tố.</p>
+      </article>
+
+      <article class="card lemma">
+        <p class="card-label">Nhận xét 3 — số bước lặp là \(O(\log)\)</p>
+        <p>Giả sử \(t_{k+1} &gt; t_k\) với \(k \ge 1\). Phần tăng thêm \(t_{k+1} - t_k\) là tổng
+        các con ruồi nằm trong nửa khoảng \((t_{k-1}, t_k]\), và nửa khoảng đó khác rỗng, nên tồn tại
+        một con ruồi ở vị trí \(p &gt; t_{k-1}\). Suy ra</p>
+        \[ t_{k+1} \ge t_k + p &gt; t_{k-1} + t_{k-1} = 2\,t_{k-1}. \]
+        <p>Nghĩa là cứ hai bước lặp thì giá trị ít nhất tăng gấp đôi. Vì \(t_0 \ge 1\) và
+        \(F \le 10^9 + 2 \cdot 10^5 \cdot 10^9 &lt; 2^{48}\), số bước lặp thực sự của một truy
+        vấn nhiều nhất là khoảng \(2 \log_2 F \approx 96\) — một hằng số nhỏ, độc lập với \(N\).
+        Cũng chú ý \(F\) có thể tới cỡ \(2 \cdot 10^{14}\), nên <mark>phải dùng số nguyên 64
+        bit</mark>.</p>
+      </article>
+
+      <p class="bridge">Còn lại một việc duy nhất: với một \(t\) cho trước, tính nhanh cả tổng và số
+      lượng các con ruồi có vị trí \(\le t\), trong khi các con ruồi vẫn di chuyển.</p>
+
+      <article class="card">
+        <p class="card-label">Nhận xét 4 — Fenwick tree trên toạ độ đã nén</p>
+        <p>Đó chính là một truy vấn tiền tố trên trục vị trí, với hai giá trị cộng dồn được: số lượng
+        và tổng vị trí. Vị trí lên tới \(10^9\) nên ta nén toạ độ: đọc trước toàn bộ input, thu thập
+        \(N\) vị trí ban đầu cùng mọi giá trị \(y\) của các truy vấn loại 1, sắp xếp và loại trùng.
+        Số toạ độ khác nhau không quá \(N + Q \le 4 \cdot 10^5\), và <mark>mọi vị trí mà một con
+        ruồi có thể nhận trong suốt bài toán đều nằm trong danh sách này</mark>, nên một Fenwick tree
+        trên các hạng (rank) là đủ.</p>
+        <p>Mỗi nút Fenwick lưu một cặp: số con ruồi và tổng vị trí của chúng. Truy vấn loại 1 là một
+        phép trừ tại hạng cũ và một phép cộng tại hạng mới. Với truy vấn loại 2, mỗi bước lặp tìm hạng
+        của \(t\) bằng <code>upper_bound</code> — dùng <code>upper_bound</code> chứ không phải
+        <code>lower_bound</code>, vì con ruồi ở đúng vị trí \(t\) cũng bị ăn — rồi lấy tiền tố.</p>
+        <p>Một chi tiết cài đặt gọn: điều kiện dừng nên là <em>số lượng</em> không tăng nữa, và ở mỗi
+        bước chỉ cần cộng thêm phần chênh lệch tổng so với bước trước, thay vì cộng lại từ đầu.</p>
+      </article>
+    </section>
+
+    <section class="subtask" id="g1">
+      <h2>Các subtask nhỏ</h2>
+      <p>Lời giải đầy đủ ở trên xử lí được mọi subtask. Tuy vậy có hai bậc trung gian đáng nhắc, vì
+      chúng cần ít công cụ hơn hẳn.</p>
+
+      <article class="card">
+        <p class="card-label">Subtask 1 và 2 — mô phỏng trực tiếp</p>
+        <p>Với \(N, Q \le 2000\) ta không cần Nhận xét 1 hay 3: cứ mô phỏng đúng như đề, mỗi lần
+        quét toàn bộ mảng để tìm con ruồi chưa bị ăn có vị trí lớn nhất mà \(\le\) vị trí hiện tại.
+        Cách này chỉ mất \(O(N)\) cho mỗi con ruồi bị ăn, tức là \(O(N^2)\) cho một truy vấn xấu
+        nhất; đủ nhanh với \(N, Q \le 200\), còn ở \(N, Q \le 2000\) thì phải thay phép quét
+        bằng sắp xếp cộng mảng tổng tiền tố dựng lại sau mỗi truy vấn, cho \(O(Q \cdot N \log N)\).</p>
+      </article>
+
+      <article class="card">
+        <p class="card-label">Subtask 3 và 4 — không cần nén toạ độ</p>
+        <p>Ở hai subtask này vị trí của các con ruồi luôn không vượt quá \(C = 100\), tương ứng
+        \(C = 10^5\). Khi đó Fenwick tree đánh chỉ số trực tiếp theo vị trí, kích thước \(C\), và
+        toàn bộ bước đọc trước input để nén toạ độ biến mất — lời giải trở thành online. Lưu ý là
+        \(N\) và \(Q\) ở đây vẫn đầy đủ \(2 \cdot 10^5\), nên vẫn phải là cấu trúc dữ liệu, và
+        vị trí \(x\) của truy vấn loại 2 vẫn có thể tới \(10^9\): chỉ cần chặn hạng tra cứu tại
+        \(C\) là xong.</p>
+      </article>
+
+      <table>
+        <thead>
+          <tr><th>Bậc</th><th>Ý tưởng</th><th>Độ phức tạp</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Subtask 1</td><td>mô phỏng, quét toàn mảng</td><td>\(O(Q \cdot N^2)\)</td></tr>
+          <tr><td>Subtask 2</td><td>sắp xếp và dựng tổng tiền tố lại cho mỗi truy vấn</td><td>\(O(Q \cdot N \log N)\)</td></tr>
+          <tr><td>Subtask 3, 4</td><td>Fenwick tree đánh chỉ số theo vị trí</td><td>\(O((N + Q)\log C + Q \log F \log C)\)</td></tr>
+          <tr><td>Subtask 5, 6</td><td>nén toạ độ + Fenwick tree</td><td>\(O((N + Q)\log(N + Q) + Q \log F \log(N + Q))\)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="complexity">
+      <h2>Độ phức tạp</h2>
+      <pre class="complexity">Tiền xử lí (nén toạ độ): O((N + Q) log(N + Q))
+Truy vấn loại 1:        O(log(N + Q))
+Truy vấn loại 2:        O(log F · log(N + Q)), với log F &lt; 48
+Tổng thời gian:         O((N + Q) log(N + Q) + Q log F log(N + Q))
+Bộ nhớ:                 O(N + Q)</pre>
+      <p>Với \(N = Q = 2 \cdot 10^5\), số bước lặp của một truy vấn loại 2 trên thực tế chỉ khoảng
+      \(30\), nên lời giải chạy rất thoải mái trong giới hạn \(2\) giây.</p>
+    </section>
+
+    <section id="other">
+      <h2>Cách giải khác</h2>
+      <p>Nếu không muốn đọc trước toàn bộ truy vấn, hãy thay Fenwick tree trên toạ độ đã nén bằng một
+      balanced BST (chẳng hạn treap) chứa multiset vị trí, mỗi nút lưu số lượng và tổng vị trí của cây
+      con. Truy vấn tiền tố \(\le t\) là một lần đi từ gốc xuống lá: ở mỗi nút, nếu khoá của nó
+      \(\le t\) thì cộng cả cây con bên trái và chính nó rồi đi sang phải, ngược lại đi sang trái.
+      Cách này giữ nguyên Nhận xét 1–3, có cùng độ phức tạp \(O(\log N)\) cho mỗi phép, nhưng chạy
+      online — không cần nén toạ độ và không cần biết trước các truy vấn.</p>
+    </section>
+
+    <footer class="page-end">Ếch ham ăn · lời giải</footer>
+  </main>
+
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "\\[", right: "\\]", display: true },
+            { left: "$", right: "$", display: false },
+            { left: "\\(", right: "\\)", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</body>
+</html>

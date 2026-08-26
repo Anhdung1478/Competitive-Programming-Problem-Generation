@@ -1,92 +1,146 @@
-/**
- * @tag main
- * @expect main=OK
- * @algorithm read and discard the graph; print "A" if n is odd and "B" if n is even
- * @complexity O(n + m), all of it spent on input
- */
-// sol-main.cpp -- model solution for "The Balance"
-//
-// ---------------------------------------------------------------------------
-// The whole problem
-// ---------------------------------------------------------------------------
-// A wins if and only if n is odd.  The edges do not matter.  B's opening move
-// -- deleting any subset of the edges -- does not matter either, because it
-// cannot change n, and n is the only thing the outcome depends on.
-//
-// There are two ways to see it.  The second is the one worth remembering.
-//
-// ---------------------------------------------------------------------------
-// Proof 1: induction on the number of remaining vertices
-// ---------------------------------------------------------------------------
-// Claim: in a position with k vertices remaining, the player to move wins if
-// and only if k is odd.  Induct on k.
-//
-//   k = 0.  There is no vertex, so the player to move cannot move and loses.
-//           k is even and the mover loses.  Consistent.
-//
-//   k odd.  By the handshake lemma the number of odd-degree vertices in any
-//           graph is even, so it cannot be all k of them when k is odd.  Some
-//           vertex of even degree therefore exists, and deleting it hands the
-//           opponent a position with k - 1 vertices, which is even, which by
-//           induction the opponent loses.  The mover wins.
-//
-//   k even. Every legal move leads to k - 1 vertices, which is odd, which by
-//           induction the opponent wins.  And if no legal move exists the
-//           mover loses at once.  Either way the mover loses.
-//
-// A moves first into a position with n vertices, so A wins exactly when n is
-// odd.
-//
-// ---------------------------------------------------------------------------
-// Proof 2: the game has no decisions in it at all
-// ---------------------------------------------------------------------------
-// The game stops only in a position where EVERY remaining vertex has odd
-// degree.  By the handshake lemma again, a graph whose vertices all have odd
-// degree has an even number of vertices.  So the game always ends with an even
-// number of vertices left on the board, which means the number of moves played
-// is
-//
-//     n - (something even)  ==  n   (mod 2)
-//
-// no matter how either player plays.  The length of the game is fixed modulo 2
-// before the first move is made.  Neither player has any influence whatsoever:
-// there are no good moves and no bad moves, only moves.  If n is odd the number
-// of moves is odd, so the last one was A's (A moves on the odd-numbered turns)
-// and B is the one left staring at a board with nothing legal on it.
-//
-// This is stronger than proof 1 and explains why the problem is a joke: there
-// is nothing to optimize, so "both play optimally" is decoration on a statement
-// that already had a fixed answer.
-//
-// ---------------------------------------------------------------------------
-// Why n <= 36 and 3 seconds and 1 GB
-// ---------------------------------------------------------------------------
-// Bait.  n <= 36 is exactly the size that makes a contestant reach for meet in
-// the middle over 2^18, and 2^36 states is far enough out of reach that the
-// bitmask game search cannot be squeezed through no matter how carefully it is
-// written.  The limits are generous so that nobody can claim the trap was a
-// timing accident: even at 3 seconds and 1 GB, the exponential search does not
-// come close.  See solutions/tle-bitmask-game.cpp.
-//
-// This solution reads the graph it does not need, for exactly one reason: the
-// input format promises m lines and a submission that stops reading after the
-// first line is still correct.  Reading them costs nothing and keeps the
-// program honest about what it was given.
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
+using namespace std;
 
-int main() {
-    std::ios::sync_with_stdio(false);
-    std::cin.tie(nullptr);
+#define fi first
+#define se second
+#define sz(x) int((x).size())
+typedef pair<int, int> ii;
+typedef long long ll;
 
-    int n, m;
-    if (!(std::cin >> n >> m)) return 0;
-    for (int i = 0; i < m; ++i) {
-        int u, v;
-        std::cin >> u >> v;
-        (void)u;
-        (void)v;
+const bool isMultiTest = 0;
+const int MAXN = 2e5+5;
+
+struct Query {
+    int type, u, x, r_x;
+} qr[MAXN];
+
+vector<int> idx;
+int pos[MAXN], r_pos[MAXN], nArr, numQuery;
+
+void reset(void) {
+}
+
+void input(void) {
+    cin >> nArr >> numQuery;
+    for (int i = 1; i <= nArr; ++i) cin >> pos[i];
+
+    for (int t = 0; t < numQuery; ++t) {
+        cin >> qr[t].type >> qr[t].u;
+        if(qr[t].type == 1) cin >> qr[t].x;
+    }
+}
+
+typedef pair<ll, int> pli;
+namespace Fenwick {
+    ll fenSum[2 * MAXN];
+    int fenCnt[2 * MAXN], nTree;
+
+    void modify(int i, int val, int sign) {
+        for (; i <= nTree; i += i & -i) {
+            fenSum[i] += val * sign;
+            fenCnt[i] += sign;
+        }
     }
 
-    std::cout << (n % 2 == 1 ? "Shen" : "Zed") << '\n';
+    pli get(int i) {
+        ll res_sum = 0;
+        int res_cnt = 0;
+        for (; i > 0; i -= i & -i) {
+            res_sum += fenSum[i];
+            res_cnt += fenCnt[i];
+        }
+
+        return make_pair(res_sum, res_cnt);
+    }
+
+    void init(int _n) {
+        nTree = _n;
+        for (int i = 1; i <= nTree; ++i) fenSum[i] = fenCnt[i] = 0;
+    }
+}
+
+void prepare(void) {
+    for (int i = 1; i <= nArr; ++i) idx.push_back(pos[i]);
+    for (int t = 0; t < numQuery; ++t) if(qr[t].type == 1) idx.push_back(qr[t].x);
+
+    sort(idx.begin(), idx.end());
+    idx.erase(unique(idx.begin(), idx.end()), idx.end());
+
+    for (int i = 1; i <= nArr; ++i) r_pos[i] = upper_bound(idx.begin(), idx.end(), pos[i]) - idx.begin();
+    for (int t = 0; t < numQuery; ++t) if(qr[t].type == 1) {
+        qr[t].r_x = upper_bound(idx.begin(), idx.end(), qr[t].x) - idx.begin();
+    }
+
+    Fenwick::init(sz(idx));
+}
+
+pli get_result(int x) {
+    ll res_pos = x;
+    ll sum_last;
+    int cnt_last;
+    int res_cnt = 0;
+
+    int r_pos = upper_bound(idx.begin(), idx.end(), res_pos) - idx.begin();
+    tie(sum_last, cnt_last) = Fenwick::get(r_pos);
+
+    res_pos += sum_last;
+    res_cnt += cnt_last;
+    while(1) {
+        ll sum_now;
+        int cnt_now;
+        int r_pos_now = upper_bound(idx.begin(), idx.end(), res_pos) - idx.begin();
+
+        tie(sum_now, cnt_now) = Fenwick::get(r_pos_now);
+        if(cnt_last == cnt_now) break;
+
+        res_pos += sum_now - sum_last;
+        res_cnt += cnt_now - cnt_last;
+        sum_last = sum_now;
+        cnt_last = cnt_now;
+    }
+
+    return make_pair(res_pos, res_cnt);
+}
+
+void solve(void) {
+    for (int i = 1; i <= nArr; ++i) Fenwick::modify(r_pos[i], pos[i], +1);
+
+    for (int t = 0; t < numQuery; ++t) {
+        int type(qr[t].type), u(qr[t].u), x(qr[t].x), r_x(qr[t].r_x);
+
+        if(type == 1) {
+            Fenwick::modify(r_pos[u], pos[u], -1);
+            Fenwick::modify(r_x, x, +1);
+
+            pos[u] = x;
+            r_pos[u] = r_x;
+            continue;
+        }
+
+        pli ans = get_result(u);
+        cout << ans.fi << ' ' << ans.se << '\n';
+    }
+}
+
+void process(void) {
+    reset();
+    input();
+    prepare();
+    solve();
+}
+
+int main(void) {
+    ios_base::sync_with_stdio(0), cin.tie(0), cout.tie(0);
+    
+    #define TASK "jumping-frog"
+    if(fopen(TASK".inp", "r")) {
+        freopen(TASK".inp", "r", stdin);
+        freopen(TASK".out", "w", stdout);
+    }
+    
+    int numTest = 1;
+    if(isMultiTest) cin >> numTest;
+    
+    while(numTest--) process();
     return 0;
 }

@@ -1,6 +1,6 @@
 ---
 name: polygon-validator
-description: Create or review outputs/validator.cpp for a Codeforces Polygon problem using testlib.h. Use for workflow Step 8, generated-input validation, strict input-format enforcement, bounds checks, subtask/group constraints, or structural invariant validation. This validates input files, not contestant output.
+description: Create or review outputs/validator.cpp for a Codeforces Polygon problem using testlib.h. Use for optional workflow Step 8 (skipped unless the user asks for it), generated-input validation, strict input-format enforcement, bounds checks, subtask/group constraints, or structural invariant validation. This validates input files, not contestant output.
 ---
 
 # Write `outputs/validator.cpp`

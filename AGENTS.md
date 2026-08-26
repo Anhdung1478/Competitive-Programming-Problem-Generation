@@ -7,16 +7,25 @@ This repository is a problem-preparation workspace for Codeforces Polygon.
 The agent must execute these workflow steps in this exact order:
 
 1. validate `source/solution.cpp` when it is present;
-2. create `outputs/checker.cpp`;
-3. create and validate the solution suite in `outputs/solution/`;
-4. create `outputs/statement.txt`;
+2. create `outputs/statement.txt`;
+3. create `outputs/checker.cpp`;
+4. create and validate the solution suite in `outputs/solution/`;
 5. create `outputs/generator-config.md`;
 6. create `outputs/test-script.txt` from that config;
 7. create `outputs/gentest.cpp`;
-8. create `outputs/validator.cpp`;
+8. create `outputs/validator.cpp` — optional, skipped unless the user asks for it;
 9. create `outputs/editorial.html`.
 
-Do not reorder or skip a gate unless the user explicitly changes the workflow.
+Do not reorder or skip a mandatory gate unless the user explicitly changes the workflow.
+
+Two steps are optional and are skipped by default; produce them only on explicit request:
+
+- Step 2b `outputs/tex-statement.tex` — only after Step 2 has produced
+  `outputs/statement.txt`;
+- Step 8 `outputs/validator.cpp` — only after Step 7 has produced `outputs/gentest.cpp`.
+
+Skipping an optional step is never a workflow failure. When Step 8 is skipped, say so in
+the final summary and note that generated input has not been machine-validated.
 
 ## Source-of-truth files
 
@@ -38,7 +47,7 @@ Every C++ file the agent writes or edits must use the C++ stream API instead of 
 - In solution-style programs that read from standard input, start `main` with `ios_base::sync_with_stdio(false);` and `cin.tie(nullptr);`, and end lines with `'\n'` rather than `endl`.
 - Inside `testlib` programs the testlib readers still win: use `inf.read*`, `ouf.read*`, and `ans.read*` for input, and `cout` for generator output. Never mix `scanf`/`printf` into them.
 - Formatted output that would be natural with `printf` must use stream manipulators instead, e.g. `cout << fixed << setprecision(9) << x << '\n';` from `<iomanip>`.
-- `freopen` remains allowed solely for the guarded local `.inp`/`.out` redirection described in Step 1 and Step 3; it redirects the standard streams, so `cin`/`cout` keep working.
+- `freopen` remains allowed solely for the guarded local `.inp`/`.out` redirection described in Step 1 and Step 4; it redirects the standard streams, so `cin`/`cout` keep working.
 - When reviewing or fixing an existing generated file that uses `scanf`/`printf`, convert it. Do not rewrite `source/solution.cpp` for this reason — it is a source-of-truth file, and this convention is not one of the allowed exceptions to the no-edit rule. Report the deviation instead.
 
 ## Mandatory ambiguity gate
@@ -92,7 +101,40 @@ Report:
 
 If `source/solution.cpp` does not exist, mark the official-solution audit as skipped and continue only if the remaining artifacts can be written unambiguously.
 
-## Step 2 — `outputs/checker.cpp`
+## Step 2 — `outputs/statement.txt`
+
+Use the `polygon-statement` skill.
+
+Requirements:
+
+- Vietnamese by default unless the user requests another language.
+- Polygon simpleTex only; do not write a vnolymp standalone LaTeX document.
+- Required order:
+  1. problem name;
+  2. statement/legend;
+  3. input;
+  4. output;
+  5. subtasks.
+- Be precise, transparent, and easy to understand.
+- Add only a very short story/flavor sentence or paragraph. It must not obscure the mathematical task.
+- Do not invent constraints, behavior, samples, or edge-case rules.
+- Keep notation consistent with `source/problem-context.md`, `source/subtask.md`, and `source/solution.cpp` when it exists. The statement is written before the checker and the solution suite, so it is the notation the later steps must follow; if Step 3 or Step 4 later reveals that the statement is wrong or ambiguous, return here and fix the statement rather than diverging from it.
+- State variable scopes explicitly enough that a contestant cannot reasonably misread them.
+
+## Step 2b (optional) — `outputs/tex-statement.tex`
+
+Use the `tex-statement` skill. Run it only on explicit request, and never before Step 2.
+
+This step renders the finished `outputs/statement.txt` into a standalone vnolymp LaTeX
+document at `outputs/tex-statement.tex` and compiles it. It does not author prose: the
+wording, notation, constraints, and subtask ladder must match `outputs/statement.txt`
+exactly, and any disagreement with the source-of-truth files is reported rather than
+resolved in the `.tex`. Time and memory limits come from `source/problem-context.md`; if
+they are absent, ask instead of inventing them. Omit `\Examples` while no sample files
+exist. Completion requires a clean compile log and a PDF verified against the statement,
+not merely a zero exit code.
+
+## Step 3 — `outputs/checker.cpp`
 
 Use the `polygon-checker` skill.
 
@@ -104,10 +146,11 @@ Requirements:
 - For non-unique output, write a semantic checker. Never compare a valid witness structurally to the jury witness.
 - For optimization/construction problems, validate the participant witness and compare the required objective against the jury optimum when appropriate.
 - Consume all required participant output and reject invalid extra output unless the statement permits it.
+- Take output semantics from the finished `outputs/statement.txt` together with the source-of-truth files. If they disagree, report it and fix Step 2 instead of encoding a different rule here.
 
-## Step 3 — `outputs/solution/`
+## Step 4 — `outputs/solution/`
 
-Create a small solution suite based on `source/problem-context.md` and `source/subtask.md` when present. This replaces the legacy single file `outputs/codex-solution.cpp`; do not create that legacy file. If it already exists from an older run, treat it as stale and do not use it unless the user explicitly asks to migrate it into the suite.
+Create a small solution suite based on `source/problem-context.md`, `source/subtask.md` when present, and the finished `outputs/statement.txt`. This replaces the legacy single file `outputs/codex-solution.cpp`; do not create that legacy file. If it already exists from an older run, treat it as stale and do not use it unless the user explicitly asks to migrate it into the suite.
 
 Design candidate algorithms independently from the problem specification. Do not obtain a “different” solution by copying `source/solution.cpp` and making cosmetic edits. Use the optional source solution only after the candidate design is fixed, for validation and comparison.
 
@@ -169,27 +212,7 @@ For each WA/TLE candidate:
 - benchmark or complexity-check a TLE on adversarial valid inputs, while also confirming that it succeeds on at least some weak/small inputs;
 - never use an intentional WA/TLE as a jury solution or correctness oracle.
 
-Step 3 passes when the manifest is complete, every source compiles, every AC is correct on its declared scope, and every intentional WA/TLE is plausible and accurately characterized. An intentional WA/TLE verdict is not a Step 3 failure. Do not proceed to Step 4 while an AC is mislabeled, a candidate's scope is ambiguous, or the manifest and source suite disagree.
-
-## Step 4 — `outputs/statement.txt`
-
-Use the `polygon-statement` skill.
-
-Requirements:
-
-- Vietnamese by default unless the user requests another language.
-- Polygon simpleTex only; do not write a vnolymp standalone LaTeX document.
-- Required order:
-  1. problem name;
-  2. statement/legend;
-  3. input;
-  4. output;
-  5. subtasks.
-- Be precise, transparent, and easy to understand.
-- Add only a very short story/flavor sentence or paragraph. It must not obscure the mathematical task.
-- Do not invent constraints, behavior, samples, or edge-case rules.
-- Keep notation consistent with `source/problem-context.md`, `source/subtask.md`, the AC solutions declared in `outputs/solution/manifest.md`, and `source/solution.cpp` when it exists.
-- State variable scopes explicitly enough that a contestant cannot reasonably misread them.
+Step 4 passes when the manifest is complete, every source compiles, every AC is correct on its declared scope, and every intentional WA/TLE is plausible and accurately characterized. An intentional WA/TLE verdict is not a Step 4 failure. Do not proceed to Step 5 while an AC is mislabeled, a candidate's scope is ambiguous, or the manifest and source suite disagree.
 
 ## Step 5 — `outputs/generator-config.md`
 
@@ -272,7 +295,11 @@ Load specialized skills only when applicable:
 
 If a problem needs another specialized structure, create a focused skill under `.agents/skills/` rather than bloating the generic generator skill.
 
-## Step 8 — `outputs/validator.cpp`
+## Step 8 (optional) — `outputs/validator.cpp`
+
+Skipped by default. Run this step only when the user explicitly asks for an input
+validator; otherwise go straight from Step 7 to Step 9 and record the skip in the final
+summary.
 
 Use the `polygon-validator` skill.
 
@@ -302,7 +329,7 @@ Before finishing, cross-check:
 - every AC solution agrees with `source/solution.cpp` or the semantic checker on all cross-checks within its declared scope when the source solution exists;
 - every WA/TLE has a documented failure mechanism and corresponding test-generation target;
 - statement input order == `outputs/gentest.cpp` output order;
-- validator read order and accepted domain == statement input semantics;
+- validator read order and accepted domain == statement input semantics, when `outputs/validator.cpp` exists;
 - statement bounds == `outputs/generator-config.md` bounds == generator bounds;
 - each `outputs/test-script.txt` option exists in `outputs/gentest.cpp`;
 - each subtask index/constraint agrees across `source/subtask.md`, statement, config, script, and generator;
@@ -310,10 +337,10 @@ Before finishing, cross-check:
 - multi-test format agrees everywhere;
 - `outputs/editorial.html` describes in Vietnamese the algorithm and complexity of the validated `source/solution.cpp` when it exists, otherwise a validated full-scope AC from `outputs/solution/manifest.md`;
 - every generated test can be consumed by every suite source whose declared scope contains that test and by `source/solution.cpp` when the latter exists;
-- every generated test is accepted by `outputs/validator.cpp`, while representative malformed/invalid inputs are rejected;
+- when Step 8 was requested, every generated test is accepted by `outputs/validator.cpp`, while representative malformed/invalid inputs are rejected;
 - every generated test remains valid regardless of whether a WA/TLE candidate accepts, rejects, times out, or prints a wrong answer.
 
-Compile every `outputs/solution/*.cpp` file as GNU C++17. Compile `outputs/checker.cpp`, `outputs/gentest.cpp`, and `outputs/validator.cpp` with the same `testlib.h` environment used by Polygon when available.
+Compile every `outputs/solution/*.cpp` file as GNU C++17. Compile `outputs/checker.cpp`, `outputs/gentest.cpp`, and — when Step 8 was requested — `outputs/validator.cpp` with the same `testlib.h` environment used by Polygon when available.
 
 ## Communication
 
@@ -321,7 +348,7 @@ When blocked by ambiguity, explain exactly what is unknown and why it changes on
 
 When Step 1 fails, stop and report the failure; do not continue “for convenience”.
 
-When Step 3 reveals a defect in an AC candidate, fix it and repeat its scoped validation. When the observed behavior of a WA/TLE does not match its manifest entry, repair the candidate classification/design or manifest and repeat the relevant kill checks.
+When Step 4 reveals a defect in an AC candidate, fix it and repeat its scoped validation. When the observed behavior of a WA/TLE does not match its manifest entry, repair the candidate classification/design or manifest and repeat the relevant kill checks.
 
 When all requested artifacts are complete, summarize:
 - files created/changed;

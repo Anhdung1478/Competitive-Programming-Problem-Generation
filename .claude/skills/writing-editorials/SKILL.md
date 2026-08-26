@@ -1,6 +1,6 @@
 ---
 name: writing-editorials
-description: Write or review outputs/editorial.html as a standalone Vietnamese HTML editorial for a competitive-programming problem. Use for workflow Step 9 or whenever Codex must create, revise, or audit a Vietnamese editorial, solution writeup, tutorial HTML, editorial page, or outputs/editorial.html. Use the supplied space-dark or polygon-light theme and prioritize a validated source/solution.cpp over the Step 3 solution suite.
+description: Write or review outputs/editorial.html as a standalone Vietnamese HTML editorial for a competitive-programming problem. Use for workflow Step 9 or whenever Codex must create, revise, or audit a Vietnamese editorial, solution writeup, tutorial HTML, editorial page, or outputs/editorial.html. Use the supplied space-dark or polygon-light theme and prioritize a validated source/solution.cpp over the Step 4 solution suite.
 ---
 
 # Write Vietnamese editorials

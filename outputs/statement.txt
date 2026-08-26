@@ -1,0 +1,51 @@
+\textbf{Tên bài:} Ếch ham ăn
+
+\textbf{Đề bài}
+
+Trên một đầm lầy có các vị trí được đánh số $1, 2, 3, \ldots$ kéo dài vô hạn về bên phải, có một con ếch rất ham ăn và $N$ con ruồi. Ban đầu con ruồi thứ $i$ nằm ở vị trí $x_i$. Nhiều con ruồi có thể cùng nằm ở một vị trí, và chúng vẫn được xem là những con ruồi khác nhau.
+
+Bạn được cho $Q$ truy vấn, mỗi truy vấn thuộc một trong hai dạng sau:
+
+\begin{itemize}
+    \item \textbf{Truy vấn loại 1:} ``1 u y'' -- con ruồi thứ $u$ di chuyển tới vị trí $y$ (vị trí cũ của nó không còn con ruồi thứ $u$ nữa).
+    \item \textbf{Truy vấn loại 2:} ``2 x'' -- giả sử con ếch đang đứng ở vị trí $x$, hãy cho biết cuối cùng con ếch có thể nhảy tới vị trí nào.
+\end{itemize}
+
+Trong một truy vấn loại 2, con ếch ăn ruồi và nhảy theo quy tắc sau, được lặp lại nhiều lần:
+
+\begin{itemize}
+    \item Nếu con ếch đang ở vị trí $x'$ và vẫn còn ít nhất một con ruồi \textbf{chưa bị ăn} nằm ở vị trí không vượt quá $x'$, thì con ếch sẽ ăn con ruồi gần nó nhất trong số đó, tức là con ruồi chưa bị ăn có vị trí lớn nhất mà vẫn không vượt quá $x'$ (nếu có nhiều con ruồi như vậy thì chọn một con bất kì trong số chúng). Con ruồi ở cùng vị trí với con ếch cũng được tính là ăn được.
+    \item Sau khi ăn con ruồi nằm ở vị trí $y'$, con ếch nhảy thêm $y'$ đơn vị sang bên phải, tức là chuyển từ vị trí $x'$ sang vị trí $x' + y'$.
+    \item Quá trình kết thúc khi mọi con ruồi chưa bị ăn đều nằm ở vị trí lớn hơn vị trí hiện tại của con ếch. Khi đó con ếch không nhảy được nữa.
+\end{itemize}
+
+Có thể chứng minh được rằng vị trí cuối cùng của con ếch và số con ruồi mà nó ăn không phụ thuộc vào các lựa chọn ở trên.
+
+Lưu ý rằng truy vấn loại 2 chỉ là một câu hỏi ``giả sử'': con ếch không thật sự ăn ruồi, nên sau mỗi truy vấn loại 2, tất cả các con ruồi vẫn ở nguyên vị trí của mình và vẫn được xem là chưa bị ăn trong các truy vấn tiếp theo.
+
+\textbf{Yêu cầu:} Với mỗi truy vấn loại 2, hãy tính vị trí cuối cùng mà con ếch tới được và số con ruồi mà nó đã ăn để tới được vị trí đó.
+
+\textbf{Input}
+
+\begin{itemize}
+    \item Dòng đầu tiên chứa hai số nguyên dương $N$ và $Q$ ($1 \le N, Q \le 2 \cdot 10^5$) -- lần lượt là số con ruồi trên đầm lầy và số truy vấn.
+    \item Dòng thứ hai chứa $N$ số nguyên dương $x_1, x_2, \ldots, x_N$ ($1 \le x_i \le 10^9$) -- số thứ $i$ là vị trí ban đầu của con ruồi thứ $i$.
+    \item $Q$ dòng cuối cùng, mỗi dòng chứa một truy vấn thuộc một trong hai dạng: ``1 u y'' ($1 \le u \le N$; $1 \le y \le 10^9$) hoặc ``2 x'' ($1 \le x \le 10^9$).
+\end{itemize}
+
+\textbf{Output}
+
+\begin{itemize}
+    \item Với mỗi truy vấn loại 2, in ra trên một dòng riêng hai số nguyên: vị trí cuối cùng mà con ếch tới được và số con ruồi mà con ếch đã ăn, theo đúng thứ tự các truy vấn loại 2 trong input.
+\end{itemize}
+
+\textbf{Subtask}
+
+\begin{itemize}
+    \item Subtask $1$ ($20\%$ số điểm): $N, Q \le 200$.
+    \item Subtask $2$ ($10\%$ số điểm): $N, Q \le 2000$.
+    \item Subtask $3$ ($15\%$ số điểm): Vị trí của các con ruồi trước và sau mỗi truy vấn đều không vượt quá $100$.
+    \item Subtask $4$ ($15\%$ số điểm): Vị trí của các con ruồi trước và sau mỗi truy vấn đều không vượt quá $10^5$.
+    \item Subtask $5$ ($15\%$ số điểm): $N, Q \le 50000$.
+    \item Subtask $6$ ($25\%$ số điểm): Không có ràng buộc gì thêm.
+\end{itemize}
