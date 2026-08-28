@@ -3,67 +3,11 @@ name: generator-array
 description: Generate arrays, permutations, and numeric sequence profiles for gentest.cpp. Use for array problems or when adversarial value ordering, duplicates, monotonicity, coordinate extremes, or permutation structure matters.
 ---
 
-# Array and sequence generation
+This skill is a reference. The canonical, complete instructions live in the shared
+`.agents` skill directory so a single skill is maintained in one place only.
 
-Resolve:
+**Read `.agents/skills/generator-array/SKILL.md` now and follow it in full.**
 
-- length bounds;
-- element bounds/sign;
-- duplicates allowed?;
-- permutation/distinctness?;
-- sortedness constraints?;
-- global sum constraints?;
-- relation between neighboring elements if any.
-
-## Numeric profiles
-
-Use a deliberate mix:
-
-- uniform random;
-- all minimum;
-- all maximum;
-- all equal;
-- two-value alternating;
-- duplicate-heavy small alphabet of values;
-- strictly increasing;
-- strictly decreasing;
-- nondecreasing/nonincreasing with runs;
-- sawtooth;
-- one outlier among equal values;
-- sparse extremes;
-- random logarithmic magnitude;
-- maximum-biased/minimum-biased.
-
-Map profiles to weaknesses of the intended algorithm.
-
-## Permutations
-
-Generate with testlib permutations/shuffle.
-
-Include:
-
-- identity;
-- reverse;
-- random;
-- almost sorted;
-- cyclic shift;
-- block-reversed;
-- alternating low/high.
-
-Never accidentally introduce duplicates.
-
-## Coupled arrays
-
-For pairs/triples of arrays, generate them jointly when the problem imposes relations.
-
-Do not generate independently then repair in a way that biases away difficult cases.
-
-## Multi-test total length
-
-Maintain a remaining budget and generate case lengths within the global sum bound.
-
-## `rate`
-
-Scale length and, only when appropriate, numeric magnitude separately.
-
-A large instance (`rate≈1`) does not imply every value must be near its maximum; retain value-profile diversity at large sizes.
+Resolve every relative path in that file (for example `references/...`) against
+`.agents/skills/generator-array/`. Do not edit anything under `.claude/skills/generator-array/` — apply
+changes to the `.agents` copy instead.

@@ -1,4 +1,0 @@
-interface:
-  display_name: "vnolymp LaTeX Statement"
-  short_description: "Render outputs/statement.txt into outputs/tex-statement.tex and verify the PDF"
-  default_prompt: "Use $tex-statement to build outputs/tex-statement.tex from outputs/statement.txt."
