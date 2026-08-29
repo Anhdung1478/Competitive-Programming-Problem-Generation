@@ -2,9 +2,15 @@
 
 
 **Subtasks**:
-* Subtask 1 (20% số điểm): N, Q <= 200.
-* Subtask 2 (10% số điểm): N, Q <= 2000.
-* Subtask 3 (15% số điểm): Vị trí của các con ruồi trước và sau mỗi truy vấn đều không vượt quá 100.
-* Subtask 4 (15% số điểm): Vị trí của các con ruồi trước và sau mỗi truy vấn đều không vượt quá 10^5.
-* Subtask 5 (15% số điểm): N, Q <= 50000.
-* Subtask 6 (25% số điểm): Không có ràng buộc gì thêm.
+\begin{itemize}
+    \item Subtask $1$ ($20 \%$ số điểm): $R < 10^6$.
+
+    \item Subtask $2$ ($20 \%$ số điểm): $R < 10^{11}$.
+
+    \item Subtask $3$ ($20 \%$ số điểm): $L = 1$ và $R = 10^x$.
+
+    \item Subtask $4$ ($20 \%$ số điểm): $R < 10^{15}$.
+
+    \item Subtask $5$ ($20 \%$ số điểm): Không có ràng buộc gì thêm.
+
+\end{itemize}

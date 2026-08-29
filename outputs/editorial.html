@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#121014" />
-  <title>Ếch ham ăn — lời giải</title>
+  <title>Mật thư của Dũng — lời giải</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -345,192 +345,99 @@
   <div class="bar">
     <div class="bar-inner">
       <span class="bar-kicker">Lời giải</span>
-      <span class="bar-name">Ếch ham ăn</span>
+      <span class="bar-name">Mật thư của Dũng</span>
     </div>
   </div>
 
   <main class="page">
     <p class="kicker">Bài toán</p>
-    <h1>Ếch ham ăn</h1>
+    <h1>Mật thư của Dũng</h1>
 
     <dl class="meta">
       <dt>Giới hạn thời gian</dt>
-      <dd>2 giây</dd>
-      <dt>Giới hạn bộ nhớ</dt>
-      <dd>512 MB</dd>
+      <dd>1 s</dd>
       <dt>Expected rating</dt>
-      <dd>1900 (ước lượng)</dd>
+      <dd>1800</dd>
     </dl>
 
     <ul class="tags">
-      <li class="tag">data structures</li>
-      <li class="tag">binary indexed tree</li>
-      <li class="tag">sortings</li>
+      <li class="tag">dp</li>
+      <li class="tag">digit dp</li>
       <li class="tag">binary search</li>
       <li class="tag">math</li>
     </ul>
 
     <section id="statement">
       <h2>Tóm tắt đề bài</h2>
-      <p>Trên trục số vô hạn \(1, 2, 3, \ldots\) có \(N\) con ruồi; con ruồi thứ \(i\) đang ở vị trí
-      \(x_i\). <mark>Nhiều con ruồi có thể cùng nằm ở một vị trí và chúng vẫn là những con ruồi khác
-      nhau</mark>, nên tập vị trí của các con ruồi là một multiset chứ không phải một tập hợp.</p>
-
-      <p>Ta phải xử lí \(Q\) truy vấn thuộc hai loại:</p>
+      <p>Cho ba số nguyên \(L, R, K\). Một số nguyên dương \(x\) được gọi là <mark>may mắn</mark> nếu đồng thời:</p>
       <ul>
-        <li><b>Loại 1 — \(1\ u\ y\):</b> chuyển con ruồi thứ \(u\) sang vị trí \(y\).</li>
-        <li><b>Loại 2 — \(2\ x\):</b> đặt con ếch ở vị trí \(x\) rồi lặp lại: nếu còn con ruồi
-        chưa bị ăn ở vị trí <mark>không vượt quá</mark> vị trí hiện tại của con ếch thì con ếch ăn con
-        gần nó nhất trong số đó, và nếu con ruồi đó ở vị trí \(y'\) thì con ếch nhảy từ \(x'\) sang
-        \(x' + y'\). In ra vị trí cuối cùng và số con ruồi đã ăn.</li>
+        <li>\(x\) <mark>chia hết cho \(15\)</mark>;</li>
+        <li>\(L \le x \le R\);</li>
+        <li><mark>tổng các chữ số</mark> của \(x\) bằng đúng \(K\).</li>
       </ul>
+      <p>Cần in ra hai dòng: <mark>số lượng</mark> số may mắn trong \([L, R]\), và số may mắn <mark>nhỏ nhất</mark> (nếu không có số nào thì in \(-1\)).</p>
 
-      <p>Hai chi tiết quyết định lời giải: <mark>con ruồi nằm đúng vị trí của con ếch cũng bị ăn</mark>
-      (điều kiện là \(\le\), không phải \(&lt;\)), và <mark>truy vấn loại 2 chỉ là giả sử</mark> —
-      sau khi trả lời, mọi con ruồi vẫn còn nguyên trên đầm lầy cho các truy vấn sau.</p>
+      <p><strong>Giới hạn:</strong> \(1 \le L \le R \le 10^{18}\), \(1 \le K \le 10^9\).</p>
 
-      <p><b>Ràng buộc.</b> \(1 \le N, Q \le 2 \cdot 10^5\); \(1 \le x_i \le 10^9\); với truy
-      vấn loại 1 thì \(1 \le u \le N\) và \(1 \le y \le 10^9\); với truy vấn loại 2 thì
-      \(1 \le x \le 10^9\).</p>
-
-      <p><b>Các subtask.</b></p>
+      <p><strong>Subtasks:</strong></p>
       <ul>
-        <li>Subtask 1 (20% số điểm): \(N, Q \le 200\).</li>
-        <li>Subtask 2 (10% số điểm): \(N, Q \le 2000\).</li>
-        <li>Subtask 3 (15% số điểm): vị trí của các con ruồi trước và sau mỗi truy vấn đều không vượt
-        quá \(100\).</li>
-        <li>Subtask 4 (15% số điểm): vị trí của các con ruồi trước và sau mỗi truy vấn đều không vượt
-        quá \(10^5\).</li>
-        <li>Subtask 5 (15% số điểm): \(N, Q \le 50000\).</li>
-        <li>Subtask 6 (25% số điểm): không có ràng buộc gì thêm.</li>
+        <li>Subtask 1 (20%): \(R &lt; 10^6\).</li>
+        <li>Subtask 2 (20%): \(R &lt; 10^{11}\).</li>
+        <li>Subtask 3 (20%): \(L = 1\) và \(R\) là một lũy thừa của \(10\).</li>
+        <li>Subtask 4 (20%): \(R &lt; 10^{15}\).</li>
+        <li>Subtask 5 (20%): Không có ràng buộc gì thêm.</li>
       </ul>
     </section>
 
     <section id="tutorial">
       <h2>Lời giải</h2>
-      <p>Mô tả trong đề là một quá trình tuần tự: ăn con gần nhất, nhảy, rồi xét lại. Bước đầu tiên là
-      loại bỏ tính tuần tự đó.</p>
 
-      <article class="card lemma">
-        <p class="card-label">Nhận xét 1 — thứ tự ăn không quan trọng</p>
-        <p>Trong một truy vấn loại 2, gọi \(F\) là vị trí cuối cùng của con ếch. Khi đó tập các con
-        ruồi bị ăn đúng bằng tập các con ruồi có vị trí không vượt quá \(F\), và</p>
-        \[ F = x + \sum_{i \,:\, x_i \le F} x_i . \]
-        <p>Thật vậy, vị trí của con ếch chỉ tăng (mọi \(x_i \ge 1\)), nên một con ruồi đã lọt vào
-        tầm với thì sẽ không bao giờ ra khỏi tầm với nữa: quá trình chỉ dừng khi mọi con ruồi chưa bị
-        ăn đều ở vị trí lớn hơn \(F\). Ngược lại, mọi con ruồi ở vị trí \(\le F\) đều đã bị ăn,
-        vì nếu còn một con như thế thì quá trình chưa thể dừng. Vì vậy dù ta chọn ăn con nào trước,
-        tập bị ăn — và do đó \(F\) cùng số con ruồi bị ăn — vẫn không đổi.</p>
+      <article class="card transform">
+        <p class="card-label">Quy về đếm trên tiền tố</p>
+        <p>Gọi \(f(X)\) là số lượng số may mắn nằm trong đoạn \([1, X]\). Khi đó số lượng số may mắn trong \([L, R]\) bằng \(f(R) - f(L-1)\). Như vậy bài toán chỉ còn là tính \(f(X)\) cho một \(X\) bất kỳ.</p>
       </article>
 
-      <p class="bridge">Nhận xét 1 biến câu hỏi thành một bài toán điểm bất động. Đặt</p>
-
-      \[ f(t) = x + \sum_{i \,:\, x_i \le t} x_i . \]
+      <article class="card">
+        <p class="card-label">Nhận xét 1 — theo dõi số dư theo từng chữ số</p>
+        <p>\(x\) chia hết cho \(15\) khi và chỉ khi \(x \equiv 0 \pmod{15}\). Khi ta xây dựng \(x\) từ trái sang phải: nếu phần đã xây dựng có giá trị \(p\) và số dư \(r = p \bmod 15\), thì sau khi thêm chữ số \(d\), giá trị mới là \(10p + d\), tức số dư mới là \((10r + d) \bmod 15\). Vậy chỉ cần biết \(r\) là đủ để cập nhật, không cần lưu giá trị đầy đủ của \(x\).</p>
+      </article>
 
       <article class="card">
-        <p class="card-label">Nhận xét 2 — lặp từ \(x\) là đủ</p>
-        <p>Hàm \(f\) không giảm theo \(t\). Đặt \(t_0 = x\) và \(t_{k+1} = f(t_k)\). Vì
-        \(t_1 = f(x) \ge x = t_0\) và \(f\) không giảm, dãy \(t_k\) không giảm; nó bị chặn trên
-        bởi \(x + \sum_i x_i\) nên phải dừng, và giá trị dừng \(t_{k+1} = t_k\) chính là điểm bất
-        động nhỏ nhất của \(f\) không nhỏ hơn \(x\). Đó đúng là \(F\): mọi bước lặp chỉ thêm vào
-        những con ruồi mà con ếch bắt buộc phải ăn, nên \(t_k \le F\) với mọi \(k\); mà \(F\)
-        cũng là một điểm bất động, nên giá trị dừng bằng \(F\).</p>
-        <p>Số con ruồi bị ăn là số con ruồi có vị trí \(\le F\), tức là giá trị đếm tương ứng với
-        cùng một tiền tố.</p>
+        <p class="card-label">Nhận xét 2 — quy hoạch động theo chữ số</p>
+        <p>\(f(X)\) được tính bằng quy hoạch động theo chữ số. Viết \(X\) dưới dạng chuỗi các chữ số. Trạng thái gồm: vị trí \(pos\), tổng chữ số còn lại cần đạt \(s\), số dư \(r\) (mod 15), và cờ \(tight\) cho biết tiền tố hiện tại có còn bằng đúng tiền tố của \(X\) hay không. Công thức truy hồi:</p>
+        <p>\[
+          dp(pos, s, r, tight) =
+          \sum_{d=0}^{limit} dp\bigl(pos-1,\; s-d,\; (10r+d) \bmod 15,\; tight \wedge (d = X[pos])\bigr),
+        \]</p>
+        <p>trong đó \(limit = X[pos]\) nếu \(tight = 1\), ngược lại \(limit = 9\). Trạng thái cơ sở: \(dp(-1, s, r, \cdot) = 1\) nếu \(s = 0\) và \(r = 0\), ngược lại bằng \(0\). Đáp án của \(f(X)\) là \(dp(\text{len}-1, K, 0, 1)\).</p>
+        <p>Vì \(X \le 10^{18}\) nên tổng các chữ số tối đa là \(9 \times 18 = 162\); do đó nếu \(K &gt; 162\) thì \(f(X) = 0\) với mọi \(X\) và ta có thể trả về ngay.</p>
+      </article>
+
+      <article class="card">
+        <p class="card-label">Nhận xét 3 — số nhỏ nhất bằng chặt nhị phân</p>
+        <p>Hàm \(f(X)\) không giảm theo \(X\). Số may mắn nhỏ nhất trong \([L, R]\) là số \(m\) nhỏ nhất thỏa mãn \(f(m) &gt; f(L-1)\), và ta tìm \(m\) bằng tìm kiếm nhị phân trên \([L, R]\). Nếu \(f(R) = f(L-1)\) thì không tồn tại số nào và ta in \(-1\).</p>
       </article>
 
       <article class="card lemma">
-        <p class="card-label">Nhận xét 3 — số bước lặp là \(O(\log)\)</p>
-        <p>Giả sử \(t_{k+1} &gt; t_k\) với \(k \ge 1\). Phần tăng thêm \(t_{k+1} - t_k\) là tổng
-        các con ruồi nằm trong nửa khoảng \((t_{k-1}, t_k]\), và nửa khoảng đó khác rỗng, nên tồn tại
-        một con ruồi ở vị trí \(p &gt; t_{k-1}\). Suy ra</p>
-        \[ t_{k+1} \ge t_k + p &gt; t_{k-1} + t_{k-1} = 2\,t_{k-1}. \]
-        <p>Nghĩa là cứ hai bước lặp thì giá trị ít nhất tăng gấp đôi. Vì \(t_0 \ge 1\) và
-        \(F \le 10^9 + 2 \cdot 10^5 \cdot 10^9 &lt; 2^{48}\), số bước lặp thực sự của một truy
-        vấn nhiều nhất là khoảng \(2 \log_2 F \approx 96\) — một hằng số nhỏ, độc lập với \(N\).
-        Cũng chú ý \(F\) có thể tới cỡ \(2 \cdot 10^{14}\), nên <mark>phải dùng số nguyên 64
-        bit</mark>.</p>
+        <p class="card-label">Nhận xét 4 — cắt nhanh theo dấu hiệu chia hết cho 3</p>
+        <p>Một số có tổng các chữ số bằng \(K\) chỉ có thể chia hết cho \(15\) khi \(K\) chia hết cho \(3\). Do đó nếu \(K \not\equiv 0 \pmod{3}\) thì đáp án chắc chắn là \(0\) và \(-1\), không cần chạy quy hoạch động.</p>
       </article>
 
-      <p class="bridge">Còn lại một việc duy nhất: với một \(t\) cho trước, tính nhanh cả tổng và số
-      lượng các con ruồi có vị trí \(\le t\), trong khi các con ruồi vẫn di chuyển.</p>
-
-      <article class="card">
-        <p class="card-label">Nhận xét 4 — Fenwick tree trên toạ độ đã nén</p>
-        <p>Đó chính là một truy vấn tiền tố trên trục vị trí, với hai giá trị cộng dồn được: số lượng
-        và tổng vị trí. Vị trí lên tới \(10^9\) nên ta nén toạ độ: đọc trước toàn bộ input, thu thập
-        \(N\) vị trí ban đầu cùng mọi giá trị \(y\) của các truy vấn loại 1, sắp xếp và loại trùng.
-        Số toạ độ khác nhau không quá \(N + Q \le 4 \cdot 10^5\), và <mark>mọi vị trí mà một con
-        ruồi có thể nhận trong suốt bài toán đều nằm trong danh sách này</mark>, nên một Fenwick tree
-        trên các hạng (rank) là đủ.</p>
-        <p>Mỗi nút Fenwick lưu một cặp: số con ruồi và tổng vị trí của chúng. Truy vấn loại 1 là một
-        phép trừ tại hạng cũ và một phép cộng tại hạng mới. Với truy vấn loại 2, mỗi bước lặp tìm hạng
-        của \(t\) bằng <code>upper_bound</code> — dùng <code>upper_bound</code> chứ không phải
-        <code>lower_bound</code>, vì con ruồi ở đúng vị trí \(t\) cũng bị ăn — rồi lấy tiền tố.</p>
-        <p>Một chi tiết cài đặt gọn: điều kiện dừng nên là <em>số lượng</em> không tăng nữa, và ở mỗi
-        bước chỉ cần cộng thêm phần chênh lệch tổng so với bước trước, thay vì cộng lại từ đầu.</p>
-      </article>
+      <p class="bridge">Các nhận xét trên cho ta toàn bộ lời giải: đếm bằng quy hoạch động theo chữ số, rồi tìm số nhỏ nhất bằng chặt nhị phân trên hàm đếm.</p>
     </section>
 
     <section class="subtask" id="g1">
-      <h2>Các subtask nhỏ</h2>
-      <p>Lời giải đầy đủ ở trên xử lí được mọi subtask. Tuy vậy có hai bậc trung gian đáng nhắc, vì
-      chúng cần ít công cụ hơn hẳn.</p>
-
-      <article class="card">
-        <p class="card-label">Subtask 1 và 2 — mô phỏng trực tiếp</p>
-        <p>Với \(N, Q \le 2000\) ta không cần Nhận xét 1 hay 3: cứ mô phỏng đúng như đề, mỗi lần
-        quét toàn bộ mảng để tìm con ruồi chưa bị ăn có vị trí lớn nhất mà \(\le\) vị trí hiện tại.
-        Cách này chỉ mất \(O(N)\) cho mỗi con ruồi bị ăn, tức là \(O(N^2)\) cho một truy vấn xấu
-        nhất; đủ nhanh với \(N, Q \le 200\), còn ở \(N, Q \le 2000\) thì phải thay phép quét
-        bằng sắp xếp cộng mảng tổng tiền tố dựng lại sau mỗi truy vấn, cho \(O(Q \cdot N \log N)\).</p>
-      </article>
-
-      <article class="card">
-        <p class="card-label">Subtask 3 và 4 — không cần nén toạ độ</p>
-        <p>Ở hai subtask này vị trí của các con ruồi luôn không vượt quá \(C = 100\), tương ứng
-        \(C = 10^5\). Khi đó Fenwick tree đánh chỉ số trực tiếp theo vị trí, kích thước \(C\), và
-        toàn bộ bước đọc trước input để nén toạ độ biến mất — lời giải trở thành online. Lưu ý là
-        \(N\) và \(Q\) ở đây vẫn đầy đủ \(2 \cdot 10^5\), nên vẫn phải là cấu trúc dữ liệu, và
-        vị trí \(x\) của truy vấn loại 2 vẫn có thể tới \(10^9\): chỉ cần chặn hạng tra cứu tại
-        \(C\) là xong.</p>
-      </article>
-
-      <table>
-        <thead>
-          <tr><th>Bậc</th><th>Ý tưởng</th><th>Độ phức tạp</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Subtask 1</td><td>mô phỏng, quét toàn mảng</td><td>\(O(Q \cdot N^2)\)</td></tr>
-          <tr><td>Subtask 2</td><td>sắp xếp và dựng tổng tiền tố lại cho mỗi truy vấn</td><td>\(O(Q \cdot N \log N)\)</td></tr>
-          <tr><td>Subtask 3, 4</td><td>Fenwick tree đánh chỉ số theo vị trí</td><td>\(O((N + Q)\log C + Q \log F \log C)\)</td></tr>
-          <tr><td>Subtask 5, 6</td><td>nén toạ độ + Fenwick tree</td><td>\(O((N + Q)\log(N + Q) + Q \log F \log(N + Q))\)</td></tr>
-        </tbody>
-      </table>
+      <h2>Subtask 1 (\(R &lt; 10^6\))</h2>
+      <p>Với \(R &lt; 10^6\) ta có thể duyệt mọi \(x\) trong \([L, R]\) (\(O(R)\) lần lặp), kiểm tra trực tiếp \(x \bmod 15 = 0\) và tổng chữ số bằng \(K\), đồng thời cập nhật số nhỏ nhất. Đây là cách đủ nhanh cho subtask này.</p>
     </section>
 
     <section id="complexity">
       <h2>Độ phức tạp</h2>
-      <pre class="complexity">Tiền xử lí (nén toạ độ): O((N + Q) log(N + Q))
-Truy vấn loại 1:        O(log(N + Q))
-Truy vấn loại 2:        O(log F · log(N + Q)), với log F &lt; 48
-Tổng thời gian:         O((N + Q) log(N + Q) + Q log F log(N + Q))
-Bộ nhớ:                 O(N + Q)</pre>
-      <p>Với \(N = Q = 2 \cdot 10^5\), số bước lặp của một truy vấn loại 2 trên thực tế chỉ khoảng
-      \(30\), nên lời giải chạy rất thoải mái trong giới hạn \(2\) giây.</p>
+      <pre class="complexity">Thời gian: O(log R · 19 · 162 · 15 · 2 · 10) ≈ 6·10^7 — đủ nhanh trong 1 s.
+Bộ nhớ:   O(19 · 162 · 15 · 2) ≈ 800 KB.</pre>
     </section>
 
-    <section id="other">
-      <h2>Cách giải khác</h2>
-      <p>Nếu không muốn đọc trước toàn bộ truy vấn, hãy thay Fenwick tree trên toạ độ đã nén bằng một
-      balanced BST (chẳng hạn treap) chứa multiset vị trí, mỗi nút lưu số lượng và tổng vị trí của cây
-      con. Truy vấn tiền tố \(\le t\) là một lần đi từ gốc xuống lá: ở mỗi nút, nếu khoá của nó
-      \(\le t\) thì cộng cả cây con bên trái và chính nó rồi đi sang phải, ngược lại đi sang trái.
-      Cách này giữ nguyên Nhận xét 1–3, có cùng độ phức tạp \(O(\log N)\) cho mỗi phép, nhưng chạy
-      online — không cần nén toạ độ và không cần biết trước các truy vấn.</p>
-    </section>
-
-    <footer class="page-end">Ếch ham ăn · lời giải</footer>
+    <footer class="page-end">Mật thư của Dũng · lời giải</footer>
   </main>
 
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>
