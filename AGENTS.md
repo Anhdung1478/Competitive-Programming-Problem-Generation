@@ -39,6 +39,10 @@ Generated artifacts must never silently redefine the problem. If generated files
 
 Do not edit `source/problem-context.md`, `source/solution.cpp`, or `source/subtask.md` unless the user explicitly asks. The local-I/O normalization rule in Step 1 is the sole standing exception for `source/solution.cpp`.
 
+## Always-on skill
+
+Use the `yagni-principles` skill on every task in this repository, in every workflow step, and alongside every other skill. It is never optional and never skipped.
+
 ## C++ I/O convention
 
 Every C++ file the agent writes or edits must use the C++ stream API instead of the C stdio API. This covers `outputs/gentest.cpp`, `outputs/validator.cpp`, `outputs/checker.cpp`, every file in `outputs/solution/`, and any scratch/brute-force program used during validation.
