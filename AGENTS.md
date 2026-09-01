@@ -8,7 +8,7 @@ The agent must execute these workflow steps in this exact order:
 
 1. validate `source/solution.cpp` when it is present;
 2. create `outputs/statement.txt`;
-3. create `outputs/checker.cpp`;
+3. create `outputs/checker.cpp`, unless the output is unique/deterministic, in which case skip it and use a Polygon standard checker (see Step 3);
 4. create and validate the solution suite in `outputs/solution/`;
 5. create `outputs/generator-config.md`;
 6. create `outputs/test-script.txt` from that config;
@@ -27,6 +27,16 @@ Two steps are optional and are skipped by default; produce them only on explicit
 Skipping an optional step is never a workflow failure. When Step 8 is skipped, say so in
 the final summary and note that generated input has not been machine-validated.
 
+Step 3 is conditionally skipped, independent of the two optional steps above: when the
+finished `outputs/statement.txt` establishes that output is unique/deterministic for
+every valid input (a single correct answer, exact required formatting, no accepted
+alternative and no floating-point tolerance beyond exact match), do not write
+`outputs/checker.cpp`. Use a Polygon standard checker instead (e.g. `wcmp`, `ncmp`,
+`hcmp`, `lcmp`, `fcmp`, or an `rcmp*` tolerance variant, chosen to match the output's
+tokenization and any floating-point rule) and name the chosen standard checker in the
+final summary. If output uniqueness is not already settled by the mandatory ambiguity
+gate, ask rather than assuming a custom checker can be skipped.
+
 ## Source-of-truth files
 
 At repository root:
@@ -38,6 +48,18 @@ At repository root:
 Generated artifacts must never silently redefine the problem. If generated files disagree with source-of-truth files, the source-of-truth files win and the inconsistency must be reported.
 
 Do not edit `source/problem-context.md`, `source/solution.cpp`, or `source/subtask.md` unless the user explicitly asks. The local-I/O normalization rule in Step 1 is the sole standing exception for `source/solution.cpp`.
+
+## Rigor profile
+
+This repository has two rigor profiles, defined in `preference.yml` at the repository
+root: `heavy` (this document exactly as written — the default) and `light-weight`
+(quick generation; `preference.yml` lists the specific overrides it applies on top of
+this document, and the things it never relaxes). Before starting work, read
+`preference.yml` and pick the active profile: honor whatever the user's request implies
+per that file's `selection` rules, otherwise use its `default`. State the active profile
+at the start of the work and again in the final summary. A profile only changes how much
+validation/coverage is gathered — it never authorizes skipping a rule listed under
+`never_relaxed`.
 
 ## Always-on skill
 
@@ -140,13 +162,23 @@ not merely a zero exit code.
 
 ## Step 3 — `outputs/checker.cpp`
 
-Use the `polygon-checker` skill.
+First decide whether this step is needed at all:
 
-Requirements:
+- If the finished `outputs/statement.txt` shows output is unique/deterministic (single
+  correct answer, exact formatting, no accepted alternative, no floating-point tolerance
+  beyond exact match), **skip `outputs/checker.cpp`**. Select the matching Polygon
+  standard checker (`wcmp`/`ncmp`/`hcmp` for token-by-token numeric/word comparison,
+  `lcmp`/`fcmp` for exact line/text comparison, or an `rcmp*` variant when a documented
+  floating-point tolerance applies) and record that choice in the final summary instead
+  of writing custom code. Do not write a custom checker just to reimplement what a
+  standard checker already does.
+- Otherwise — non-unique witnesses, optimization/construction objectives, or any special
+  comparison protocol — use the `polygon-checker` skill to write `outputs/checker.cpp`.
+
+Requirements when a custom checker is written:
 
 - C++ + `testlib.h`.
 - Must follow Codeforces Polygon checker conventions.
-- For unique/deterministic output with no special semantics, compare participant and jury output token-by-token and reject missing/extra tokens.
 - For non-unique output, write a semantic checker. Never compare a valid witness structurally to the jury witness.
 - For optimization/construction problems, validate the participant witness and compare the required objective against the jury optimum when appropriate.
 - Consume all required participant output and reject invalid extra output unless the statement permits it.
@@ -163,13 +195,13 @@ Design candidate algorithms independently from the problem specification. Do not
 Create `outputs/solution/manifest.md` and self-contained GNU C++17 sources using these names. Every source must follow the C++ I/O convention above: `cin`/`cout` with `ios_base::sync_with_stdio(false); cin.tie(nullptr);`, never `scanf`/`printf` — including the TLE candidates, whose slowness must come from the algorithm and not from I/O.
 
 - `ac-full-<slug>.cpp` — correct for all constraints;
-- `ac-subtask-<id>-<slug>.cpp` — correct exactly for the declared subtask scope;
+- `ac-subtask-<id>-<slug>.cpp` — correct exactly for the declared subtask scope; generate this only when the user explicitly asks for a subtask-scoped solution — see below;
 - `wa-<slug>.cpp` — plausible wrong-answer candidate;
 - `tle-<slug>.cpp` — logically plausible candidate expected to exceed the time limit on adversarial valid tests.
 
 If `source/solution.cpp` contains a guarded local-file block using `fopen` and `freopen`, every generated suite source must include an equivalent guarded block with the same task basename and `.inp`/`.out` behavior. Preserve the standard-input/standard-output fallback when the local input file is absent. Apply this consistently to AC, WA, and TLE candidates.
 
-Generate one or two correct solutions, with at least one required. A correct solution may cover the full problem or exactly one declared subtask. When two correct solutions are generated, they must differ materially in algorithm, state representation, data structure, or complexity—not merely coding style. If no meaningful second approach exists, generate one and record that decision in the manifest.
+Generate one or two correct solutions, with at least one required, and default both to full-scope (`ac-full-<slug>.cpp`). Do not generate a subtask-scoped AC (`ac-subtask-<id>-<slug>.cpp`) unless the user explicitly asks for one; a subtask-scoped candidate is opt-in, not part of the default suite. When two correct solutions are generated, they must differ materially in algorithm, state representation, data structure, or complexity—not merely coding style. If no meaningful second approach exists, generate one and record that decision in the manifest.
 
 Also generate representative WA and/or TLE candidates when a realistic contestant approach exists. These candidates must be “potential” submissions:
 
@@ -337,14 +369,14 @@ Before finishing, cross-check:
 - statement bounds == `outputs/generator-config.md` bounds == generator bounds;
 - each `outputs/test-script.txt` option exists in `outputs/gentest.cpp`;
 - each subtask index/constraint agrees across `source/subtask.md`, statement, config, script, and generator;
-- checker semantics == statement output semantics;
+- when `outputs/checker.cpp` exists, its semantics == statement output semantics; when it was skipped, the chosen Polygon standard checker matches the statement's unique/deterministic output and tokenization;
 - multi-test format agrees everywhere;
 - `outputs/editorial.html` describes in Vietnamese the algorithm and complexity of the validated `source/solution.cpp` when it exists, otherwise a validated full-scope AC from `outputs/solution/manifest.md`;
 - every generated test can be consumed by every suite source whose declared scope contains that test and by `source/solution.cpp` when the latter exists;
 - when Step 8 was requested, every generated test is accepted by `outputs/validator.cpp`, while representative malformed/invalid inputs are rejected;
 - every generated test remains valid regardless of whether a WA/TLE candidate accepts, rejects, times out, or prints a wrong answer.
 
-Compile every `outputs/solution/*.cpp` file as GNU C++17. Compile `outputs/checker.cpp`, `outputs/gentest.cpp`, and — when Step 8 was requested — `outputs/validator.cpp` with the same `testlib.h` environment used by Polygon when available.
+Compile every `outputs/solution/*.cpp` file as GNU C++17. Compile `outputs/gentest.cpp`, `outputs/checker.cpp` when Step 3 produced one, and — when Step 8 was requested — `outputs/validator.cpp` with the same `testlib.h` environment used by Polygon when available.
 
 ## Communication
 

@@ -7,6 +7,10 @@ description: Create or review outputs/checker.cpp for Codeforces Polygon using t
 
 Read the source-of-truth files and final output specification. Classify the output as deterministic, non-unique witness, optimization, floating-point, or special protocol before implementing the checker.
 
+## Skip this file when output is unique
+
+If the output is unique/deterministic for every valid input — a single correct answer, exact required formatting, no accepted alternative, no floating-point tolerance beyond exact match — do not write `outputs/checker.cpp`. Use a Polygon standard checker instead (`wcmp`/`ncmp`/`hcmp` for token-by-token numeric/word comparison, `lcmp`/`fcmp` for exact line/text comparison, or an `rcmp*` variant when a documented floating-point tolerance applies) and report the chosen standard checker instead of producing a file. Only continue past this point when the output is non-unique, an optimization/construction objective, or otherwise needs custom comparison logic.
+
 Use C++17, `testlib.h`, and `registerTestlibCmd(argc, argv)`. Treat participant data as untrusted. Report participant errors with `_wa`, jury/package inconsistencies with `_fail`, and success with `_ok`.
 
 ## Token readers required by Polygon

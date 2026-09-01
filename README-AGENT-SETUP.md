@@ -7,6 +7,7 @@ Expected layout:
 ```text
 <problem-root>/
 ├─ AGENTS.md
+├─ preference.yml                    # heavy vs light-weight rigor profile
 ├─ source/
 │  ├─ problem-context.md
 │  ├─ solution.cpp                 # optional official/full solution

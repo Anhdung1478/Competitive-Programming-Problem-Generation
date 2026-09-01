@@ -1,0 +1,69 @@
+# Rigor profile for the problem-preparation workflow in AGENTS.md.
+#
+# `heavy` is AGENTS.md exactly as written — the full workflow, no shortcuts.
+# `light-weight` is a set of overrides layered on top of AGENTS.md for quick,
+# low-stakes generation. Anything not listed under a profile's `overrides`
+# still follows AGENTS.md unchanged. This file never redefines a step; it
+# only says which parts of its rigor may be relaxed.
+
+default: heavy
+
+profiles:
+  heavy:
+    description: >
+      Careful generation for both the solution suite and the test data.
+      Follow AGENTS.md exactly as written. Use whenever the package is
+      headed for real contestants, grading, or anything the user did not
+      explicitly call quick/rough/draft.
+    overrides: {}
+
+  light-weight:
+    description: >
+      Quick generation for drafting or iteration. Trades validation depth
+      and candidate coverage for speed. Still produces a working package —
+      it just gathers less evidence before calling something correct, and
+      skips artifacts that only exist to stress-test WA/TLE candidates that
+      this profile does not generate in the first place.
+
+    never_relaxed:
+      - "Step 1's hard stop on a confirmed compile error, correctness defect, complexity violation, or overflow risk — a found defect still blocks Step 2-9 in both profiles."
+      - "source-of-truth precedence and the no-edit rule for source/problem-context.md, source/solution.cpp, source/subtask.md."
+      - "the C++ I/O convention (no scanf/printf/etc.) in every generated C++ file."
+      - "the mandatory ambiguity gate: still ask before guessing a fact that changes correctness."
+      - "the checker-skip rule already in AGENTS.md Step 3 (unique output -> Polygon standard checker) applies the same way in both profiles."
+
+    overrides:
+      step1_validate_solution:
+        - "A quick compile plus a targeted sample/edge-case pass is enough; a full brute-force/differential sweep is optional unless a brute force is cheap to write for this problem."
+
+      step3_checker:
+        - "Lean toward a Polygon standard checker whenever the statement plausibly implies unique output; do not spend effort on a careful deterministic/non-unique/optimization classification pass. Ask only if it is genuinely unclear whether output is unique."
+
+      step4_solution_suite:
+        - "Generate exactly one full-scope AC solution (AGENTS.md already skips subtask-scoped AC by default in both profiles). Skip WA and TLE candidates too, unless the user asks for them or the problem invites an obvious, cheap-to-write one."
+        - "Validate that one AC with hand-picked/sample cases and a couple of edge cases; a full differential/brute-force sweep is optional."
+
+      step5_generator_config:
+        - "Record input schema, bounds, and 3-5 generation profiles (small, large/near-limit, edge case). Omit the solution-kill matrix when there are no WA/TLE candidates to kill."
+
+      step6_test_script:
+        - "Keep the default 100 generated tests. The 50%-at-rate>=0.90 split and the [0.70,0.80)/[0.80,0.90) coverage requirement are relaxed to 'at least one small test and one near-limit test per subtask'."
+
+      step7_gentest:
+        - "Skip adversarial profiles that exist only to kill WA/TLE candidates from the solution-kill matrix, since light-weight does not generate those candidates. Structural invariants and subtask-scope enforcement still apply in full."
+
+      step8_validator:
+        - "No change: stays optional and skipped by default in both profiles."
+
+      step9_editorial:
+        - "A concise editorial covering the algorithm, complexity, and one worked example is sufficient. Full proof-level derivation of every step is optional."
+
+      cross_artifact_gate:
+        - "Still check bounds/format/subtask consistency across all produced files. Skip the WA/TLE-to-test-coverage cross-check, since light-weight does not produce WA/TLE candidates."
+
+selection:
+  - "Use the profile the user names explicitly (e.g. 'light-weight', 'heavy', 'quick', 'careful')."
+  - "Words like quick, draft, rough, just generate, prototype -> light-weight."
+  - "Words like careful, thorough, for the real contest, double-check, or no urgency signal at all -> heavy (this file's default)."
+  - "If it is genuinely ambiguous which profile is wanted, ask once instead of guessing."
+  - "State the active profile at the start of the work and again in the final summary."
