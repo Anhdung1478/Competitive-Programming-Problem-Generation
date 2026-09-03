@@ -1,149 +1,177 @@
-# Generator design contract — Mật thư của Dũng
+# Generator design contract — Mật mã lăng mộ cổ
 
-Single test case. Count `x ∈ [L, R]` with `x % 15 == 0` and digit-sum `== K`; output the count
-and the smallest such `x` (or `-1`). Authoritative limits from `source/problem-context.md`
-(`L ≤ R ≤ 10^18`, `K ≤ 10^9`) and the confirmed lower bounds `L ≥ 1`, `K ≥ 1`.
+Design contract for `outputs/test-script.txt` and `outputs/gentest.cpp`. Everything the
+generator does must be traceable to a section here.
 
 ## 1. Input schema
 
-| field | type | repeats | legal range | relation |
-|---|---|---|---|---|
-| `L` | integer (`long long`) | no | `1 ≤ L ≤ 10^18` | `L ≤ R` |
-| `R` | integer (`long long`) | no | `1 ≤ R ≤ 10^18` | `R ≥ L` |
-| `K` | integer (`int`) | no | `1 ≤ K ≤ 10^9` | independent of `L, R` |
+| Field | Type | Scope | Legal range | Relation | Repeats |
+|---|---|---|---|---|---|
+| `T` | integer | first line | `1 <= T <= 20` | — | once |
+| `L` | decimal string, no leading zero | line `i+1`, token 1 | `1 <= L <= 10^10000` | `L <= R` | per query |
+| `R` | decimal string, no leading zero | line `i+1`, token 2 | `1 <= R <= 10^10000` | `R >= L` | per query |
 
-One line: `L R K`, space-separated. No multi-test wrapper.
+There is **no** sum-of-lengths constraint across the `T` queries: every query may carry two
+10001-digit numbers, so the maximal input is ~400 KB. This is the intended worst case, not an
+accident, and the generator must be able to produce it.
 
-Reachability facts (drives the value profiles): a number with digit-sum `K` can be divisible by
-15 only if `K ≡ 0 (mod 3)` (digit-sum rule for divisibility by 3) **and** it ends in `0` or `5`.
-The maximum digit-sum of any `x ≤ 10^18` is `9·18 = 162`, and the maximum digit-sum of an actual
-multiple of 15 that is `≤ 10^18` is `156` (e.g. `799999999999999995`). Hence `K > 162 ⇒ count = 0`
-unconditionally, and `K ≢ 0 (mod 3) ⇒ count = 0` unconditionally.
+`|X|` denotes the digit count of `X`. `10^10000` has 10001 digits; every other legal value has
+at most 10000.
 
 ## 2. Structural invariants
 
-- `1 ≤ L ≤ R ≤ 10^18`.
-- `1 ≤ K ≤ 10^9`.
-- Subtask ceilings on `R` (see §3).
-- For profile `zero`: the correct answer must be `0 / -1` (enforced by construction).
-- For profile `nonzero`: the correct answer must be `count ≥ 1` (a planted multiple of 15).
+Enforced before printing, for every query:
+
+- `L` and `R` consist only of characters `0`-`9`;
+- neither has a leading zero (`X[0] != '0'`), and neither is empty;
+- `L <= R` compared numerically (length first, then lexicographically);
+- `R` is within the active subtask's cap (Section 3);
+- exactly two tokens per line, separated by one space, one `'\n'` per line, no trailing blank line;
+- `1 <= T <= 20` and the first line holds `T` alone.
 
 ## 3. Subtask table
 
-| # | score | limit | differs from full by | generation logic |
+| # | Score | Limit | Differs from full | Generator logic |
 |---|---|---|---|---|
-| 1 | 20% | `R < 10^6` | `R` ceiling `999999` (`D=6`) | draw `R` as a `≤6`-digit value `≤ 999999` |
-| 2 | 20% | `R < 10^11` | `R` ceiling `99999999999` (`D=11`) | draw `R` as a `≤11`-digit value `≤ 99999999999` |
-| 3 | 20% | `L = 1` and `R = 10^x` | `L` fixed to 1; `R` must be a power of 10 | `L = 1`; `R = 10^x`, `x = clamp(round((rate−0.70)/0.30·18), 0, 18)` |
-| 4 | 20% | `R < 10^15` | `R` ceiling `999999999999999` (`D=15`) | draw `R` as a `≤15`-digit value `≤ 999999999999999` |
-| 5 | 20% | none | full | draw `R ≤ 10^18` (`D=18`); may emit exact `10^18` |
+| 1 | 20% | `R <= 10^5` | numeric cap, tiny | pick `|R| in [1,6]`; if `|R| = 6` the only legal value is `100000` |
+| 2 | 20% | `R <= 10^11` | numeric cap, fits in 64 bit | pick `|R| in [1,12]`; if `|R| = 12` the only legal value is `100000000000` |
+| 3 | 20% | `L = 1`, `R = 10^x`, `0 <= x <= 10^4` | **shape-constrained**, cannot be produced by shrinking | emit `L = "1"`, `R = "1" + x` zeros; profile options are ignored, only `x` varies |
+| 4 | 20% | `|R| <= 500` | digit-length cap | pick `|R| in [1,500]`; no special top value (`10^500` is out of scope, `499` nines is not) |
+| 5 | 20% | full | — | pick `|R| in [1,10001]`; if `|R| = 10001` the only legal value is `10^10000` |
 
-`D` is the digit-count ceiling used by `rate` (see §4). Subtask 3 is the only one not obtainable by
-merely shrinking `R`; it fixes `L = 1` and constrains `R` to a power of 10.
+Subtask 3 is the only subtask that is *not* a restriction of the general random shape; see
+Section 7.
 
 ## 4. `rate` interpretation
 
-`rate ∈ [0.70, 1.00]` controls the **magnitude of `R`** via its digit count, so higher `rate` means
-larger `R` (and thus a harder instance for brute/multiples candidates). Concretely, for a subtask
-with digit-count ceiling `D`:
+`rate in [0.70, 1.00]` is a single knob for "how close to the subtask ceiling". It is mapped
+onto the **digit length** of `R` (never onto the value directly, because the value range is
+astronomically wide) and onto `T`:
 
-- target digits `d = clamp(round((rate − 0.70)/0.30 · D), 1, D)`, so `rate = 0.70 ⇒ d = 1`
-  (single-digit `R`) and `rate = 1.00 ⇒ d = D` (max digits) — the full size spectrum is covered;
-- `R` is a uniform random `d`-digit integer (`10^(d-1) ≤ R < 10^d`), clamped to the subtask ceiling;
-- when `d = D` and the ceiling is reachable (subtask 5), the profile may also emit the exact
-  boundary `R = 10^18`;
-- `L` is then drawn in `[1, R]` per the active profile; `K` is drawn per the value profile and does
-  **not** depend on `rate`.
+```
+span(maxLen) = clamp(round(maxLen * (rate - 0.60) / 0.40), 1, maxLen)
+```
 
-`rate` never breaks `L ≤ R` or the subtask ceiling, and never affects `K`.
+so `rate = 0.70 -> 25%` of the ceiling, `0.80 -> 50%`, `0.90 -> 75%`, `1.00 -> 100%`.
 
-## 5. Generator options (consumed by `outputs/gentest.cpp`)
+| Quantity | Mapping | Clamp |
+|---|---|---|
+| `|R|` (subtasks 1, 2, 4, 5) | `span(maxLen)` for that subtask's `maxLen` = 6 / 12 / 500 / 10001 | `>= 1`; the top length is legal only for the exact power of ten |
+| `x` (subtask 3) | `clamp(round(10000 * (rate - 0.60) / 0.40), 0, 10000)` | `[0, 10000]` |
+| `T` (default) | `clamp(round(20 * (rate - 0.50) / 0.50), 1, 20)` -> `0.70 -> 8`, `0.90 -> 16`, `1.00 -> 20` | `[1, 20]` |
 
-| option | kind | values | effect |
+`rate` never breaks a lower bound: after scaling, `|R|` is clamped to `>= 1`, `|L|` is chosen
+in `[1, |R|]`, and the numeric `L <= R` check is re-applied and repaired (Section 11) rather
+than trusted.
+
+## 5. Generator options
+
+| Option | Form | Values | Effect |
 |---|---|---|---|
-| `seed` | positional | any string | first argument; feeds `rnd` via `registerGen` |
-| `--subtask` | named int | `1..5` | selects the ceiling/rule from §3 |
-| `--rate` | named double | `0.70..1.00` | scales `R`'s digit count per §4 |
-| `--profile` | named string | `random` (default), `full`, `single`, `narrow`, `maxR`, `zero`, `nonzero`, `kill-factor5`, `kill-offbyone`, `kill-tle` | semantic generation profile (§6) |
-
-No `--seed`: the seed is the positional argument immediately after the generator name.
+| seed | positional, immediately after `gentest` | any token | `registerGen` reproducibility seed. Never written as `--seed`. |
+| `subtask` | `--subtask S` | `1..5` | selects the row of Section 3 |
+| `rate` | `--rate R` | `0.70..1.00` | Section 4 |
+| `profile` | `--profile P` | see Section 6 | digit-content shape of each query |
+| `numtest` | `--numtest N` | `1..20`, optional | overrides the `T` derived from `rate`; used only for the `T = 1` degenerate tests |
 
 ## 6. Generation profiles
 
-- `random` (default): random `L ∈ [1, R]`, random width, `K` in the "meaningful" range
-  `[1, min(162, 9·d)]` (mostly `≡ 0 mod 3` to keep answers non-trivial). General coverage.
-- `full`: `L = 1` (whole prefix `[1, R]`). Exercises prefix counting and the `count(L−1)=count(0)` path.
-- `single`: `L = R`. Single-point range; min equals the point iff it is lucky. Exposes off-by-one.
-- `narrow`: `L = R − w`, `w ∈ [1, 1000]` (or `R − R % something`). Tightens the min search.
-- `maxR`: `R` at the subtask ceiling (`10^18` for subtask 5); `L` small or random. Boundary DP.
-- `zero`: guarantees answer `0 / -1` — either `K ≢ 0 (mod 3)`, or `K > 9·d` (digit-sum impossible),
-  or `K ∈ (162, 10^9]` (beyond any 18-digit sum). Exercises the `-1` output path.
-- `nonzero`: guarantees `count ≥ 1` by planting a multiple of 15: pick `m = 15·t` in the working
-  range, set `K = digitSum(m)`, and choose `L ≤ m ≤ R`. Exercises count and min on a known answer.
-- `kill-factor5`: `K ≡ 0 (mod 3)`, `L` small, `R` large enough to include a small multiple of 3
-  (not 5) with digit-sum `K` — e.g. `L = 1`, `K ∈ {3,6,9,12,…}`, `R ≥ K`. Exposes `wa-ignore-factor5`.
-- `kill-offbyone`: `L` itself is a lucky number (a multiple of 15 with digit-sum `K`), so
-  `count(L)` differs from `count(L−1)`. Exposes `wa-offbyone`.
-- `kill-tle`: `L = 1`, `R` at the ceiling (`10^18` for subtask 5). Exposes `tle-multiples`
-  (`O(R/15)` loop). Valid and contest-plausible (a max-size test).
+Each profile describes the *digit content* of one query. `--profile mixed` draws a fresh
+profile per query from the list below.
+
+| Profile | Shape | Why it matters |
+|---|---|---|
+| `random` | `L`, `R` independent uniform digit strings, reordered so `L <= R`; `\|R\|` uses the largest *non-reserved* length so this stays the heaviest shape | baseline and the actual worst case for the intended DP; both tight flags fall away immediately, exercising the free part in bulk |
+| `equal` | `L = R`, uniform digits | single number: answer is exactly that number's power/purity, so any range-decomposition bug shows |
+| `prefix` | `L` and `R` share a random common prefix of ~half the length, then `L` continues with small digits and `R` with large ones | keeps `tightLow`/`tightHigh` alive deep into the number — the only shape that populates the tight DP states in bulk |
+| `wa-trap` | `L = R = '9' + '1' * (k-1)`, and digit variants `'d' + 'c' * (k-1)` with `d > c` | power is `k-1` while the maximum power over `[1, R]` is `k`; see Section 9 |
+| `flat` | all digits equal (`ddd...d`) | power `= k`, purity `= 1`: the maximum-length / minimum-count extreme |
+| `decreasing` | non-increasing digit runs, e.g. blocks of `9`s then `8`s ... | drives the power far below `k` while the counts stay large |
+| `zeros` | numbers of the form `d * 10^m` and digit strings that are mostly `0` | the leading-zero / `nonz` logic and the "long run of zeros is itself the best subsequence" case |
+| `boundary` | subtask extremes, cycled deterministically over the queries of one test: `L = R = 1`, `L = 1` with `R` at the cap, `L = R` at the cap. This is the only profile that emits a number of maximal digit length (the exact power of ten). | exact edges of every bound, with all three shapes guaranteed to appear |
 
 ## 7. Subtask-specific generation
 
-Only subtask 3 needs non-shrinking logic: enforce `L = 1` and `R = 10^x` with
-`x = round(rate·18)`, `0 ≤ x ≤ 18` (so `R ∈ {1, 10, …, 10^18}`). All other subtasks differ only by
-the `R` ceiling and digit-count ceiling `D`; `L`, `K`, and width profiles apply unchanged.
+**Subtask 3 (`L = 1`, `R = 10^x`)** cannot be produced by shrinking a random shape. The
+generator must special-case it: emit the literal `1`, then `1` followed by `x` zeros, with `x`
+from Section 4. `--profile` is ignored for this subtask (the shape is fully determined), and
+`x = 0` (`R = 1`) must appear at least once.
 
-## 8. Coverage plan (for the default 100-test script)
+**Top-of-range values.** For subtasks 1, 2 and 5 the ceiling is a power of ten, so a number of
+maximal digit length is legal *only* if it equals that power exactly. The generator picks
+`|R| = maxLen` only when it intends to emit that exact power of ten; otherwise it uses
+`maxLen - 1` digits.
 
-| subtask | share | profiles to hit |
-|---|---|---|
-| 1 (`R<1e6`) | ~15 | `random`, `full`, `single`, `narrow`, `zero`, `nonzero`, `kill-factor5`, `kill-offbyone` |
-| 2 (`R<1e11`) | ~15 | `random`, `full`, `narrow`, `zero`, `nonzero`, `kill-factor5` |
-| 3 (`L=1,R=10^x`) | ~10 | `full` (power-of-10 `R`), `zero` (K ≢ 0 mod 3), `nonzero` |
-| 4 (`R<1e15`) | ~20 | `random`, `full`, `narrow`, `maxR`, `zero`, `nonzero`, `kill-factor5`, `kill-offbyone` |
-| 5 (full) | ~40 | `random`, `full`, `single`, `narrow`, `maxR`, `zero`, `nonzero`, `kill-factor5`, `kill-offbyone`, `kill-tle` |
+**Subtask 4** caps digits, not value, so `499`/`500` nines are legal and are the real edge.
 
-Rate distribution (Step 6 default): ≈50% of tests `rate ≥ 0.90`, with meaningful coverage in
-`[0.70, 0.80)` and `[0.80, 0.90)`. Boundary `K` values (`1`, `156`, `162`, `163`, `171`, `10^9`)
-and boundary `R` (`1`, `999999`, `10^18`, `10^18−1`) are included.
+## 8. Coverage plan
+
+100 generated tests, 20 per subtask. Per subtask:
+
+- 2 `boundary` (one of them `--numtest 1`);
+- 3 `equal`;
+- 3 `prefix`;
+- 2 `random`;
+- 2 `mixed`;
+- 2 `wa-trap`;
+- 2 `flat`;
+- 2 `decreasing`;
+- 2 `zeros`.
+
+Within each subtask the two `rate = 1.00` slots are given to `random` and `prefix`, so the
+largest test of every subtask is also its most adversarial one.
+
+Rate distribution across all 100 tests: exactly 50 tests at `rate >= 0.90` (so the near-limit
+shapes dominate), 35 in `[0.80, 0.90)`, 15 in `[0.70, 0.80)`, with representative values at
+`0.70`, `0.80`, `0.90`, `0.95`, `0.99` and `1.00`. Subtask 3 ignores the profile column above
+(its shape is fully determined by `x`); its two `boundary` tests cycle `x` over
+`0, 1, 2, 10000, 9999`, which is what guarantees the `x = 0` edge, and the remaining tests
+spread `x` across the same rate buckets.
 
 ## 9. Solution-kill matrix
 
-| candidate | failure mechanism | smallest counterexample | legal subtasks | killing profile | expected signal |
-|---|---|---|---|---|---|
-| `wa-ignore-factor5.cpp` | counts numbers divisible by 3 (drops the ×5 factor) | `1 15 6` → prints `2\n6`, correct `1\n15` | 1,2,4,5 | `kill-factor5` (`K ≡ 0 mod 3`, small `L`, `R ≥ K`) | checker rejects (wrong count/min) |
-| `wa-offbyone.cpp` | `count(L)` instead of `count(L−1)` | `15 15 6` → prints `0\n-1`, correct `1\n15` | 1,2,4,5 | `kill-offbyone` (`L` is a lucky multiple of 15) | checker rejects (wrong count/min) |
-| `tle-multiples.cpp` | `O(R/15)` iteration | `1 1000000000000000000 156` | 5 (also 4) | `kill-tle` (`L=1`, `R=10^18`) | timeout under 1s |
+| Candidate | Mechanism | Smallest known counterexample | Legal in | Profile / options | Tests | Signal |
+|---|---|---|---|---|---|---|
+| `wa-prefix-subtract.cpp` | answers `[L,R]` as `g(R)` minus `g(L-1)`; when every number attaining `maxPower(1..R)` is below `L`, it prints that too-large power with count `0` | `T=1`, `L=R=21` -> prints `2 0`, correct `1 2` | subtasks 1, 2, 4, 5 | `--profile wa-trap`, also hit by `equal`, `decreasing`, `flat`, `prefix`, `random` | **48 of the 100 generated tests kill it** | wrong answer, rejected by `ncmp` |
+| `tle-enumerate.cpp` | enumerates every integer in `[L,R]`; `O(T * (R-L+1) * k^2)` | `T=1`, `L=1`, `R=10^11` still running after 5 s | subtasks 2-5 (deliberately *not* subtask 1) | any profile whose range width exceeds ~`10^7` | passes all 20 subtask 1 tests (worst 289 ms), exceeds 3 s on tests 025, 041, 045, 069, 081, 091, 097 and every other wide-range test | timeout against the 1 s limit |
 
-AC oracles for differential validation:
+**Confirmed killing seeds** (from the generated set, after generator validation):
 
-- subtask 1: `ac-subtask-1-brute.cpp` (scope `R < 1e6`) and `ac-full-digitdp.cpp`;
-- subtasks 2,4,5: `ac-full-digitdp.cpp` (full scope);
-- subtask 3: `ac-full-digitdp.cpp` (full scope) — no scoped-only AC needed.
+- `wa-prefix-subtract.cpp`: tests 001, 003, 006-008, 010, 011, 013, 014, 017, 018, 020, 021, 025-027, 029-032, 035, 037, 038, 040 (subtasks 1-2), 062-064, 069-073, 075-078 (subtask 4), 081, 083-087, 089, 091, 095, 096, 098, 100 (subtask 5).
+- `wa-prefix-subtract.cpp` **cannot** be killed by any subtask 3 test, and this is structural rather than a coverage gap: subtask 3 fixes `L = 1`, so `g(L-1) = g(0) = (0, 0)` and the subtraction degenerates into the correct answer. Subtasks 1, 2, 4 and 5 cover it instead.
+- `tle-enumerate.cpp`: any subtask 2-5 test whose range is wide; the two `boundary --numtest 1` tests (021, 061) are narrow by design and let it finish, which is harmless.
 
-The official `source/solution.cpp` (full digit DP) is the primary jury oracle everywhere.
+`tle-enumerate.cpp` is expected to **pass** subtask 1 (measured 460 ms on the maximal subtask 1
+batch). Subtask 1 tests must therefore not be strengthened against it — earning subtask 1 is its
+documented scope.
 
-**Validated killing seeds (Step 7):** every profile reliably kills its target across subtasks —
-e.g. `kill-factor5`: seed `0VECDJBC07` → `1 9 9` (`wa` prints `1/9`, correct `0/-1`),
-`0VECDJBC0D` → `1 69 6` (`7/6` vs `2/15`), `0VECDJBC1C` → `1 278 3` (`9/3` vs `3/30`);
-`kill-offbyone`: seed `0VECDJBC08` → `30 58 3` (`0/-1` vs `1/30`); `kill-tle`: seed `KTLE1` →
-`1 1000000000000000000 2` (`tle-multiples` times out >30s while the DP answer is instant).
-All 100 script tests were regenerated and differentially validated against the official solution
-(0 disagreements), and generator output is deterministic per seed.
+**Differential oracles.** `ac-full-forward-digitdp.cpp` is validated over the full domain and is
+the oracle for every subtask; `source/solution.cpp` produces the jury answers (`> $`). No
+subtask-scoped AC exists, so no scope restriction applies when cross-checking. The two agree
+byte-for-byte on all 100 generated tests.
 
-## 10. Specialized generator skills
+**Measured cost of the generated set** (local machine, `-O2`): `source/solution.cpp` peaks at
+~1.02 s on test 097 (`--subtask 5 --rate 0.94 --profile random`) against the 1 s limit;
+`ac-full-forward-digitdp.cpp` runs the same test in 0.34 s. See the risk note in the final
+summary.
 
-None of the structural skills (`generator-tree/graph/array/string`) apply — the input is three
-integers with no array/graph/tree/string payload. `generator-number-theory` is marginally relevant
-for the divisibility/multiples reasoning; load it for the `nonzero` (planted multiple of 15) and
-`kill-factor5` profiles. Primary numeric sampling uses the shared `genValue` distribution strategy.
+## 10. Specialized skills
 
-## 11. Generator assertions (`ensure` before printing)
+`generator-string` — the payload is two decimal strings over the alphabet `0`-`9` with run,
+repetition, periodicity and prefix-sharing structure. `generator-number-theory` is *not*
+needed: the only arithmetic structure required is powers of ten, which Section 7 pins exactly.
+No tree/graph/array skill applies.
 
-- `1 <= L && L <= R && R <= 1000000000000000000LL`.
-- `1 <= K && K <= 1000000000`.
-- subtask ceiling respected (`R < 10^6` for 1, `< 10^11` for 2, `L==1 && R==10^x` for 3,
-  `< 10^15` for 4, `≤ 10^18` for 5).
-- `rate` within `[0.70, 1.00]`.
-- profile `zero`: `K % 3 != 0 || K > 162` (guarantees answer `0 / -1`).
-- profile `nonzero`: the planted `m` satisfies `L ≤ m ≤ R`, `m % 15 == 0`, `digitSum(m) == K`.
+## 11. Generator assertions
+
+Before printing, `gentest.cpp` must `ensure(...)`:
+
+- `1 <= T <= 20`;
+- for every query: `L` and `R` are non-empty, all characters in `'0'..'9'`, `X[0] != '0'`;
+- `|L| <= |R|`, and `L <= R` under (length, lexicographic) comparison;
+- `|R| <= maxLen(subtask)`, and if `|R| == maxLen(subtask)` for subtasks 1/2/5 then `R` equals
+  the exact power of ten (`"1"` followed by `maxLen-1` zeros);
+- subtask 4: `|R| <= 500`;
+- subtask 3: `L == "1"` and `R == "1" + x*'0'` with `0 <= x <= 10000`.
+
+`L <= R` is **repaired by swapping**, not by resampling in a loop, so no profile can spin.

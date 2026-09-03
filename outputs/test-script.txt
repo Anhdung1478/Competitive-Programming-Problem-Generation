@@ -1,100 +1,100 @@
-gentest 0VECDJBC01 --subtask 1 --rate 0.75 > $
-gentest 0VECDJBC02 --subtask 1 --rate 0.78 --profile full > $
-gentest 0VECDJBC03 --subtask 1 --rate 0.90 --profile single > $
-gentest 0VECDJBC04 --subtask 1 --rate 0.70 --profile narrow > $
-gentest 0VECDJBC05 --subtask 1 --rate 0.85 --profile zero > $
-gentest 0VECDJBC06 --subtask 1 --rate 0.88 --profile nonzero > $
-gentest 0VECDJBC07 --subtask 1 --rate 0.72 --profile kill-factor5 > $
-gentest 0VECDJBC08 --subtask 1 --rate 0.80 --profile kill-offbyone > $
-gentest 0VECDJBC09 --subtask 1 --rate 0.92 > $
-gentest 0VECDJBC0A --subtask 1 --rate 0.95 --profile full > $
-gentest 0VECDJBC0B --subtask 1 --rate 0.99 --profile zero > $
-gentest 0VECDJBC0C --subtask 1 --rate 0.97 --profile nonzero > $
-gentest 0VECDJBC0D --subtask 1 --rate 0.82 --profile kill-factor5 > $
-gentest 0VECDJBC0E --subtask 1 --rate 0.84 > $
-gentest 0VECDJBC0F --subtask 1 --rate 0.90 > $
-gentest 0VECDJBC10 --subtask 2 --rate 0.76 > $
-gentest 0VECDJBC11 --subtask 2 --rate 0.80 --profile full > $
-gentest 0VECDJBC12 --subtask 2 --rate 0.86 --profile narrow > $
-gentest 0VECDJBC13 --subtask 2 --rate 0.90 --profile zero > $
-gentest 0VECDJBC14 --subtask 2 --rate 0.93 --profile nonzero > $
-gentest 0VECDJBC15 --subtask 2 --rate 0.74 --profile kill-factor5 > $
-gentest 0VECDJBC16 --subtask 2 --rate 0.84 > $
-gentest 0VECDJBC17 --subtask 2 --rate 0.88 --profile full > $
-gentest 0VECDJBC18 --subtask 2 --rate 0.95 --profile zero > $
-gentest 0VECDJBC19 --subtask 2 --rate 0.90 --profile nonzero > $
-gentest 0VECDJBC1A --subtask 2 --rate 0.82 > $
-gentest 0VECDJBC1B --subtask 2 --rate 0.98 --profile zero > $
-gentest 0VECDJBC1C --subtask 2 --rate 0.79 --profile kill-factor5 > $
-gentest 0VECDJBC1D --subtask 2 --rate 0.91 > $
-gentest 0VECDJBC1E --subtask 2 --rate 0.86 > $
-gentest 0VECDJBC1F --subtask 3 --rate 0.70 --profile full > $
-gentest 0VECDJBC20 --subtask 3 --rate 0.75 --profile full > $
-gentest 0VECDJBC21 --subtask 3 --rate 0.80 --profile nonzero > $
-gentest 0VECDJBC22 --subtask 3 --rate 0.85 --profile zero > $
-gentest 0VECDJBC23 --subtask 3 --rate 0.90 --profile full > $
-gentest 0VECDJBC24 --subtask 3 --rate 0.95 --profile nonzero > $
-gentest 0VECDJBC25 --subtask 3 --rate 0.97 --profile zero > $
-gentest 0VECDJBC26 --subtask 3 --rate 0.99 --profile full > $
-gentest 0VECDJBC27 --subtask 3 --rate 1.00 --profile nonzero > $
-gentest 0VECDJBC28 --subtask 3 --rate 0.73 --profile zero > $
-gentest 0VECDJBC29 --subtask 4 --rate 0.78 > $
-gentest 0VECDJBC2A --subtask 4 --rate 0.80 --profile full > $
-gentest 0VECDJBC2B --subtask 4 --rate 0.84 --profile narrow > $
-gentest 0VECDJBC2C --subtask 4 --rate 0.98 --profile maxR > $
-gentest 0VECDJBC2D --subtask 4 --rate 0.86 --profile zero > $
-gentest 0VECDJBC2E --subtask 4 --rate 0.88 --profile nonzero > $
-gentest 0VECDJBC2F --subtask 4 --rate 0.75 --profile kill-factor5 > $
-gentest 0VECDJBC30 --subtask 4 --rate 0.82 --profile kill-offbyone > $
-gentest 0VECDJBC31 --subtask 4 --rate 0.92 > $
-gentest 0VECDJBC32 --subtask 4 --rate 0.90 > $
-gentest 0VECDJBC33 --subtask 4 --rate 0.95 --profile full > $
-gentest 0VECDJBC34 --subtask 4 --rate 0.97 --profile narrow > $
-gentest 0VECDJBC35 --subtask 4 --rate 1.00 --profile maxR > $
-gentest 0VECDJBC36 --subtask 4 --rate 0.99 --profile zero > $
-gentest 0VECDJBC37 --subtask 4 --rate 0.94 --profile nonzero > $
-gentest 0VECDJBC38 --subtask 4 --rate 0.72 > $
-gentest 0VECDJBC39 --subtask 4 --rate 0.85 --profile kill-factor5 > $
-gentest 0VECDJBC3A --subtask 4 --rate 0.89 > $
-gentest 0VECDJBC3B --subtask 4 --rate 0.93 > $
-gentest 0VECDJBC3C --subtask 4 --rate 0.90 --profile zero > $
-gentest 0VECDJBC3D --subtask 5 --rate 0.77 > $
-gentest 0VECDJBC3E --subtask 5 --rate 0.88 > $
-gentest 0VECDJBC3F --subtask 5 --rate 0.90 --profile full > $
-gentest 0VECDJBC40 --subtask 5 --rate 0.95 --profile single > $
-gentest 0VECDJBC41 --subtask 5 --rate 0.92 --profile narrow > $
-gentest 0VECDJBC42 --subtask 5 --rate 0.99 --profile maxR > $
-gentest 0VECDJBC43 --subtask 5 --rate 0.85 --profile zero > $
-gentest 0VECDJBC44 --subtask 5 --rate 0.89 --profile nonzero > $
-gentest 0VECDJBC45 --subtask 5 --rate 0.78 --profile kill-factor5 > $
-gentest 0VECDJBC46 --subtask 5 --rate 0.84 --profile kill-offbyone > $
-gentest 0VECDJBC47 --subtask 5 --rate 1.00 --profile kill-tle > $
-gentest 0VECDJBC48 --subtask 5 --rate 0.85 > $
-gentest 0VECDJBC49 --subtask 5 --rate 0.96 > $
-gentest 0VECDJBC4A --subtask 5 --rate 0.98 --profile full > $
-gentest 0VECDJBC4B --subtask 5 --rate 0.99 --profile single > $
-gentest 0VECDJBC4C --subtask 5 --rate 0.97 --profile narrow > $
-gentest 0VECDJBC4D --subtask 5 --rate 1.00 --profile maxR > $
-gentest 0VECDJBC4E --subtask 5 --rate 0.95 --profile zero > $
-gentest 0VECDJBC4F --subtask 5 --rate 0.93 --profile nonzero > $
-gentest 0VECDJBC50 --subtask 5 --rate 0.82 --profile kill-factor5 > $
-gentest 0VECDJBC51 --subtask 5 --rate 0.88 --profile kill-offbyone > $
-gentest 0VECDJBC52 --subtask 5 --rate 0.99 --profile kill-tle > $
-gentest 0VECDJBC53 --subtask 5 --rate 0.87 > $
-gentest 0VECDJBC54 --subtask 5 --rate 0.86 > $
-gentest 0VECDJBC55 --subtask 5 --rate 0.80 > $
-gentest 0VECDJBC56 --subtask 5 --rate 0.94 --profile full > $
-gentest 0VECDJBC57 --subtask 5 --rate 0.97 --profile maxR > $
-gentest 0VECDJBC58 --subtask 5 --rate 0.92 --profile zero > $
-gentest 0VECDJBC59 --subtask 5 --rate 0.96 --profile nonzero > $
-gentest 0VECDJBC5A --subtask 5 --rate 0.86 > $
-gentest 0VECDJBC5B --subtask 5 --rate 0.93 --profile narrow > $
-gentest 0VECDJBC5C --subtask 5 --rate 0.95 > $
-gentest 0VECDJBC5D --subtask 5 --rate 0.99 --profile maxR > $
-gentest 0VECDJBC5E --subtask 5 --rate 0.89 --profile zero > $
-gentest 0VECDJBC5F --subtask 5 --rate 0.87 > $
-gentest 0VECDJBC60 --subtask 5 --rate 0.97 --profile full > $
-gentest 0VECDJBC61 --subtask 5 --rate 0.91 --profile nonzero > $
-gentest 0VECDJBC62 --subtask 5 --rate 0.87 > $
-gentest 0VECDJBC63 --subtask 5 --rate 1.00 --profile maxR > $
-gentest 0VECDJBC64 --subtask 5 --rate 0.88 > $
+gentest ZREHQKOWI5 --subtask 1 --rate 0.89 --profile prefix > $
+gentest CUI4LIPUO8 --subtask 1 --rate 0.78 --profile boundary --numtest 1 > $
+gentest BM0IN1944L --subtask 1 --rate 1.00 --profile random > $
+gentest PWEIWU7NWO --subtask 1 --rate 0.86 --profile zeros > $
+gentest 5JF39VLKON --subtask 1 --rate 0.93 --profile zeros > $
+gentest D02G7OWEDH --subtask 1 --rate 0.87 --profile mixed > $
+gentest LEACVV9GQK --subtask 1 --rate 0.88 --profile equal > $
+gentest GXW04QZDD3 --subtask 1 --rate 1.00 --profile prefix > $
+gentest 5WGYM71XML --subtask 1 --rate 0.90 --profile boundary > $
+gentest I5IS6J6BQF --subtask 1 --rate 0.74 --profile equal > $
+gentest XRE98H474O --subtask 1 --rate 0.99 --profile mixed > $
+gentest V1BJXCVKU4 --subtask 1 --rate 0.70 --profile prefix > $
+gentest L5GAS8X07Y --subtask 1 --rate 0.80 --profile decreasing > $
+gentest BWAV8IMLH2 --subtask 1 --rate 0.97 --profile wa-trap > $
+gentest YQQ12H8PV3 --subtask 1 --rate 0.96 --profile flat > $
+gentest OI360RE3AA --subtask 1 --rate 0.82 --profile flat > $
+gentest F6OD3L1H2Y --subtask 1 --rate 0.91 --profile equal > $
+gentest J75OM4Q2KZ --subtask 1 --rate 0.95 --profile decreasing > $
+gentest GSV8Z7PMGV --subtask 1 --rate 0.94 --profile random > $
+gentest 69XO9PFALT --subtask 1 --rate 0.84 --profile wa-trap > $
+gentest ONUDH2YK8E --subtask 2 --rate 0.70 --profile prefix > $
+gentest LVEKX9FIRV --subtask 2 --rate 0.94 --profile random > $
+gentest 6G6DJ07E4O --subtask 2 --rate 0.86 --profile zeros > $
+gentest 2QF3QKU0E1 --subtask 2 --rate 0.82 --profile flat > $
+gentest NJKG6BI08T --subtask 2 --rate 0.99 --profile mixed > $
+gentest 8GM5HKZ72Y --subtask 2 --rate 0.89 --profile prefix > $
+gentest TYT1AYR1PE --subtask 2 --rate 0.97 --profile wa-trap > $
+gentest FC9HNI21RN --subtask 2 --rate 1.00 --profile random > $
+gentest 0GXLC0UE9O --subtask 2 --rate 0.88 --profile equal > $
+gentest D6MJ8SR467 --subtask 2 --rate 0.80 --profile decreasing > $
+gentest H92FMTR1LT --subtask 2 --rate 0.91 --profile equal > $
+gentest 2FNSCGLM0P --subtask 2 --rate 0.87 --profile mixed > $
+gentest JESUJA81G8 --subtask 2 --rate 0.78 --profile boundary --numtest 1 > $
+gentest Q4FY91NZVX --subtask 2 --rate 0.93 --profile zeros > $
+gentest GNQSYS02WY --subtask 2 --rate 0.84 --profile wa-trap > $
+gentest MUKOQ9H8WR --subtask 2 --rate 0.96 --profile flat > $
+gentest OZGYVCX4V4 --subtask 2 --rate 0.74 --profile equal > $
+gentest 0LD2CDOG43 --subtask 2 --rate 1.00 --profile prefix > $
+gentest WLMXYW8TO9 --subtask 2 --rate 0.90 --profile boundary > $
+gentest DLPMRLZTE2 --subtask 2 --rate 0.95 --profile decreasing > $
+gentest 0PF4NN2XTF --subtask 3 --rate 0.95 --profile decreasing > $
+gentest RUXZ3UG69P --subtask 3 --rate 0.87 --profile mixed > $
+gentest JSY7CY9FPE --subtask 3 --rate 0.99 --profile mixed > $
+gentest 85F06JDQ0B --subtask 3 --rate 0.91 --profile equal > $
+gentest VGKTR1PATJ --subtask 3 --rate 1.00 --profile prefix > $
+gentest 66H5G4DIN0 --subtask 3 --rate 0.80 --profile decreasing > $
+gentest 6JHL30HNQI --subtask 3 --rate 0.70 --profile prefix > $
+gentest ZSAJADVUUL --subtask 3 --rate 0.78 --profile boundary --numtest 1 > $
+gentest XOARG07PVF --subtask 3 --rate 0.94 --profile random > $
+gentest 9OP06WAG7Y --subtask 3 --rate 0.90 --profile boundary > $
+gentest B3IFEAJTSA --subtask 3 --rate 0.88 --profile equal > $
+gentest 835NVJATN1 --subtask 3 --rate 0.82 --profile flat > $
+gentest F7DFL5A9OY --subtask 3 --rate 0.86 --profile zeros > $
+gentest IBR6WC77H3 --subtask 3 --rate 0.89 --profile prefix > $
+gentest JWRLCTPWBN --subtask 3 --rate 0.84 --profile wa-trap > $
+gentest QMCLHN4CEH --subtask 3 --rate 0.93 --profile zeros > $
+gentest UZGSHLTFEC --subtask 3 --rate 1.00 --profile random > $
+gentest MH65KEE5LK --subtask 3 --rate 0.74 --profile equal > $
+gentest ISL21XXLYQ --subtask 3 --rate 0.97 --profile wa-trap > $
+gentest MNALV78YDU --subtask 3 --rate 0.96 --profile flat > $
+gentest 1FNO42LCHT --subtask 4 --rate 0.78 --profile boundary --numtest 1 > $
+gentest DDTOMWTU9Y --subtask 4 --rate 0.88 --profile equal > $
+gentest GH0HI3PGOQ --subtask 4 --rate 0.70 --profile prefix > $
+gentest B74ZSMV7D7 --subtask 4 --rate 0.89 --profile prefix > $
+gentest RUX55LQ5YC --subtask 4 --rate 0.96 --profile flat > $
+gentest MKJPV7Y5JV --subtask 4 --rate 0.90 --profile boundary > $
+gentest S5H13N4C5Q --subtask 4 --rate 0.86 --profile zeros > $
+gentest 6TM9VFEIPA --subtask 4 --rate 0.82 --profile flat > $
+gentest IDV69GGZ9V --subtask 4 --rate 1.00 --profile prefix > $
+gentest 1ETY8GOAA3 --subtask 4 --rate 0.80 --profile decreasing > $
+gentest M3TFWXXZWS --subtask 4 --rate 0.99 --profile mixed > $
+gentest OE05EXEGQ3 --subtask 4 --rate 0.95 --profile decreasing > $
+gentest INH7OI2BVT --subtask 4 --rate 0.74 --profile equal > $
+gentest ON6Q7CWA5D --subtask 4 --rate 1.00 --profile random > $
+gentest I8JJ3LHMMA --subtask 4 --rate 0.87 --profile mixed > $
+gentest 5AUN5T9JLI --subtask 4 --rate 0.84 --profile wa-trap > $
+gentest EASCJD80T9 --subtask 4 --rate 0.97 --profile wa-trap > $
+gentest 4Z7WML5NHL --subtask 4 --rate 0.91 --profile equal > $
+gentest 3ROJN10SAE --subtask 4 --rate 0.94 --profile random > $
+gentest N4KHN5W8K6 --subtask 4 --rate 0.93 --profile zeros > $
+gentest F1DY2U35O9 --subtask 5 --rate 0.99 --profile mixed > $
+gentest K2X0CZLKVW --subtask 5 --rate 0.94 --profile random > $
+gentest X2EKYHXAV3 --subtask 5 --rate 0.87 --profile mixed > $
+gentest BJ0RK7Z449 --subtask 5 --rate 0.88 --profile equal > $
+gentest IT72GXT2WS --subtask 5 --rate 0.84 --profile wa-trap > $
+gentest OSAEH9QKUR --subtask 5 --rate 0.95 --profile decreasing > $
+gentest 6V6PUY0P8Q --subtask 5 --rate 0.91 --profile equal > $
+gentest I2Z24HOSYJ --subtask 5 --rate 0.82 --profile flat > $
+gentest 33CCHC6R5H --subtask 5 --rate 0.89 --profile prefix > $
+gentest FHGO2AIYRS --subtask 5 --rate 0.78 --profile boundary --numtest 1 > $
+gentest I3I499H44B --subtask 5 --rate 1.00 --profile prefix > $
+gentest GFCJUL1PN8 --subtask 5 --rate 0.93 --profile zeros > $
+gentest 6HCTX6010F --subtask 5 --rate 0.86 --profile zeros > $
+gentest GFBNR8XWHG --subtask 5 --rate 0.96 --profile flat > $
+gentest HPOMZXRYVY --subtask 5 --rate 0.80 --profile decreasing > $
+gentest E7SKMMT5KW --subtask 5 --rate 0.97 --profile wa-trap > $
+gentest PH65S346QC --subtask 5 --rate 1.00 --profile random > $
+gentest AE349Z78ZU --subtask 5 --rate 0.70 --profile prefix > $
+gentest MF6KKKK81U --subtask 5 --rate 0.90 --profile boundary > $
+gentest 5VD84TBW2Q --subtask 5 --rate 0.74 --profile equal > $

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#121014" />
-  <title>Mật thư của Dũng — lời giải</title>
+  <title>Mật mã lăng mộ cổ — lời giải</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -345,99 +345,119 @@
   <div class="bar">
     <div class="bar-inner">
       <span class="bar-kicker">Lời giải</span>
-      <span class="bar-name">Mật thư của Dũng</span>
+      <span class="bar-name">Mật mã lăng mộ cổ</span>
     </div>
   </div>
 
   <main class="page">
     <p class="kicker">Bài toán</p>
-    <h1>Mật thư của Dũng</h1>
+    <h1>Mật mã lăng mộ cổ</h1>
 
     <dl class="meta">
       <dt>Giới hạn thời gian</dt>
       <dd>1 s</dd>
+      <dt>Giới hạn bộ nhớ</dt>
+      <dd>512 MB</dd>
       <dt>Expected rating</dt>
-      <dd>1800</dd>
+      <dd>2300 (ước lượng)</dd>
     </dl>
 
     <ul class="tags">
       <li class="tag">dp</li>
       <li class="tag">digit dp</li>
-      <li class="tag">binary search</li>
-      <li class="tag">math</li>
+      <li class="tag">combinatorics</li>
     </ul>
 
     <section id="statement">
       <h2>Tóm tắt đề bài</h2>
-      <p>Cho ba số nguyên \(L, R, K\). Một số nguyên dương \(x\) được gọi là <mark>may mắn</mark> nếu đồng thời:</p>
-      <ul>
-        <li>\(x\) <mark>chia hết cho \(15\)</mark>;</li>
-        <li>\(L \le x \le R\);</li>
-        <li><mark>tổng các chữ số</mark> của \(x\) bằng đúng \(K\).</li>
-      </ul>
-      <p>Cần in ra hai dòng: <mark>số lượng</mark> số may mắn trong \([L, R]\), và số may mắn <mark>nhỏ nhất</mark> (nếu không có số nào thì in \(-1\)).</p>
 
-      <p><strong>Giới hạn:</strong> \(1 \le L \le R \le 10^{18}\), \(1 \le K \le 10^9\).</p>
+      <p>Với một số nguyên dương \(X\) có \(k\) chữ số \(d_1 d_2 \ldots d_k\) (viết từ hàng lớn nhất, không có chữ số \(0\) vô nghĩa ở đầu), xét mọi dãy chỉ số \(i_1 &lt; i_2 &lt; \ldots &lt; i_t\) thỏa mãn \(d_{i_1} \le d_{i_2} \le \ldots \le d_{i_t}\). Gọi <em>sức mạnh</em> của \(X\) là giá trị \(t\) lớn nhất, và <em>độ thuần khiết</em> của \(X\) là số dãy chỉ số đạt được \(t\) lớn nhất đó. <mark>Hai dãy con được tính là khác nhau khi tập chỉ số của chúng khác nhau</mark>, ngay cả khi chúng cho ra cùng một dãy chữ số.</p>
 
-      <p><strong>Subtasks:</strong></p>
-      <ul>
-        <li>Subtask 1 (20%): \(R &lt; 10^6\).</li>
-        <li>Subtask 2 (20%): \(R &lt; 10^{11}\).</li>
-        <li>Subtask 3 (20%): \(L = 1\) và \(R\) là một lũy thừa của \(10\).</li>
-        <li>Subtask 4 (20%): \(R &lt; 10^{15}\).</li>
-        <li>Subtask 5 (20%): Không có ràng buộc gì thêm.</li>
-      </ul>
+      <p>Cho \(T\) câu hỏi, mỗi câu hỏi là một cặp \(L, R\). Với mỗi câu hỏi, cần in ra sức mạnh lớn nhất \(P\) trong tất cả các số thuộc \([L, R]\), và <mark>tổng độ thuần khiết của mọi số trong \([L, R]\) có sức mạnh đúng bằng \(P\)</mark>, lấy dư theo \(998244353\).</p>
+
+      <p>Ràng buộc: \(1 \le T \le 20\) và \(1 \le L \le R \le 10^{10000}\), nên \(L\) và \(R\) được cho dưới dạng chuỗi chữ số dài tới \(10001\) chữ số. Không có ràng buộc nào về tổng độ dài trên cả \(T\) câu hỏi, tức là cả \(20\) câu hỏi đều có thể dài tối đa.</p>
+
+      <p>Các subtask:</p>
+      <table>
+        <tr><th>Subtask</th><th>Điểm</th><th>Ràng buộc riêng</th></tr>
+        <tr><td>1</td><td>20%</td><td>\(L \le R \le 10^5\)</td></tr>
+        <tr><td>2</td><td>20%</td><td>\(L \le R \le 10^{11}\)</td></tr>
+        <tr><td>3</td><td>20%</td><td>\(L = 1\) và \(R = 10^x\) với \(0 \le x \le 10^4\)</td></tr>
+        <tr><td>4</td><td>20%</td><td>\(R\) có không quá \(500\) chữ số</td></tr>
+        <tr><td>5</td><td>20%</td><td>Không có ràng buộc gì thêm</td></tr>
+      </table>
     </section>
 
     <section id="tutorial">
       <h2>Lời giải</h2>
 
+      <p class="bridge">Đoạn \([L, R]\) chứa tới \(10^{10000}\) số nên không thể xét từng số. Kỹ thuật quen thuộc cho dạng ràng buộc này là DP theo chữ số: dựng số cần đếm từ hàng lớn nhất về hàng nhỏ nhất, đồng thời nhớ xem số đang dựng đã tách khỏi biên \(L\) hay \(R\) chưa. Nhưng DP theo chữ số thông thường chỉ đếm được <em>số lượng số \(x\) thỏa mãn một tính chất</em>, còn ở đây mỗi số \(x\) lại mang theo một cặp giá trị, và độ thuần khiết của nó tự bản thân đã là một số đếm có thể rất lớn. Không có cách nào lưu thông tin riêng cho từng \(x\).</p>
+
       <article class="card transform">
-        <p class="card-label">Quy về đếm trên tiền tố</p>
-        <p>Gọi \(f(X)\) là số lượng số may mắn nằm trong đoạn \([1, X]\). Khi đó số lượng số may mắn trong \([L, R]\) bằng \(f(R) - f(L-1)\). Như vậy bài toán chỉ còn là tính \(f(X)\) cho một \(X\) bất kỳ.</p>
-      </article>
-
-      <article class="card">
-        <p class="card-label">Nhận xét 1 — theo dõi số dư theo từng chữ số</p>
-        <p>\(x\) chia hết cho \(15\) khi và chỉ khi \(x \equiv 0 \pmod{15}\). Khi ta xây dựng \(x\) từ trái sang phải: nếu phần đã xây dựng có giá trị \(p\) và số dư \(r = p \bmod 15\), thì sau khi thêm chữ số \(d\), giá trị mới là \(10p + d\), tức số dư mới là \((10r + d) \bmod 15\). Vậy chỉ cần biết \(r\) là đủ để cập nhật, không cần lưu giá trị đầy đủ của \(x\).</p>
-      </article>
-
-      <article class="card">
-        <p class="card-label">Nhận xét 2 — quy hoạch động theo chữ số</p>
-        <p>\(f(X)\) được tính bằng quy hoạch động theo chữ số. Viết \(X\) dưới dạng chuỗi các chữ số. Trạng thái gồm: vị trí \(pos\), tổng chữ số còn lại cần đạt \(s\), số dư \(r\) (mod 15), và cờ \(tight\) cho biết tiền tố hiện tại có còn bằng đúng tiền tố của \(X\) hay không. Công thức truy hồi:</p>
-        <p>\[
-          dp(pos, s, r, tight) =
-          \sum_{d=0}^{limit} dp\bigl(pos-1,\; s-d,\; (10r+d) \bmod 15,\; tight \wedge (d = X[pos])\bigr),
-        \]</p>
-        <p>trong đó \(limit = X[pos]\) nếu \(tight = 1\), ngược lại \(limit = 9\). Trạng thái cơ sở: \(dp(-1, s, r, \cdot) = 1\) nếu \(s = 0\) và \(r = 0\), ngược lại bằng \(0\). Đáp án của \(f(X)\) là \(dp(\text{len}-1, K, 0, 1)\).</p>
-        <p>Vì \(X \le 10^{18}\) nên tổng các chữ số tối đa là \(9 \times 18 = 162\); do đó nếu \(K &gt; 162\) thì \(f(X) = 0\) với mọi \(X\) và ta có thể trả về ngay.</p>
-      </article>
-
-      <article class="card">
-        <p class="card-label">Nhận xét 3 — số nhỏ nhất bằng chặt nhị phân</p>
-        <p>Hàm \(f(X)\) không giảm theo \(X\). Số may mắn nhỏ nhất trong \([L, R]\) là số \(m\) nhỏ nhất thỏa mãn \(f(m) &gt; f(L-1)\), và ta tìm \(m\) bằng tìm kiếm nhị phân trên \([L, R]\). Nếu \(f(R) = f(L-1)\) thì không tồn tại số nào và ta in \(-1\).</p>
+        <p class="card-label">Đổi đối tượng đếm</p>
+        <p>Thay vì đếm các số \(x\), ta đếm các <strong>cặp</strong> \((x, S)\), trong đó \(x \in [L, R]\) và \(S\) là một dãy con không giảm của các chữ số của \(x\).</p>
+        <p>Phép đổi này giữ đúng thông tin cần thiết. Theo định nghĩa, độ thuần khiết của \(x\) chính là số dãy \(S\) có \(|S|\) bằng sức mạnh của \(x\). Do đó, nếu gọi \(P\) là giá trị \(|S|\) lớn nhất trên toàn bộ tập cặp thì \(P\) đúng bằng sức mạnh lớn nhất trong \([L, R]\); và số cặp \((x, S)\) với \(|S| = P\) đúng bằng tổng độ thuần khiết của những số có sức mạnh \(P\), vì mỗi số \(x\) có sức mạnh nhỏ hơn \(P\) không góp cặp nào có \(|S| = P\).</p>
+        <p>Cái lợi là ở chỗ đại lượng cần tính trở thành một cặp <em>(giá trị lớn nhất, số lần đạt được giá trị lớn nhất)</em>. Cặp này ghép được: nếu chia tập cặp thành hai phần cho ra \((p_1, c_1)\) và \((p_2, c_2)\) thì phần hợp cho ra</p>
+        \[ (p_1, c_1) \oplus (p_2, c_2) = \begin{cases} (p_1, c_1) &amp; p_1 &gt; p_2 \\ (p_2, c_2) &amp; p_1 &lt; p_2 \\ (p_1, c_1 + c_2) &amp; p_1 = p_2 \end{cases} \]
+        <p>Nhờ vậy ta có thể xây \(x\) và \(S\) song song theo từng chữ số, rồi gộp kết quả của các nhánh lại bằng \(\oplus\). Thứ duy nhất mà các chữ số phía sau cần biết về phần \(S\) đã chọn là <strong>chữ số cuối cùng đã chọn</strong>, vì điều kiện không giảm chỉ so sánh với phần tử liền trước. Chiều dài của \(S\) không cần nằm trong trạng thái, nó được mang theo trong giá trị của DP.</p>
       </article>
 
       <article class="card lemma">
-        <p class="card-label">Nhận xét 4 — cắt nhanh theo dấu hiệu chia hết cho 3</p>
-        <p>Một số có tổng các chữ số bằng \(K\) chỉ có thể chia hết cho \(15\) khi \(K\) chia hết cho \(3\). Do đó nếu \(K \not\equiv 0 \pmod{3}\) thì đáp án chắc chắn là \(0\) và \(-1\), không cần chạy quy hoạch động.</p>
+        <p class="card-label">Nhận xét: không được tách \(f(R) - f(L-1)\)</p>
+        <p>Với DP theo chữ số, phản xạ thông thường là tính \(f(x)\) cho đoạn \([1, x]\) rồi lấy \(f(R) - f(L-1)\). Ở bài này cách đó sai, vì \(f\) trả về một cặp chứa một phép lấy cực đại, và <mark>cực đại không có phép trừ</mark>.</p>
+        <p>Cụ thể, khi thành phần sức mạnh của \(f(R)\) và của \(f(L-1)\) bằng nhau, ta chỉ còn biết trừ hai số đếm cho nhau. Nếu mọi số đạt sức mạnh lớn nhất trên \([1, R]\) đều nằm dưới \(L\) thì hiệu đó bằng \(0\), và ta nhận được một cặp dạng \((P, 0)\): sức mạnh lớn nhất là \(P\) nhưng không số nào đạt được. Đó là điều vô nghĩa, và nó cũng che mất đáp án thật, vốn có sức mạnh nhỏ hơn \(P\).</p>
+        <p>Lấy \(L = R = 21\). Trên \([1, 21]\) sức mạnh lớn nhất là \(2\), đạt được bởi \(12, 13, \ldots, 19\); trên \([1, 20]\) sức mạnh lớn nhất cũng là \(2\) với đúng những số đó. Hiệu hai số đếm bằng \(0\), nên cách tách cho ra \(2\ 0\). Trong khi đó \(21\) có dãy chữ số \(2, 1\) nên sức mạnh của nó là \(1\) và độ thuần khiết là \(2\) (chọn chỉ số \(1\) hoặc chỉ số \(2\)), tức đáp án đúng là \(1\ 2\).</p>
+        <p>Trường hợp \(L = 1\) là ngoại lệ duy nhất: khi đó \(f(L-1)\) rỗng nên không có gì phải trừ. Đó cũng là lý do subtask \(3\) không phát hiện được lỗi này.</p>
       </article>
 
-      <p class="bridge">Các nhận xét trên cho ta toàn bộ lời giải: đếm bằng quy hoạch động theo chữ số, rồi tìm số nhỏ nhất bằng chặt nhị phân trên hàm đếm.</p>
+      <article class="card">
+        <p class="card-label">Ép cả hai biên vào trong DP</p>
+        <p>Vì không tách được, ta đếm trực tiếp các cặp \((x, S)\) với \(L \le x \le R\), tức là mang cả hai biên theo trong quá trình dựng số. Trước tiên thêm các chữ số \(0\) vào đầu \(L\) cho tới khi \(|L| = |R|\), để hai biên thẳng hàng theo từng vị trí và mọi số ít chữ số hơn \(R\) vẫn được biểu diễn.</p>
+        <p>Khi dựng số từ hàng lớn nhất, ta giữ hai cờ:</p>
+        <ul>
+          <li>\(\mathrm{biggerL}\): tiền tố đang dựng đã <em>lớn hơn hẳn</em> tiền tố tương ứng của \(L\) hay chưa;</li>
+          <li>\(\mathrm{smallerR}\): tiền tố đang dựng đã <em>nhỏ hơn hẳn</em> tiền tố tương ứng của \(R\) hay chưa.</li>
+        </ul>
+        <p>Tại vị trí đang xét, chữ số \(d\) được phép chạy trong đoạn từ \(lo\) đến \(hi\), với \(lo = 0\) nếu \(\mathrm{biggerL}\) đã bật và \(lo\) bằng chữ số tương ứng của \(L\) nếu chưa, còn \(hi = 9\) nếu \(\mathrm{smallerR}\) đã bật và \(hi\) bằng chữ số tương ứng của \(R\) nếu chưa. Sau khi chọn \(d\), cờ \(\mathrm{biggerL}\) bật thêm nếu \(d &gt; lo\), cờ \(\mathrm{smallerR}\) bật thêm nếu \(d &lt; hi\). Số dựng ra nằm trong \([L, R]\) đúng khi cả hai cờ đã bật, hoặc số đó trùng khít với một biên.</p>
+        <p>Đoạn \([lo, hi]\) không bao giờ rỗng, nên không cần xét riêng trường hợp nào. Nếu cả hai cờ đều chưa bật thì tiền tố đang dựng trùng với tiền tố của \(L\) và cũng trùng với tiền tố của \(R\), nghĩa là hai tiền tố đó bằng nhau; từ \(L \le R\) suy ra phần đuôi của \(L\) không lớn hơn phần đuôi của \(R\), nên chữ số hiện tại của \(L\) không lớn hơn chữ số hiện tại của \(R\).</p>
+      </article>
+
+      <article class="card">
+        <p class="card-label">Trạng thái và công thức chuyển</p>
+        <p>Vì \(L\) đã được đệm \(0\), một số ít chữ số hơn \(R\) sẽ xuất hiện dưới dạng chuỗi có \(0\) ở đầu. Những chữ số \(0\) đệm này không phải chữ số của \(x\) nên không được phép chọn vào \(S\); ta cần thêm một cờ \(\mathrm{nonz}\) cho biết đã gặp chữ số khác \(0\) đầu tiên hay chưa. Chỉ khi \(\mathrm{nonz}\) đã bật thì chữ số hiện tại mới được đưa vào \(S\).</p>
+        <p>Đặt \(dp(id, last, \mathrm{nonz}, \mathrm{biggerL}, \mathrm{smallerR})\) là cặp <em>(độ dài lớn nhất còn có thể thêm vào \(S\), số cách đạt được độ dài đó)</em>, khi ta đã dựng xong các chữ số từ hàng lớn nhất xuống tới hàng \(id + 1\), phần \(S\) còn phải chọn chỉ nằm trong các hàng \(id\) trở xuống, \(last\) là chữ số cuối cùng đã được chọn vào \(S\) (bằng \(0\) khi chưa chọn gì, điều này an toàn vì mọi chữ số đều \(\ge 0\)), và ba cờ mang nghĩa như trên. Ở đây \(id\) đếm từ hàng nhỏ nhất, nên \(id = 0\) là hàng đơn vị.</p>
+        <p>Trạng thái này đủ, vì mọi thứ mà các chữ số còn lại cần biết về phần đã dựng chỉ gồm: còn lại bao nhiêu vị trí (\(id\)), chữ số kế tiếp của \(S\) phải \(\ge\) bao nhiêu (\(last\)), chữ số hiện tại được chạy trong khoảng nào (hai cờ biên), và đã được phép chọn chữ số vào \(S\) chưa (\(\mathrm{nonz}\)). Phần \(S\) đã chọn chỉ còn góp lại qua độ dài của nó, mà độ dài đó được cộng dồn trong giá trị của DP.</p>
+        <p>Tại một trạng thái, ta duyệt \(d\) từ \(lo\) tới \(hi\) và với mỗi \(d\) có đúng hai lựa chọn, danh sách này là đầy đủ vì mỗi vị trí chỉ có thể hoặc thuộc \(S\) hoặc không:</p>
+        <ul>
+          <li>không chọn hàng \(id\) vào \(S\): kết quả là \(dp(id-1, last, \mathrm{nonz}', \mathrm{biggerL}', \mathrm{smallerR}')\);</li>
+          <li>chọn hàng \(id\) vào \(S\), chỉ hợp lệ khi \(\mathrm{nonz}'\) đã bật và \(d \ge last\): kết quả là \(dp(id-1, d, \mathrm{nonz}', \mathrm{biggerL}', \mathrm{smallerR}')\) với thành phần độ dài được cộng thêm \(1\), còn số cách giữ nguyên.</li>
+        </ul>
+        <p>Trong đó \(\mathrm{nonz}' = \mathrm{nonz} \lor (d &gt; 0)\), \(\mathrm{biggerL}' = \mathrm{biggerL} \lor (d &gt; lo)\), \(\mathrm{smallerR}' = \mathrm{smallerR} \lor (d &lt; hi)\). Giá trị của trạng thái là hợp \(\oplus\) của toàn bộ các nhánh đó.</p>
+        <p>Cơ sở là \(dp(-1, \cdot, \cdot, \cdot, \cdot) = (0, 1)\): số đã dựng xong, còn đúng một cách chọn phần \(S\) còn lại, là cách rỗng, với độ dài \(0\). Đáp án của một câu hỏi là \(dp(|R| - 1, 0, 0, 0, 0)\), tức bắt đầu từ hàng lớn nhất, chưa chọn gì vào \(S\), chưa gặp chữ số khác \(0\), và còn dính chặt vào cả hai biên.</p>
+        <p>Tính đúng đắn của số đếm nằm ở chỗ mỗi cặp \((x, S)\) được sinh ra đúng một lần: chuỗi các chữ số \(d\) đã chọn xác định duy nhất \(x\), và với mỗi vị trí ta ghi nhận đúng một trong hai lựa chọn thuộc hay không thuộc \(S\), nên chuỗi lựa chọn xác định duy nhất \(S\). Phép \(\oplus\) khi gộp các nhánh chỉ giữ lại các cặp có \(|S|\) lớn nhất và cộng số lượng của chúng, đúng như đại lượng cần tính. Số đếm được lấy dư theo \(998244353\), còn thành phần độ dài thì không, vì nó không vượt quá \(10001\).</p>
+      </article>
     </section>
 
     <section class="subtask" id="g1">
-      <h2>Subtask 1 (\(R &lt; 10^6\))</h2>
-      <p>Với \(R &lt; 10^6\) ta có thể duyệt mọi \(x\) trong \([L, R]\) (\(O(R)\) lần lặp), kiểm tra trực tiếp \(x \bmod 15 = 0\) và tổng chữ số bằng \(K\), đồng thời cập nhật số nhỏ nhất. Đây là cách đủ nhanh cho subtask này.</p>
+      <h2>Subtask 1: \(R \le 10^5\)</h2>
+      <p>Khi đoạn \([L, R]\) chỉ chứa vài chục nghìn số, ta duyệt từng \(x\) và tính trực tiếp sức mạnh cùng độ thuần khiết của nó bằng bài toán dãy con không giảm dài nhất theo kiểu \(O(k^2)\): với mỗi vị trí \(i\), lưu \(len_i\) là độ dài dãy con không giảm dài nhất kết thúc tại \(i\) và \(cnt_i\) là số dãy như vậy, rồi cập nhật từ mọi \(j &lt; i\) có \(d_j \le d_i\). Sức mạnh của \(x\) là \(\max_i len_i\) và độ thuần khiết là tổng \(cnt_i\) trên các \(i\) đạt cực đại. Gộp kết quả của các \(x\) lại bằng phép \(\oplus\) ở trên. Với \(k \le 6\), chi phí là \(O(T \cdot (R - L + 1) \cdot k^2)\), đủ nhanh cho subtask này và vô vọng từ subtask \(2\) trở đi.</p>
     </section>
 
     <section id="complexity">
       <h2>Độ phức tạp</h2>
-      <pre class="complexity">Thời gian: O(log R · 19 · 162 · 15 · 2 · 10) ≈ 6·10^7 — đủ nhanh trong 1 s.
-Bộ nhớ:   O(19 · 162 · 15 · 2) ≈ 800 KB.</pre>
+      <p>Số trạng thái là \(|R| \cdot 10 \cdot 2^3 = 80 \cdot |R|\), vì \(id\) chạy trên \(|R|\) vị trí, \(last\) nhận \(10\) giá trị và có ba cờ nhị phân. Mỗi trạng thái duyệt tối đa \(10\) chữ số, mỗi chữ số xét \(2\) lựa chọn, nên tổng chi phí cho một câu hỏi là \(O(1600 \cdot |R|)\). Với \(T = 20\) và \(|R| = 10001\), đó là khoảng \(3.2 \cdot 10^8\) phép cộng và so sánh trên các cặp số nguyên \(32\) bit, vừa với giới hạn \(1\) giây.</p>
+      <p>Bộ nhớ do bảng ghi nhớ chiếm giữ là \(80 \cdot |R|\) cặp \(32\) bit, khoảng \(6.4\) MB. Bảng này được đặt lại giữa các câu hỏi, và việc đặt lại chỉ tốn \(O(80 \cdot |R|)\) nên không ảnh hưởng tới chi phí tổng.</p>
+      <pre class="complexity">Thời gian: O(T · |R| · 10 · 2³ · 10 · 2)
+Bộ nhớ:    O(|R| · 10 · 2³)</pre>
     </section>
 
-    <footer class="page-end">Mật thư của Dũng · lời giải</footer>
+    <section id="other">
+      <h2>Lời giải tốt hơn</h2>
+      <p>Cùng một DP có thể viết theo chiều xuôi thay vì đệ quy có nhớ theo chiều ngược. Ta duy trì một lớp giá trị \(dp[last][\mathrm{nonz}][\mathrm{biggerL}][\mathrm{smallerR}]\), trong đó giá trị là cặp <em>(độ dài phần \(S\) đã chọn trong tiền tố, số cặp (tiền tố, tập chỉ số) đạt được độ dài đó)</em>, rồi đẩy lớp này tiến một vị trí mỗi bước bằng đúng hai lựa chọn ở trên. Hai tiền tố khác nhau nhưng cùng bộ \((last, \mathrm{nonz}, \mathrm{biggerL}, \mathrm{smallerR})\) có tương lai giống nhau nên gộp được bằng \(\oplus\), vì thế lớp giá trị chỉ cần \(80\) ô. Đáp án là hợp \(\oplus\) của cả lớp sau khi đã đi qua chữ số cuối.</p>
+      <p>Độ phức tạp thời gian không đổi, nhưng bộ nhớ giảm còn \(O(1)\) (hai lớp \(80\) ô, không phụ thuộc \(|R|\)) và không còn đệ quy sâu \(10001\) mức. Trên cùng một máy và cùng bộ test nặng nhất, bản xuôi chạy nhanh hơn khoảng ba lần nhờ tránh được chi phí gọi hàm và truy cập bảng lớn.</p>
+    </section>
+
+    <footer class="page-end">Mật mã lăng mộ cổ · lời giải</footer>
   </main>
 
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.js"></script>

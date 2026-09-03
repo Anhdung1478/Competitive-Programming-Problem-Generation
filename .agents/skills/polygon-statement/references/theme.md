@@ -1,23 +1,13 @@
 # Theme Bible
 
 **Theme:** League of Legends / Runeterra
-**Audience:** problem setters and statement writers. Read §7 and §8 before you write a single word of flavor.
+**Audience:** problem setters and statement writers. Read §6 and §7 before you write a single word of flavor.
+
+Each problem is a self-contained vignette — a single scene, in a single place, with a single character facing a single concrete difficulty. There is **no shared plot** between problems; the world is the only glue, and consistency of *place, tone, and physics* is what makes unrelated scenes read as one world.
 
 ---
 
-## 1. Round Identity
-
-Trinity Force is three lesser artifacts — Sheen, Phage, Zeal — bound into one weapon that is more than their sum. That is the round: **thirteen self-contained stories, one world.**
-
-There is **no shared plot**. Problem A does not lead into problem B. Each problem is a vignette — a single scene, in a single place, with a single character facing a single concrete difficulty. A solver who reads only problem H should never feel they missed chapters.
-
-The world is the glue. Consistency of *place, tone, and physics* is what makes thirteen unrelated scenes read as one contest.
-
-Happy accident worth using: Runeterra has **13 canonical regions** and we have **13 problems**. You are not obligated to map them one-to-one, but if the spread falls out that way, take it.
-
----
-
-## 2. Canon Scope
+## 1. Canon Scope
 
 **The rule: if it is in the game client, it is in bounds.**
 
@@ -31,7 +21,7 @@ Out — crossovers, skin-line universes (Star Guardian, PROJECT, Spirit Blossom,
 
 ---
 
-## 3. Regions Cheat Sheet
+## 2. Regions Cheat Sheet
 
 | Region | Vibe | Signature imagery | Champions | Natural problem material |
 |---|---|---|---|---|
@@ -51,7 +41,7 @@ Out — crossovers, skin-line universes (Star Guardian, PROJECT, Spirit Blossom,
 
 ---
 
-## 4. Champion Notes
+## 3. Champion Notes
 
 You may reuse champions freely across problems — no reservations, no uniqueness rule. What you may **not** do is write them out of character.
 
@@ -96,11 +86,11 @@ The single most common failure is a champion who exists only to deliver an algor
 - **Cho'Gath** — hunger that grows. **Vel'Koz** — the Void's scientist; it *studies* you.
 - **Kai'Sa** — human survivor wearing the Void. **Bel'Veth** — the Void's empress, remaking everything.
 
-If you need a champion not listed, pull one from §3's region table and keep them consistent with their region's vibe.
+If you need a champion not listed, pull one from §2's region table and keep them consistent with their region's vibe.
 
 ---
 
-## 5. Items, Objects & Mechanics
+## 4. Items, Objects & Mechanics
 
 Treat these as **in-world artifacts**, not UI elements. "Ornn hammers a Sheen into a Trinity Force" is epic. "Ornn buys Trinity Force for 3333 gold" is a shop.
 
@@ -108,7 +98,7 @@ Treat these as **in-world artifacts**, not UI elements. "Ornn hammers a Sheen in
 
 **Item ladder** — small components combine into legendary items. This is the cleanest DP/tree motif in the entire theme.
 - Components: Sheen, Phage, Zeal, Kindlegem, Ruby Crystal, Amplifying Tome, Long Sword, Cloth Armor, Null-Magic Mantle, B.F. Sword, Needlessly Large Rod.
-- Legendaries: **Trinity Force** (the round's emblem), Infinity Edge, Rabadon's Deathcap, Zhonya's Hourglass, Guardian Angel, Thornmail, Bloodthirster, Void Staff, Banshee's Veil, Sunfire Aegis, Youmuu's Ghostblade, Rylai's Crystal Scepter, Nashor's Tooth, Blade of the Ruined King, Sterak's Gage, Lich Bane, Frozen Heart, Spirit Visage, Locket of the Iron Solari.
+- Legendaries: **Trinity Force**, Infinity Edge, Rabadon's Deathcap, Zhonya's Hourglass, Guardian Angel, Thornmail, Bloodthirster, Void Staff, Banshee's Veil, Sunfire Aegis, Youmuu's Ghostblade, Rylai's Crystal Scepter, Nashor's Tooth, Blade of the Ruined King, Sterak's Gage, Lich Bane, Frozen Heart, Spirit Visage, Locket of the Iron Solari.
 - Boots: Berserker's Greaves, Plated Steelcaps, Mercury's Treads, Ionian Boots of Lucidity, Sorcerer's Shoes.
 - Consumables: Health Potion, Elixir of Wrath/Sorcery/Iron, Control Ward, Oracle Lens.
 
@@ -124,7 +114,7 @@ Treat these as **in-world artifacts**, not UI elements. "Ornn hammers a Sheen in
 
 ---
 
-## 6. Motif Bank
+## 5. Motif Bank
 
 Short list — find your algorithm, take a hook, or ignore it entirely.
 
@@ -145,9 +135,9 @@ Short list — find your algorithm, take a hook, or ignore it entirely.
 
 ---
 
-## 7. Style Rules
+## 6. Style Rules
 
-These are hard. They exist because a training round is judged on whether people can *solve* it.
+These are hard. They exist because a statement is judged on whether people can *solve* the problem.
 
 1. **Flavor ≤ 120 words.** One scene, one character, one difficulty. If the story needs a second paragraph to set up, the story is wrong.
 2. **Alternate story and specification — and the specification must stand alone.** House style is *lore, spec, lore, spec*: one beat of story, then the piece of the problem that beat just motivated. Not three paragraphs of story followed by three of specification. **Each spec beat names the in-world thing it is formalizing** — write "the three bells are points `A`, `B`, `C`", not "three points `A`, `B`, `C` lie in the plane" after a paragraph about bells. The pair should read as one thought stated twice, once in the world and once in mathematics; if the story and the specification share no vocabulary, the interleave buys nothing. This only works if no story sentence carries load — **delete every flavor sentence and what remains must still define the problem completely, with no ambiguity.** Run that deletion test on every statement; it is the whole reason the interleave is safe. A solver who skips every word of flavor loses nothing.
@@ -155,13 +145,13 @@ These are hard. They exist because a training round is judged on whether people 
 4. **Flavor never disambiguates.** If a reader has to reason about the lore to resolve "does the wall block diagonal movement?", the formal section has failed. Fix the formal section, not the story.
 5. **Name variables plainly.** `n`, `m`, `a_i`, `k`. Do not name a variable `gp` for gold-per-second and expect anyone to follow. Thematic units are fine (*gold*, *seconds*, *tiles*); thematic *notation* is not.
 6. **Epic register, not solemn.** Write like a Riot short story: concrete nouns, short declaratives, physical detail. No jokes, no fourth wall, no soloqueue slang (`ff@15`, `jungle diff`, `0/10 top`). Humor, if any, is dry and in-character.
-7. **No gore, no cruelty as spectacle.** Runeterra is violent; the statements do not need to be. Keep it PG-13 — this is a school contest.
+7. **No gore, no cruelty as spectacle.** Runeterra is violent; the statements do not need to be. Keep it PG-13 — the audience is students.
 8. **Do not gate difficulty behind flavor.** The hardest problem gets the same 120-word budget as the easiest.
 9. **One champion is enough.** Two is fine if they interact. Three is a crowd scene and reads as noise.
 
 ---
 
-## 8. Naming & Formatting Conventions
+## 7. Naming & Formatting Conventions
 
 - **Spelling is exact.** `Cho'Gath`, `Kai'Sa`, `Kha'Zix`, `Vel'Koz`, `Rek'Sai`, `Bel'Veth`, `Kog'Maw`, `K'Sante`, `LeBlanc`, `Jarvan IV`, `Nunu & Willump`, `Dr. Mundo`, `Miss Fortune`, `Twisted Fate`, `Master Yi`, `Lee Sin`, `Xin Zhao`, `Aurelion Sol`, `Renata Glasc`, `Wukong`.
 - **Capitalize** proper objects and places: the Rift, Baron Nashor, the Black Mist, the Sun Disc, the Howling Abyss, Elder Dragon, the Void.
@@ -173,12 +163,12 @@ These are hard. They exist because a training round is judged on whether people 
 
 ---
 
-## 9. Statement Template
+## 8. Statement Template
 
 There is no separate "Statement" heading — the story and the specification are one block, alternating. Flavor across all beats still totals ≤120 words.
 
 ```
-## Problem <X> — <Title>
+## <Title>
 
 <Lore 1: open the scene. The character, the place, the objects.>
 <Spec 1: those objects, formally. Names, types, what is given.>
@@ -200,7 +190,7 @@ Three pairs is the usual shape; two is fine for a short problem, four if the set
 
 **Worked example — copy this register:**
 
-> ## Problem C — Unbreakable
+> ## Unbreakable
 >
 > The pass above Rakelstake narrows to a single ledge, and the wind off the tundra comes hard enough to take a grown man off his feet. Braum plants the vault door in the snow and sets his shoulder against it.
 >
@@ -216,48 +206,3 @@ Three pairs is the usual shape; two is fine for a short problem, four if the set
 
 Note what the example does: every story beat is followed immediately by the formal sentence it motivated, and every formal sentence redefines its rule from scratch. Strike the three story beats and nothing about the problem becomes unclear — that is the test from rule 2, and it is worth actually performing.
 
----
-
-## 9b. Packaging Convention (ICPC scoring)
-
-Every problem declares **one** subtask group, `main`, worth 100 points, in `problem.json` — and **does not typeset a scoring table**. The two are not in conflict; keeping them consistent takes one specific trick.
-
-The group exists purely so the tooling works. `tools/run_matrix.py` reads `tests/<group>/`, and `tools/scan_solutions.py` requires every solution's `@expect` to name a declared group; with `"subtasks": []` both phases refuse to run and `package_status` can never reach `complete`. Verified against the source, not assumed.
-
-But `tools/drift_check.py` compares the `\subtask{}` percentages in the `.tex` against `problem.json` **as text**, so the statement must *contain* the block while not *rendering* it:
-
-```latex
-\newif\ifscoringtable
-\scoringtablefalse
-\ifscoringtable
-\begin{subtasks}
-  \subtask{100}{All tests; there are no partial scores.}
-\end{subtasks}
-\fi
-```
-
-Copy this verbatim into every problem. **Do not delete the block to hide the table** — that reintroduces the drift. Note `\subtask` takes *two* braced arguments, `{percent}{constraints}`; writing `\subtask{100} text` silently binds only the first letter of `text`.
-
-Tests go in `tests/main/`, not loose in `tests/`.
-
----
-
-## 10. Problem Log
-
-Fill this in **after** writing, not before. It is a rear-view mirror, not a gate — repeats are allowed. Its only job is to let us eyeball the spread and notice if we accidentally wrote nine Zaun problems.
-
-| # | Title | Region | Champion(s) | Motif | Setter |
-|---|---|---|---|---|---|
-| A | Where the Echoes Meet | Ionia | Lee Sin | Interactive geometry | |
-| B | The Disc Turns | Shurima | Azir | Range updates + trigonometric sums | |
-| C |  |  |  |  |  |
-| D |  |  |  |  |  |
-| E |  |  |  |  |  |
-| F |  |  |  |  |  |
-| G |  |  |  |  |  |
-| H |  |  |  |  |  |
-| I |  |  |  |  |  |
-| J |  |  |  |  |  |
-| K |  |  |  |  |  |
-| L |  |  |  |  |  |
-| M |  |  |  |  |  |

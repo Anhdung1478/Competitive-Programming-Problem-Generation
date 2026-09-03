@@ -62,6 +62,21 @@ Strong:
 
 Never sacrifice reasoning completeness to make the page shorter. The target is the minimum explanation required for independent understanding, not the minimum explanation possible.
 
+## Stay on the main content
+
+Write only what the reader needs to reconstruct the solution: the observations, why they
+are true, the algorithm they force, and the complexity. Cut everything else. Do not warm
+up to a point, do not restate an observation after proving it, do not add bridge
+paragraphs that only announce what comes next, and do not close a section by summarizing
+what it just said.
+
+Say each thing once, in the place where it is needed. If a sentence can be deleted without
+leaving a gap the reader must guess across, delete it.
+
+This trims padding, not reasoning. The line above still holds: the target is the minimum
+explanation required for independent understanding. A proof, a state definition, or a
+transition derivation is main content and stays even when it is long.
+
 ## Write in Vietnamese
 
 Write every reader-facing sentence and page label in Vietnamese, except that the rating field must be labeled exactly `Expected rating`. Keep algorithm, technique, and data-structure names in their canonical English form, including `segment tree`, `convex hull trick`, `binary search`, `divide and conquer`, `CDQ`, `BFS`, `DFS`, `DSU`, and `LCA`. Explain their problem-specific role in Vietnamese; do not add general tutorials for standard techniques.

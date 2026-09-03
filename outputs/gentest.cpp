@@ -1,155 +1,230 @@
-// gentest.cpp — Polygon testlib generator for "Mật thư của Dũng".
-// Generates one line: L R K  (1 <= L <= R <= 1e18, 1 <= K <= 1e9).
-// Invocation:  gentest <SEED> --subtask <S> --rate <R> [--profile <P>] > $
-// See outputs/generator-config.md for the full design contract.
 #include "testlib.h"
 #include <bits/stdc++.h>
 using namespace std;
+
 using ll = long long;
 
-ll pow10(int e) {
-    ll r = 1;
-    for (int i = 0; i < e; ++i) r *= 10;
-    return r;
+// ---------------------------------------------------------------- shared numeric helper
+ll genValue(ll low, ll high, const string &type, int param = 3) {
+    ensure(low <= high);
+
+    if (low != 1) return low - 1 + genValue(1, high - low + 1, type, param);
+
+    if (type == "uniform") return rnd.next(low, high);
+
+    if (type == "logarit") {
+        double x = low * exp(rnd.next() * log(1.0 * high / low));
+        return (ll)max<double>(low, min<double>(high, x + 0.5));
+    }
+
+    if (type == "maximum") return rnd.wnext(low, high, param);
+
+    if (type == "minimum") {
+        ll ans = genValue(low, high, "logarit");
+        for (int i = 0; i < param; ++i) ans = min(ans, genValue(low, high, "logarit"));
+        return ans;
+    }
+
+    quitf(_fail, "unknown value type: %s", type.c_str());
 }
 
-int digitSum(ll x) {
-    int s = 0;
-    while (x > 0) { s += (int)(x % 10); x /= 10; }
+// ---------------------------------------------------------------- subtask limits
+// Section 3 of generator-config.md. maxLen is the digit count of the subtask ceiling;
+// a number of exactly maxLen digits is legal only for subtasks whose ceiling is a power
+// of ten, and then only for that exact power.
+int subtask, maxLen;
+bool topIsPowerOfTen;   // true for every subtask whose ceiling is a power of ten
+
+string powTen(int zeros) { return "1" + string(zeros, '0'); }
+
+string subtaskCap() {
+    if (topIsPowerOfTen) return powTen(maxLen - 1);
+    return string(maxLen, '9');            // subtask 4: 500 digits, value cap is 10^500 - 1
+}
+
+// Length usable by a profile that wants free digit content: the topmost length is
+// reserved for the exact power of ten.
+int structLen(int k) {
+    if (topIsPowerOfTen && k >= maxLen) k = maxLen - 1;
+    return max(1, k);
+}
+
+// ---------------------------------------------------------------- digit helpers
+int cmpNum(const string &a, const string &b) {
+    if (a.size() != b.size()) return a.size() < b.size() ? -1 : 1;
+    return a < b ? -1 : (a == b ? 0 : 1);
+}
+
+string randDigits(int k) {
+    string s(k, '0');
+    s[0] = char('1' + rnd.next(9));
+    for (int i = 1; i < k; ++i) s[i] = char('0' + rnd.next(10));
     return s;
 }
 
-int digitsOf(ll x) {
-    int d = 0;
-    while (x > 0) { ++d; x /= 10; }
-    return d;
+// ---------------------------------------------------------------- profiles
+// Each returns one query (L, R) with L <= R. `k` is the target digit count of R,
+// derived from rate in main().
+typedef pair<string, string> Query;
+
+Query profRandom(int k) {
+    int n = structLen(k);                    // the reserved top length belongs to `boundary`
+    string R = randDigits(n);
+    string L = randDigits((int)genValue(1, n, "maximum"));
+    if (cmpNum(L, R) > 0) swap(L, R);
+    return {L, R};
 }
 
-// A K that guarantees answer "0 -1".
-ll genZeroK(int maxSum) {
-    int strat = rnd.next(0, 2);
-    if (strat == 0) {
-        // K not divisible by 3 -> no candidate is divisible by 15.
-        ll K = 3LL * rnd.next(0, maxSum / 3) + 1 + rnd.next(0, 1);
-        ensure(K % 3 != 0);
-        return K;
-    } else if (strat == 1 && maxSum < 162) {
-        // K exceeds the maximum digit sum of any number <= R.
-        ll K = rnd.next((ll)(maxSum + 1), 162LL);
-        ensure(K > maxSum);
-        return K;
-    } else {
-        // K beyond any 18-digit digit sum.
-        return rnd.next(163LL, 1000000000LL);
+Query profEqual(int k) {
+    string x = randDigits(structLen(k));
+    return {x, x};
+}
+
+Query profPrefix(int k) {
+    int n = structLen(k);
+    if (n < 2) return profEqual(k);
+    int p = n / 2;
+    string pre = randDigits(p);
+    string L = pre, R = pre;
+    for (int i = p; i < n; ++i) {
+        L += char('0' + rnd.next(4));        // 0..3
+        R += char('6' + rnd.next(4));        // 6..9
+    }
+    return {L, R};
+}
+
+// L = R = d c c ... c with d >= 2 > ... > c: power is n-1 while the maximum power over
+// [1, R] is n, which is exactly what the prefix-subtraction WA reports with count 0.
+Query profWaTrap(int k) {
+    int n = max(2, structLen(k));
+    if (topIsPowerOfTen && n > maxLen - 1) n = maxLen - 1;
+    if (n < 2) return profEqual(k);
+    char d = char('2' + rnd.next(8));        // 2..9
+    char c = char('0' + rnd.next(d - '0'));  // 0..d-1
+    string x = string(1, d) + string(n - 1, c);
+    return {x, x};
+}
+
+Query profFlat(int k) {
+    char d = char('1' + rnd.next(9));
+    string x(structLen(k), d);
+    return {x, x};
+}
+
+Query profDecreasing(int k) {
+    int n = structLen(k);
+    int blocks = min(n, (int)rnd.next(2, 10));
+    vector<int> digs;                        // strictly decreasing block digits, top >= 1
+    {
+        vector<int> pool;
+        for (int d = 9; d >= 1; --d) pool.push_back(d);
+        shuffle(pool.begin(), pool.end());
+        pool.resize(min<size_t>(pool.size(), blocks));
+        sort(pool.rbegin(), pool.rend());
+        digs = pool;
+        if (rnd.next(2) && (int)digs.size() < 10) digs.push_back(0);
+    }
+    blocks = (int)digs.size();
+    vector<int> len(blocks, 1);
+    for (int rest = n - blocks; rest > 0; --rest) len[rnd.next(blocks)]++;
+    string x;
+    for (int i = 0; i < blocks; ++i) x += string(len[i], char('0' + digs[i]));
+    x.resize(n);
+    ensure(x[0] != '0');
+    return {x, x};
+}
+
+Query profZeros(int k) {
+    int n = structLen(k);
+    string R(n, '0');
+    R[0] = char('1' + rnd.next(9));
+    for (int i = 1; i < n; ++i)
+        if (rnd.next(10) == 0) R[i] = char('0' + rnd.next(10));
+    string L = powTen(n - 1);                // smallest n-digit number
+    ensure(cmpNum(L, R) <= 0);
+    return {L, R};
+}
+
+// Cycles deterministically through the three extremes so all of them appear.
+Query profBoundary(int idx) {
+    string cap = subtaskCap();
+    switch (idx % 3) {
+        case 0: return {"1", "1"};
+        case 1: return {"1", cap};
+        default: return {cap, cap};
     }
 }
 
-// A "meaningful" K (mostly multiples of 3, with boundary values mixed in).
-ll genDefaultK(int maxSum) {
-    int roll = rnd.next(0, 9);
-    if (roll == 0) {
-        int cand[7] = {1, 3, 15, 45, 153, 156, 162};
-        return min((ll)cand[rnd.next(0, 6)], (ll)maxSum);
-    } else if (rnd.next(0, 1)) {
-        return 3LL * rnd.next(1, maxSum / 3);
-    } else {
-        return rnd.next(1, maxSum);
+// ---------------------------------------------------------------- validation
+void check(const Query &q) {
+    const string &L = q.first, &R = q.second;
+    for (const string *s : {&L, &R}) {
+        ensure(!s->empty());
+        ensure((*s)[0] != '0');
+        for (char ch : *s) ensure('0' <= ch && ch <= '9');
+    }
+    ensure(cmpNum(L, R) <= 0);
+    ensure((int)R.size() <= maxLen);
+    if (topIsPowerOfTen && (int)R.size() == maxLen) ensure(R == powTen(maxLen - 1));
+    if (subtask == 4) ensure((int)R.size() <= 500);
+    if (subtask == 3) {
+        ensure(L == "1");
+        ensure(R == powTen((int)R.size() - 1));
     }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     registerGen(argc, argv, 1);
     prepareOpts(argc, argv);
 
-    int subtask = opt<int>("subtask");
+    subtask = opt<int>("subtask");
     double rate = opt<double>("rate");
-    string profile = opt<string>("profile", "random");
+    string profile = opt<string>("profile");
 
-    ensure(subtask >= 1 && subtask <= 5);
+    ensure(1 <= subtask && subtask <= 5);
     ensure(0.70 <= rate && rate <= 1.00);
 
-    // Subtask ceilings and digit-count ceilings.
-    ll Rmax; int D;
-    if (subtask == 1)      { Rmax = 999999LL;              D = 6;  }
-    else if (subtask == 2) { Rmax = 99999999999LL;         D = 11; }
-    else if (subtask == 3) { Rmax = 1000000000000000000LL; D = 18; }
-    else if (subtask == 4) { Rmax = 999999999999999LL;     D = 15; }
-    else                   { Rmax = 1000000000000000000LL; D = 18; }
+    static const int MAXLEN[6] = {0, 6, 12, 10001, 500, 10001};
+    maxLen = MAXLEN[subtask];
+    topIsPowerOfTen = (subtask != 4);   // subtasks 1, 2, 3, 5 are capped by a power of ten
 
-    bool needRge15 = (profile == "nonzero" || profile == "kill-offbyone");
+    int numtest = has_opt("numtest")
+                      ? opt<int>("numtest")
+                      : min(20, max(1, (int)lround(20.0 * (rate - 0.50) / 0.50)));
+    ensure(1 <= numtest && numtest <= 20);
 
-    // ---- Phase 1: R ----
-    ll R;
+    vector<Query> qs;
+
     if (subtask == 3) {
-        int x = (int)llround((rate - 0.70) / 0.30 * 18.0);
-        x = max(0, min(18, x));
-        if (needRge15) x = max(x, 2);
-        R = pow10(x);
-    } else if (profile == "maxR" || profile == "kill-tle") {
-        R = Rmax;
+        // L = 1, R = 10^x. The profile is ignored: the shape is fully determined by x.
+        static const int BOUND_X[5] = {0, 1, 2, 10000, 9999};
+        int x = min(10000, max(0, (int)lround(10000.0 * (rate - 0.60) / 0.40)));
+        for (int i = 0; i < numtest; ++i) {
+            int xi = (profile == "boundary") ? BOUND_X[i % 5] : x;
+            qs.push_back({"1", powTen(xi)});
+        }
     } else {
-        int d = (int)llround((rate - 0.70) / 0.30 * D);
-        d = max(1, min(D, d));
-        if (needRge15) d = max(d, 2);
-        ll lo = pow10(d - 1), hi = min(Rmax, pow10(d) - 1);
-        if (needRge15) lo = max(lo, 15LL);
-        R = rnd.next(lo, hi);
+        int k = min(maxLen, max(1, (int)lround(maxLen * (rate - 0.60) / 0.40)));
+        static const char *POOL[] = {"random", "equal", "prefix", "wa-trap",
+                                     "flat", "decreasing", "zeros"};
+        for (int i = 0; i < numtest; ++i) {
+            string p = (profile == "mixed") ? POOL[rnd.next(7)] : profile;
+            if (p == "random") qs.push_back(profRandom(k));
+            else if (p == "equal") qs.push_back(profEqual(k));
+            else if (p == "prefix") qs.push_back(profPrefix(k));
+            else if (p == "wa-trap") qs.push_back(profWaTrap(k));
+            else if (p == "flat") qs.push_back(profFlat(k));
+            else if (p == "decreasing") qs.push_back(profDecreasing(k));
+            else if (p == "zeros") qs.push_back(profZeros(k));
+            else if (p == "boundary") qs.push_back(profBoundary(i));
+            else quitf(_fail, "unknown profile: %s", p.c_str());
+        }
     }
 
-    int dR = digitsOf(R);
-    int maxSum = min(162, 9 * dR);
+    ensure((int)qs.size() == numtest);
+    for (const Query &q : qs) check(q);
 
-    // ---- Phase 2: L and K per profile ----
-    ll L, K;
-    if (profile == "kill-tle") {
-        L = 1; K = genDefaultK(maxSum);
-    } else if (profile == "maxR") {
-        L = rnd.next(1LL, R); K = genDefaultK(maxSum);
-    } else if (profile == "zero") {
-        L = rnd.next(1LL, R); K = genZeroK(maxSum);
-    } else if (profile == "nonzero") {
-        ll m = 15LL * rnd.next(1LL, R / 15);
-        K = digitSum(m);
-        L = rnd.next(1LL, m);
-        ensure(L <= m && m <= R && m % 15 == 0 && digitSum(m) == (int)K);
-    } else if (profile == "kill-factor5") {
-        K = 3 * rnd.next(1, 3);   // 3, 6, or 9
-        L = 1;
-        if (R < K) R = K;         // ensure the number K itself is in range
-        ensure(R >= K);
-    } else if (profile == "kill-offbyone") {
-        ll m = 15LL * rnd.next(1LL, R / 15);
-        L = m; K = digitSum(m);
-        ensure(L % 15 == 0 && digitSum(L) == (int)K && 1 <= L && L <= R);
-    } else {
-        // random / full / single / narrow
-        if (profile == "full")       L = 1;
-        else if (profile == "single") L = R;
-        else if (profile == "narrow") L = max(1LL, R - rnd.next(1LL, 1000LL));
-        else                          L = rnd.next(1LL, R);  // random
-        K = genDefaultK(maxSum);
-    }
-
-    // Subtask 3 fixes L = 1 (only L-free profiles are meaningful there).
-    if (subtask == 3) {
-        ensure(profile == "random" || profile == "full" || profile == "zero" || profile == "nonzero");
-        L = 1;
-    }
-
-    // ---- Final invariants ----
-    ensure(1 <= L && L <= R && R <= 1000000000000000000LL);
-    ensure(1 <= K && K <= 1000000000);
-    if (subtask == 1) ensure(R < 1000000LL);
-    if (subtask == 2) ensure(R < 100000000000LL);
-    if (subtask == 4) ensure(R < 1000000000000000LL);
-    if (subtask == 5) ensure(R <= 1000000000000000000LL);
-    if (subtask == 3) {
-        ensure(L == 1);
-        ll t = R;
-        while (t > 1 && t % 10 == 0) t /= 10;
-        ensure(t == 1); // R is a power of 10
-    }
-
-    cout << L << ' ' << R << ' ' << K << '\n';
+    cout << numtest << '\n';
+    for (const Query &q : qs) cout << q.first << ' ' << q.second << '\n';
     return 0;
 }
