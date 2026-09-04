@@ -3,13 +3,50 @@ name: polygon-checker
 description: Create or review outputs/checker.cpp for Codeforces Polygon using testlib.h, including deterministic, constructive, optimization, and special-output checkers.
 ---
 
-# Write `outputs/checker.cpp`
+# Write the checker
 
-Read the source-of-truth files and final output specification. Classify the output as deterministic, non-unique witness, optimization, floating-point, or special protocol before implementing the checker.
+Read the source-of-truth files and the finished `outputs/statement.txt`. Classify the output before writing anything: deterministic, non-unique witness, optimization, floating-point, or special protocol.
 
-## Skip this file when output is unique
+## Decide first — stock or custom
 
-If the output is unique/deterministic for every valid input — a single correct answer, exact required formatting, no accepted alternative, no floating-point tolerance beyond exact match — do not write `outputs/checker.cpp`. Use a Polygon standard checker instead (`wcmp`/`ncmp`/`hcmp` for token-by-token numeric/word comparison, `lcmp`/`fcmp` for exact line/text comparison, or an `rcmp*` variant when a documented floating-point tolerance applies) and report the chosen standard checker instead of producing a file. Only continue past this point when the output is non-unique, an optimization/construction objective, or otherwise needs custom comparison logic.
+Not every problem needs a written checker. Record the decision in `outputs/problem.json`, in one of exactly two shapes:
+
+```jsonc
+"checker": { "kind": "stock",  "name": "std::ncmp.cpp" }
+"checker": { "kind": "custom", "file": "checker.cpp" }
+```
+
+`name` is the verbatim Polygon token — `std::` prefix and `.cpp` suffix included — so `uploading-to-polygon` hands it straight to `set_problem_checker` without assembling a string.
+
+**Stock is permitted only when the output is unique for every valid input *and* one of these tokens compares it exactly:**
+
+| Token | Use when |
+|---|---|
+| `std::ncmp.cpp` | one or more int64 in sequence; whitespace-insensitive |
+| `std::wcmp.cpp` | sequence of tokens/words; whitespace-insensitive |
+| `std::lcmp.cpp` | line by line, tokens compared within each line; whitespace-insensitive |
+| `std::fcmp.cpp` | line by line, lines compared exactly; whitespace significant |
+| `std::rcmp4.cpp` / `std::rcmp6.cpp` / `std::rcmp9.cpp` | sequence of doubles, abs/rel error 1e-4 / 1e-6 / 1e-9 |
+| `std::yesno.cpp` / `std::nyesno.cpp` | one / a sequence of case-insensitive YES-NO answers |
+| `std::hcmp.cpp` | one huge signed integer |
+
+Write `outputs/checker.cpp` — `"kind": "custom"` — whenever any of these hold:
+
+- more than one output is accepted (non-unique witness);
+- the objective is optimization or construction;
+- the output follows a special comparison protocol;
+- the checker must validate anything semantic about the answer;
+- the output is unique but no token fits it — an unusual tolerance, a mixed-format line, a leading count whose value constrains the rest of the output.
+
+A doubtful case is custom. An unnecessary `checker.cpp` costs one file; a stock token that accepts a wrong answer costs the problem.
+
+`shaping-problems` wrote a provisional `checker` at Step 0 from `problem-context.md` alone, before the statement existed. You decide it here, against the finished statement, and overwrite it. **If your decision differs from that proposal, say so in your report** — an output that turned out to accept several answers is a fact the author should hear.
+
+When the decision is stock you are done: no file is written, and `outputs/checker.cpp` must not exist in the package. Everything below applies to the custom branch only.
+
+## Writing a custom checker
+
+When the output is unique but no token fits, write the minimal comparison the statement implies — token by token for numbers and words, line by line when whole lines matter, or a documented tolerance for floating point. Keep it that small: no semantic validation the statement does not ask for, no re-solving the problem. Everything below applies to every custom checker, minimal or semantic.
 
 Use C++17, `testlib.h`, and `registerTestlibCmd(argc, argv)`. Treat participant data as untrusted. Report participant errors with `_wa`, jury/package inconsistencies with `_fail`, and success with `_ok`.
 
@@ -44,6 +81,7 @@ Read exclusively through the `inf`/`ouf`/`ans` testlib streams and report throug
 
 ## Final review
 
+- `outputs/problem.json` carries the decision, and `outputs/checker.cpp` exists if and only if `kind` is `"custom"`.
 - Every `ouf`/`ans` token reader has both a pattern and variable name, or is a typed bounded reader with a variable name.
 - Missing and extra output are rejected.
 - Jury failures use `_fail`; participant failures use `_wa`.
