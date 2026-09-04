@@ -31,6 +31,7 @@ or more — "statement + tests", "sinh test", "idea to package" — stay here.
 
 | If it's really about | Use |
 |---|---|
+| Only the numbers — originality, `N`, the subtask ladder, scoring | `shaping-problems` |
 | Only auditing the official solution | `validate-solution` |
 | Only the statement prose | `polygon-statement` |
 | Only a printable/PDF statement | `tex-statement` |
@@ -39,6 +40,7 @@ or more — "statement + tests", "sinh test", "idea to package" — stay here.
 | Only the test script or the generator | `generating-tests` |
 | Only the input validator | `polygon-validator` |
 | Only an HTML editorial | `writing-editorials` |
+| Only pushing a finished package to Codeforces Polygon | `uploading-to-polygon` |
 
 ## Purpose
 
@@ -46,45 +48,45 @@ The working repository is a problem-preparation workspace for Codeforces Polygon
 
 Execute these workflow steps in this exact order:
 
+0. create `outputs/problem.json` — the shaped numbers;
 1. validate `source/solution.cpp` when it is present;
 2. create `outputs/statement.txt`;
-3. create `outputs/checker.cpp`, unless the output is unique/deterministic, in which case skip it and use a Polygon standard checker (see Step 3);
+3. decide the checker, and create `outputs/checker.cpp` when that decision is custom;
 4. create and validate the solution suite in `outputs/solution/`;
 5. create `outputs/validator.cpp`;
+   - then Step 5b: create the statement's example tests in `outputs/example-test/`;
 6. create `outputs/generator-config.md`;
 7. create `outputs/test-script.txt` and `outputs/gentest.cpp` from that config;
 8. create `outputs/editorial.html`.
 
 Do not reorder or skip a mandatory gate unless the user explicitly changes the workflow.
 
-One step is optional and is skipped by default; produce it only on explicit request:
+Two steps are optional and are skipped by default; produce them only on explicit request:
 
 - Step 2b `outputs/tex-statement.tex` — only after Step 2 has produced
   `outputs/statement.txt`.
+- Step 9 upload to Codeforces Polygon — only after Step 8 and the cross-artifact
+  consistency gate below have passed.
 
 Skipping an optional step is never a workflow failure.
 
-Step 3 is conditionally skipped, independent of the optional step above: when the
-finished `outputs/statement.txt` establishes that output is unique/deterministic for
-every valid input (a single correct answer, exact required formatting, no accepted
-alternative and no floating-point tolerance beyond exact match), do not write
-`outputs/checker.cpp`. Use a Polygon standard checker instead (e.g. `wcmp`, `ncmp`,
-`hcmp`, `lcmp`, `fcmp`, or an `rcmp*` tolerance variant, chosen to match the output's
-tokenization and any floating-point rule) and name the chosen standard checker in the
-final summary. If output uniqueness is not already settled by the mandatory ambiguity
-gate, ask rather than assuming a custom checker can be skipped.
+Every other step is mandatory. In particular **Step 3 always produces a checker
+decision** in `outputs/problem.json`: `{ "kind": "stock", "name": "<token>" }` or
+`{ "kind": "custom", "file": "checker.cpp" }`. The file itself follows only on the
+custom branch — an output that is unique for every valid input and that a Polygon
+standard checker compares exactly binds that token instead, and `outputs/checker.cpp`
+is not written. The uniqueness analysis is what decides the branch.
 
 ## Source-of-truth files
 
 At the working repository root:
 
-- `source/problem-context.md` — REQUIRED. Concise authoritative description of the problem.
+- `source/problem-context.md` — REQUIRED. Concise authoritative description of the problem, **including its constraints and its subtask limits and scoring**. There is no separate `source/subtask.md`; if an older repository still has one, treat it as stale and report it rather than reading it.
 - `source/solution.cpp` — OPTIONAL. Intended official/full solution.
-- `source/subtask.md` — OPTIONAL. Subtask limits and scoring.
 
 Generated artifacts must never silently redefine the problem. If generated files disagree with source-of-truth files, the source-of-truth files win and the inconsistency must be reported.
 
-Do not edit `source/problem-context.md`, `source/solution.cpp`, or `source/subtask.md` unless the user explicitly asks. The local-I/O normalization rule in Step 1 is the sole standing exception for `source/solution.cpp`.
+Do not edit `source/problem-context.md` or `source/solution.cpp` unless the user explicitly asks. The local-I/O normalization rule in Step 1 is the sole standing exception for `source/solution.cpp`.
 
 ## Rigor profile
 
@@ -137,7 +139,29 @@ In particular, verify when relevant:
 - subtask scoring and constraints if subtasks are expected.
 - the time limit when solution verdicts or TLE classification depend on it.
 
-If `source/subtask.md` is absent, never invent a subtask ladder. If the problem should have no partial subtasks, ask/confirm whether to treat it as one full-score subtask.
+If `source/problem-context.md` states no subtasks, never invent a subtask ladder. If the problem should have no partial subtasks, ask/confirm whether to treat it as one full-score subtask.
+
+## Step 0 — `outputs/problem.json`
+
+Use the `shaping-problems` skill.
+
+It settles the numbers before anything is generated from them: whether the idea
+is a known problem, whether the declared `N` actually separates the intended
+solution from the naive one, OI vs ICPC, and which rungs of the ladder in
+`source/problem-context.md` earn points. The result is `outputs/problem.json`.
+
+This runs first because its findings invalidate later work rather than adding
+to it. A ladder whose rungs collapse into one, or a bound at which the naive
+solution already passes, is cheaper to fix here than after a statement, a
+validator, and a test plan have been built on it.
+
+Two of its outcomes are **blocking**, and both are the user's call, not yours:
+
+- the problem is already known — proceed, retarget, or drop;
+- the separation table contradicts `source/problem-context.md` (rungs merge, or
+  a simpler algorithm clears the full constraints).
+
+Stop and ask. Do not edit `source/problem-context.md` to match the finding.
 
 ## Step 1 — Validate solution: HARD STOP
 
@@ -147,7 +171,7 @@ If `source/solution.cpp` exists:
 
 - before compiling, inspect its local-file redirection. If it calls `freopen` for the task `.inp`/`.out` files but has no `fopen` existence guard, modify only that redirection block to use `if (fopen(TASK ".inp", "r")) { ... }`. Keep the same task basename and `.inp`/`.out` behavior. The standard-input/standard-output fallback when the local input file is absent is mandatory so the solution can be run locally. This narrow normalization is allowed even without a separate request to edit source files; do not change algorithmic code under this exception;
 - check that it solves exactly the problem in `source/problem-context.md`;
-- check it against every constraint/subtask in `source/subtask.md` when present;
+- check it against every constraint and subtask stated in `source/problem-context.md`;
 - compile it;
 - inspect complexity, integer widths, indexing, corner cases, input/output format;
 - run targeted tests and differential/brute-force checks when feasible.
@@ -182,7 +206,7 @@ Requirements:
 - Be precise, transparent, and easy to understand.
 - Add only a very short story/flavor sentence or paragraph. It must not obscure the mathematical task.
 - Do not invent constraints, behavior, samples, or edge-case rules.
-- Keep notation consistent with `source/problem-context.md`, `source/subtask.md`, and `source/solution.cpp` when it exists. The statement is written before the checker and the solution suite, so it is the notation the later steps must follow; if Step 3 or Step 4 later reveals that the statement is wrong or ambiguous, return here and fix the statement rather than diverging from it.
+- Keep notation consistent with `source/problem-context.md` and `source/solution.cpp` when it exists. The statement is written before the checker and the solution suite, so it is the notation the later steps must follow; if Step 3 or Step 4 later reveals that the statement is wrong or ambiguous, return here and fix the statement rather than diverging from it.
 - State variable scopes explicitly enough that a contestant cannot reasonably misread them.
 
 ## Step 2b (optional) — `outputs/tex-statement.tex`
@@ -194,26 +218,32 @@ document at `outputs/tex-statement.tex` and compiles it. It does not author pros
 wording, notation, constraints, and subtask ladder must match `outputs/statement.txt`
 exactly, and any disagreement with the source-of-truth files is reported rather than
 resolved in the `.tex`. Time and memory limits come from `source/problem-context.md`; if
-they are absent, ask instead of inventing them. Omit `\Examples` while no sample files
-exist. Completion requires a clean compile log and a PDF verified against the statement,
-not merely a zero exit code.
+they are absent, ask instead of inventing them. `\Examples` is wired to the files in
+`outputs/example-test/` (Step 5b) with `\exmpfile`; if this step runs before Step 5b, omit
+the block and re-run the step once the examples exist. Never author sample data here.
+Completion requires a clean compile log and a PDF verified against the statement, not
+merely a zero exit code.
 
 ## Step 3 — `outputs/checker.cpp`
 
-First decide whether this step is needed at all:
+Use the `polygon-checker` skill. This step is mandatory, but its deliverable is the
+**decision**, not necessarily a file.
 
-- If the finished `outputs/statement.txt` shows output is unique/deterministic (single
-  correct answer, exact formatting, no accepted alternative, no floating-point tolerance
-  beyond exact match), **skip `outputs/checker.cpp`**. Select the matching Polygon
-  standard checker (`wcmp`/`ncmp`/`hcmp` for token-by-token numeric/word comparison,
-  `lcmp`/`fcmp` for exact line/text comparison, or an `rcmp*` variant when a documented
-  floating-point tolerance applies) and record that choice in the final summary instead
-  of writing custom code. Do not write a custom checker just to reimplement what a
-  standard checker already does.
-- Otherwise — non-unique witnesses, optimization/construction objectives, or any special
-  comparison protocol — use the `polygon-checker` skill to write `outputs/checker.cpp`.
+Classify the output from the finished `outputs/statement.txt`, then record the result in
+`outputs/problem.json`:
 
-Requirements when a custom checker is written:
+- unique for every valid input, and one Polygon standard checker compares it exactly →
+  `{ "kind": "stock", "name": "<token>" }`. No file is written. The allowlist of tokens
+  lives in `polygon-checker`; nothing outside it may be named here.
+- non-unique witnesses, optimization/construction objectives, any special comparison
+  protocol, any semantic validation, or a unique output that no token fits →
+  `{ "kind": "custom", "file": "checker.cpp" }`, and `outputs/checker.cpp` is written
+  per the requirements below. A doubtful case is custom.
+
+Step 0 wrote a provisional `checker` before the statement existed; Step 3 overwrites it
+and reports any disagreement.
+
+Requirements for a custom checker:
 
 - C++ + `testlib.h`.
 - Must follow Codeforces Polygon checker conventions.
@@ -224,7 +254,7 @@ Requirements when a custom checker is written:
 
 ## Step 4 — `outputs/solution/`
 
-Create a small solution suite based on `source/problem-context.md`, `source/subtask.md` when present, and the finished `outputs/statement.txt`. This replaces the legacy single file `outputs/codex-solution.cpp`; do not create that legacy file. If it already exists from an older run, treat it as stale and do not use it unless the user explicitly asks to migrate it into the suite.
+Create a small solution suite based on `source/problem-context.md` (constraints and subtasks included) and the finished `outputs/statement.txt`.
 
 Design candidate algorithms independently from the problem specification. Do not obtain a “different” solution by copying `source/solution.cpp` and making cosmetic edits. Use the optional source solution only after the candidate design is fixed, for validation and comparison.
 
@@ -262,7 +292,7 @@ Also generate representative WA and/or TLE candidates when a realistic contestan
 
 ### Time-limit policy
 
-Treat a time limit in `source/problem-context.md` as authoritative. If it is absent, choose a provisional solution-testing time limit based on the constraints, intended complexity, and local benchmark evidence. Announce that choice to the user and record it prominently in `outputs/solution/manifest.md`. A provisional limit is only a testing assumption: do not add it to the statement or present it as authoritative metadata.
+Treat a time limit in `source/problem-context.md` as authoritative. Otherwise the limit lives in `outputs/problem.json` as `limits.time_ms_published`, proposed by Step 0. When measurement here shows that proposal is wrong — the intended solution does not fit it, or it is loose enough that a TLE candidate survives — update `limits.time_ms_published` and announce the change. `outputs/problem.json` is the single home for the limit: do not record a second one in `outputs/solution/manifest.md`, and do not put a limit in the statement that the source files do not state.
 
 ### Validation requirements
 
@@ -299,7 +329,7 @@ Create a Codeforces Polygon input validator in C++17 using `testlib.h`. It must:
 - enforce every numeric bound, cross-field relation, multi-test total, and structural invariant;
 - use typed `inf.read*` methods with variable names, plus `readSpace`, `readEoln`, and `readEof` for strict formatting;
 - validate the full legal input domain and, when Polygon group handling is configured, the selected subtask/group constraints;
-- accept the sample inputs embedded in `outputs/statement.txt` and any inputs already used during Step 4 validation;
+- accept the example inputs Step 5b writes to `outputs/example-test/` and any inputs already used during Step 4 validation;
 - reject temporary invalid mutations covering bounds, missing/extra tokens, malformed layout, and broken structural invariants;
 - contain no contestant-output checking logic; that belongs in `outputs/checker.cpp`.
 
@@ -307,6 +337,63 @@ The validator is written before the generator, so it is the machine-readable def
 the legal input domain that Steps 6-7 must respect. If it reveals that the statement or a
 source-of-truth file is inconsistent, return to the earliest responsible step and fix it
 there rather than weakening the validator.
+
+## Step 5b — `outputs/example-test/`
+
+No separate skill; this step is specified here.
+
+Write **one or two small example tests** — the samples a contestant sees in the statement.
+They are not part of the generated test set and `outputs/gentest.cpp` never produces them.
+
+```
+outputs/example-test/
+├─ test_1.inp
+├─ test_1.out
+├─ test_2.inp        # only if a second example earns its place
+└─ test_2.out
+```
+
+**Inputs are hand-written and deliberately easy.** Pick the smallest input that still
+exercises the problem's core operation, so a contestant can trace the answer by hand. A
+second example is worth writing only when it shows something the first cannot — a
+degenerate case the statement calls out, a second output format branch, a multi-test
+layout. Do not add one for volume. Never use a stress or maximum-bound case as an example.
+
+**Outputs are produced by running a program, never written by hand.** Even an answer that
+is obvious by inspection must come from an execution, because a hand-written `.out` is the
+one error a statement can carry that looks authoritative and contradicts the real tests.
+In order:
+
+1. `source/solution.cpp`, when it exists and passed Step 1;
+2. otherwise a validated full-scope `outputs/solution/ac-full-<slug>.cpp` from
+   `outputs/solution/manifest.md`.
+
+A subtask-scoped AC may generate an example only if that example lies inside its declared
+scope, and the report must say which file was used. If neither source is available — Step 1
+is under a hard stop, or the suite has no validated full-scope AC — **stop**; do not write
+an example test from reasoning.
+
+Run the program on standard input and capture standard output verbatim, e.g.
+
+```powershell
+Get-Content outputs/example-test/test_1.inp | ./sol.exe | Set-Content -Encoding utf8 outputs/example-test/test_1.out
+```
+
+Then check each example before leaving this step:
+
+- `outputs/validator.cpp` accepts every `.inp`;
+- `outputs/checker.cpp` accepts the produced `.out` against itself as the answer;
+- the input's field order and the output's format match `outputs/statement.txt` exactly;
+- the `.out` files are the raw program output — no editing, no reformatting, no trailing
+  commentary.
+
+If the validator rejects an example, the example is wrong or the validator is; fix the
+responsible artifact rather than loosening either one.
+
+Downstream consumers: Step 2b wires these files into `\Examples` via `\exmpfile`, and
+Step 9 uploads them as the statement samples. Both read this directory and neither
+invents sample data of its own. If Step 2b already ran without examples, re-run it after
+this step so the `.tex` gains its `\Examples` block.
 
 ## Step 6 — `outputs/generator-config.md`
 
@@ -404,6 +491,15 @@ If a problem needs another specialized structure, create a focused skill under `
 
 Use the `writing-editorials` skill. The editorial must be written in Vietnamese. Prefer the validated `source/solution.cpp` as the implementation to explain; when the source solution is absent, use a validated full-scope AC solution declared in `outputs/solution/manifest.md`. A subtask-only AC may support that subtask's section but must not be presented as a full solution.
 
+## Step 9 (optional) — upload to Codeforces Polygon
+
+Use the `uploading-to-polygon` skill. Run it only on explicit request, and never
+before Step 8 and the cross-artifact consistency gate below have passed. It
+pushes the finished `outputs/` package to Polygon through the external
+cf-polygon-mcp server and records the problem id in `outputs/polygon.json`; it
+never regenerates or repairs an artifact. A package that fails the gate is fixed
+in its own step, not during upload.
+
 ## Cross-artifact consistency gate
 
 Before finishing, cross-check:
@@ -416,12 +512,17 @@ Before finishing, cross-check:
 - validator read order and accepted domain == statement input semantics;
 - statement bounds == `outputs/generator-config.md` bounds == generator bounds;
 - each `outputs/test-script.txt` option exists in `outputs/gentest.cpp`;
-- each subtask index/constraint agrees across `source/subtask.md`, statement, config, script, and generator;
-- when `outputs/checker.cpp` exists, its semantics == statement output semantics; when it was skipped, the chosen Polygon standard checker matches the statement's unique/deterministic output and tokenization;
+- each subtask index/constraint agrees across `source/problem-context.md`, `outputs/problem.json`, statement, config, script, and generator;
+- `outputs/problem.json` subtask points sum to `polygon.total_points`, and its `format`, limits, and bounds match the statement;
+- `outputs/problem.json` carries a `checker` in one of its two shapes, and it matches reality: on `"custom"`, `outputs/checker.cpp` exists and its semantics == statement output semantics, including tokenization and any floating-point tolerance; on `"stock"`, the named token's comparison == the statement's output format and no `outputs/checker.cpp` is present;
+- the decision is `"custom"` whenever the statement admits more than one correct output;
+- `outputs/statement.txt`'s limits, I/O mode, and problem name agree with `outputs/problem.json`;
 - multi-test format agrees everywhere;
 - `outputs/editorial.html` describes in Vietnamese the algorithm and complexity of the validated `source/solution.cpp` when it exists, otherwise a validated full-scope AC from `outputs/solution/manifest.md`;
 - every generated test can be consumed by every suite source whose declared scope contains that test and by `source/solution.cpp` when the latter exists;
 - every generated test is accepted by `outputs/validator.cpp`, while representative malformed/invalid inputs are rejected;
+- `outputs/example-test/` holds 1-2 `test_<i>.inp`/`test_<i>.out` pairs, each `.inp` is accepted by `outputs/validator.cpp`, each `.out` is the verbatim output of the validated solution named in the report, and both match the statement's input/output format;
+- `outputs/tex-statement.tex`, when it exists, points its `\exmpfile` lines at exactly the files in `outputs/example-test/`;
 - every generated test remains valid regardless of whether a WA/TLE candidate accepts, rejects, times out, or prints a wrong answer.
 
 Compile every `outputs/solution/*.cpp` file as GNU C++17. Compile `outputs/gentest.cpp`, `outputs/validator.cpp`, and `outputs/checker.cpp` when Step 3 produced one, with the same `testlib.h` environment used by Polygon when available.
