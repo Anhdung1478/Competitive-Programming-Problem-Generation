@@ -223,7 +223,8 @@ exactly, and any disagreement with the source-of-truth files is reported rather 
 resolved in the `.tex`. Time and memory limits come from `source/problem-context.md`; if
 they are absent, ask instead of inventing them. `\Examples` is wired to the files in
 `outputs/example-test/` (Step 5b) with `\exmpfile`; if this step runs before Step 5b, omit
-the block and re-run the step once the examples exist. Never author sample data here.
+the block and re-run the step once the examples exist — Step 5b re-runs it for you whenever
+this file already exists. Never author sample data here; the `.tex` points at the files.
 Completion requires a clean compile log and a PDF verified against the statement, not
 merely a zero exit code.
 
@@ -393,10 +394,24 @@ Then check each example before leaving this step:
 If the validator rejects an example, the example is wrong or the validator is; fix the
 responsible artifact rather than loosening either one.
 
-Downstream consumers: Step 2b wires these files into `\Examples` via `\exmpfile`, and
-Step 9 uploads them as the statement samples. Both read this directory and neither
-invents sample data of its own. If Step 2b already ran without examples, re-run it after
-this step so the `.tex` gains its `\Examples` block.
+### Step 5b does not end at the files — refresh `outputs/tex-statement.tex`
+
+**Whenever `outputs/tex-statement.tex` exists, re-run `tex-statement` before leaving this
+step** so the document gains (or refreshes) its `\Examples` block of `\exmpfile` lines
+pointing at exactly the files in `outputs/example-test/`, and recompile. The step is not
+done at an edited `.tex`: it is done at a `.tex` that compiled clean and a PDF whose samples
+were read back. This write-back is not optional and the `light-weight` profile does not
+relax it — a `.tex` that shows different samples from `outputs/example-test/`, or omits
+`\Examples` while the directory exists, fails the cross-artifact gate.
+
+If `outputs/tex-statement.tex` does not exist, do nothing here. Step 2b stays opt-in, and a
+package with no `.tex` is complete.
+
+`outputs/statement.txt` carries no samples in either case — Polygon renders them from the
+uploaded sample tests, so the prose never repeats them.
+
+Step 9 uploads the files in this directory as the Polygon statement samples; it reads this
+directory and invents no sample data of its own.
 
 ## Step 6 — `outputs/generator-config.md`
 
@@ -526,7 +541,7 @@ Before finishing, cross-check:
 - every generated test can be consumed by every suite source whose declared scope contains that test and by `source/solution.cpp` when the latter exists;
 - every generated test is accepted by `outputs/validator.cpp`, while representative malformed/invalid inputs are rejected;
 - `outputs/example-test/` holds 1-2 `test_<i>.inp`/`test_<i>.out` pairs, each `.inp` is accepted by `outputs/validator.cpp`, each `.out` is the verbatim output of the validated solution named in the report, and both match the statement's input/output format;
-- `outputs/tex-statement.tex`, when it exists, points its `\exmpfile` lines at exactly the files in `outputs/example-test/`;
+- `outputs/tex-statement.tex`, when it exists, carries an `\Examples` block with exactly one `\exmpfile` line per `outputs/example-test/` pair, in index order, and it was recompiled after the examples last changed;
 - every generated test remains valid regardless of whether a WA/TLE candidate accepts, rejects, times out, or prints a wrong answer.
 
 Compile every `outputs/solution/*.cpp` file as GNU C++17. Compile `outputs/gentest.cpp`, `outputs/validator.cpp`, and `outputs/checker.cpp` when Step 3 produced one, with the same `testlib.h` environment used by Polygon when available.

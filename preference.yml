@@ -35,6 +35,7 @@ profiles:
       - "Step 0's separation table, and its two blocking findings — the problem is already known, and the ladder collapses or the intended solution is not needed. Both stop for the user in both profiles."
       - "Step 5's input validator: it is written in both profiles, and every generated test must be accepted by it."
       - "Step 5b's example outputs: every outputs/example-test/*.out is the verbatim output of a validated solution, never hand-written, in both profiles."
+      - "Step 5b's write-back: whenever outputs/tex-statement.tex exists, the examples always land in its \\Examples block and the document is recompiled, in both profiles."
 
     overrides:
       step0_shaping:
@@ -55,7 +56,7 @@ profiles:
         - "Still write the validator in full — it defines the legal input domain the later steps must respect. The invalid-mutation rejection sweep may be reduced to a few spot checks (one bound violation, one malformed layout) instead of covering every mutation class."
 
       step5b_example_tests:
-        - "Write exactly one example test (test_1.inp/.out) instead of weighing whether a second earns its place. Its .out is still produced by running the validated solution, and it is still accepted by the validator — neither is relaxed."
+        - "Write exactly one example test (test_1.inp/.out) instead of weighing whether a second earns its place. Its .out is still produced by running the validated solution, it is still accepted by the validator, and outputs/tex-statement.tex is still refreshed when it exists — none of the three is relaxed."
 
       step6_generator_config:
         - "Record input schema, bounds, and 3-5 generation profiles (small, large/near-limit, edge case). Omit the solution-kill matrix when there are no WA/TLE candidates to kill."

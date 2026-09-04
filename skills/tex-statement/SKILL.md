@@ -129,6 +129,7 @@ sections onto the template's commands:
 | `\textbf{Output}` | `\OutputFile` |
 | the `Ràng buộc:` itemize | `\Constraints` — hoisted out of the input section |
 | `\textbf{Subtask}` itemize | the `subtasks` environment (it emits its own "Chấm điểm" heading) |
+| (no counterpart — `statement.txt` carries no samples) | `\Examples` — one `\exmpfile` per pair in `outputs/example-test/`, never inline data |
 
 **The target order is not the source order.** Emit the sections as
 
@@ -191,6 +192,11 @@ examples by running the validated solution; your job is to point at them.
 
   Confirm every referenced file exists before compiling — a `\exmpfile` pointing at a
   missing file does not compile, and that forfeits the whole verification pass below.
+
+  There must be exactly one `\exmpfile` line per pair in the directory, in index order —
+  `\Examples` covers every example or the document is wrong. Whenever the examples change,
+  this block is refreshed and the document recompiled; workflow Step 5b re-runs this skill
+  for exactly that reason.
 
 - **It does not exist** (this skill was run before Step 5b, or standalone on a repository
   that has no examples yet) — leave `\Examples` out entirely and say so in your report,
