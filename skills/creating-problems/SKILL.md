@@ -224,7 +224,7 @@ the block and re-run the step once the examples exist. Never author sample data 
 Completion requires a clean compile log and a PDF verified against the statement, not
 merely a zero exit code.
 
-## Step 3 — `outputs/checker.cpp`
+## Step 3 — the checker decision (`outputs/checker.cpp` when custom)
 
 Use the `polygon-checker` skill. This step is mandatory, but its deliverable is the
 **decision**, not necessarily a file.
@@ -382,7 +382,7 @@ Get-Content outputs/example-test/test_1.inp | ./sol.exe | Set-Content -Encoding 
 Then check each example before leaving this step:
 
 - `outputs/validator.cpp` accepts every `.inp`;
-- `outputs/checker.cpp` accepts the produced `.out` against itself as the answer;
+- the checker accepts the produced `.out` against itself as the answer — `outputs/checker.cpp` on the custom branch, the named `std::` token's comparison on the stock branch;
 - the input's field order and the output's format match `outputs/statement.txt` exactly;
 - the `.out` files are the raw program output — no editing, no reformatting, no trailing
   commentary.

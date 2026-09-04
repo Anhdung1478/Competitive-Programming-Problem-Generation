@@ -1,6 +1,6 @@
 ---
 name: polygon-checker
-description: Create or review outputs/checker.cpp for Codeforces Polygon using testlib.h, including deterministic, constructive, optimization, and special-output checkers.
+description: Decide a Codeforces Polygon problem's checker and record it in outputs/problem.json — a std:: standard checker when the output is unique and one compares it exactly, otherwise outputs/checker.cpp written with testlib.h for deterministic, constructive, optimization, and special-output cases.
 ---
 
 # Write the checker

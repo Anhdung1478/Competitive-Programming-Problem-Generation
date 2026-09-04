@@ -4,7 +4,8 @@ description: >
   Upload a finished outputs/ package to Codeforces Polygon through the external
   cf-polygon-mcp server — create the problem (or report that it already exists),
   push the Vietnamese statement with its Scoring section, upload validator.cpp,
-  gentest.cpp, checker.cpp and every solution tagged with its intended verdict,
+  gentest.cpp, the checker named by problem.json (a std:: token or checker.cpp),
+  and every solution tagged with its intended verdict,
   set time/memory limits, upload samples, load test-script.txt, wire subtasks
   and per-test points, commit without email, build the package, and hand over
   the manual "grant codeforces READ" step. Triggers on upload this problem to
