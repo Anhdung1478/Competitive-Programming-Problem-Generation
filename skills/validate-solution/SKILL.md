@@ -1,6 +1,6 @@
 ---
 name: validate-solution
-description: Validate solution.cpp against problem-context.md and subtask.md before any Polygon artifacts are generated. Use as workflow step B1 or whenever the official solution, constraints, input semantics, complexity, overflow, or correctness must be audited. A failure is a hard stop for downstream generation.
+description: Validate solution.cpp against problem-context.md (which carries the constraints and the subtask ladder) before any Polygon artifacts are generated. Use as workflow step B1 or whenever the official solution, constraints, input semantics, complexity, overflow, or correctness must be audited. A failure is a hard stop for downstream generation.
 ---
 
 # Validate the official solution
@@ -9,9 +9,8 @@ description: Validate solution.cpp against problem-context.md and subtask.md bef
 
 Read:
 
-1. `problem-context.md` — required.
-2. `subtask.md` — when present.
-3. `solution.cpp` — when present.
+1. `problem-context.md` — required. It carries the constraints and the subtask limits/scoring; there is no separate `subtask.md`.
+2. `solution.cpp` — when present.
 
 Never edit these files during validation unless the user separately asks for a fix, except for the local-I/O normalization below.
 

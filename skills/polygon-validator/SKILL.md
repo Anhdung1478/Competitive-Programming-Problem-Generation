@@ -7,10 +7,9 @@ description: Create or review outputs/validator.cpp for a Codeforces Polygon pro
 
 Read, in order:
 
-1. `source/problem-context.md`;
-2. `source/subtask.md` when present;
-3. `outputs/statement.txt`;
-4. `outputs/generator-config.md`, `outputs/test-script.txt`, and `outputs/gentest.cpp` — only when they already exist. In the standard workflow the validator is Step 5 and those are Step 6-7 artifacts, so on a first pass the statement and the source-of-truth files are the whole input.
+1. `source/problem-context.md` — including its constraints and subtask ladder;
+2. `outputs/statement.txt`;
+3. `outputs/generator-config.md`, `outputs/test-script.txt`, and `outputs/gentest.cpp` — only when they already exist. In the standard workflow the validator is Step 5 and those are Step 6-7 artifacts, so on a first pass the statement and the source-of-truth files are the whole input.
 
 If these files disagree on input order, bounds, test-case structure, or invariants, stop and report the mismatch. Source-of-truth files win.
 

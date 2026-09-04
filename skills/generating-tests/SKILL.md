@@ -14,13 +14,12 @@ Write the script first, then the generator, then validate them together.
 
 Read, in order:
 
-1. `source/problem-context.md`;
-2. `source/subtask.md` when present;
-3. `outputs/statement.txt`;
-4. `outputs/solution/manifest.md` and referenced suite sources when present;
-5. `outputs/generator-config.md` — required and authoritative for profile/option design;
-6. `outputs/validator.cpp` — the legal input domain every generated test must satisfy;
-7. `source/solution.cpp` when present.
+1. `source/problem-context.md` — including its constraints and subtask ladder;
+2. `outputs/statement.txt`;
+3. `outputs/solution/manifest.md` and referenced suite sources when present;
+4. `outputs/generator-config.md` — required and authoritative for profile/option design;
+5. `outputs/validator.cpp` — the legal input domain every generated test must satisfy;
+6. `source/solution.cpp` when present.
 
 If these artifacts disagree materially, stop and report the mismatch instead of choosing
 one silently. If the config omits a profile, parameter, subtask rule, or WA/TLE target
