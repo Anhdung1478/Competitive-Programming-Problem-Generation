@@ -237,9 +237,15 @@
       margin: 1.5rem 0;
       padding: 0.95rem 1.05rem;
       border: 1px solid var(--border);
+      border-left: 3px solid var(--warning-text);
       background: var(--surface-muted);
-      white-space: pre-wrap;
     }
+
+    .complexity .card-label { color: var(--warning-text); }
+
+    .complexity p { margin: 0.35rem 0 0; }
+
+    .complexity .muted { color: var(--text-muted); }
 
     .fun {
       margin: 1.5rem 0;
@@ -354,9 +360,9 @@
     <h1><!-- PROBLEM_NAME --></h1>
 
     <dl class="meta">
-      <dt>Giới hạn thời gian</dt>
+      <dt>Time limit</dt>
       <dd><!-- TIME_LIMIT e.g. 2 s --></dd>
-      <dt>Giới hạn bộ nhớ</dt>
+      <dt>Memory limit</dt>
       <dd><!-- MEMORY_LIMIT e.g. 256 MB --></dd>
       <dt>Expected rating</dt>
       <dd><!-- EXPECTED_RATING e.g. 2100 — no leading * --></dd>
@@ -389,9 +395,13 @@
 
     <section id="complexity">
       <h2>Độ phức tạp</h2>
-      <pre class="complexity">Thời gian: O(…)
-Bộ nhớ: O(…)</pre>
-      <!-- Drop query/update lines when they do not apply. -->
+      <div class="complexity">
+        <p class="card-label">Độ phức tạp</p>
+        <p>Thời gian: \(O(\ldots)\) <span class="muted">non-amortized</span></p>
+        <p>Bộ nhớ: \(O(\ldots)\)</p>
+      </div>
+      <!-- Never <pre class="complexity">: KaTeX does not render inside <pre>.
+           Drop query/update lines when they do not apply. -->
     </section>
 
     <!-- Optional other approaches. Delete the whole section if none.

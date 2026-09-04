@@ -1,11 +1,11 @@
 ---
 name: writing-editorials
-description: Write or review outputs/editorial.html as a standalone Vietnamese HTML editorial for a competitive-programming problem. Use for workflow Step 8 or whenever Codex must create, revise, or audit a Vietnamese editorial, solution writeup, tutorial HTML, editorial page, or outputs/editorial.html. Use the supplied space-dark or polygon-light theme and prioritize a validated source/solution.cpp over the Step 4 solution suite.
+description: Write or review outputs/editorial.html as a standalone Vietnamese HTML editorial for a competitive-programming problem. Use for workflow Step 8 or whenever the agent must create, revise, or audit a Vietnamese editorial, solution writeup, tutorial HTML, editorial page, or outputs/editorial.html. Use the supplied space-dark, polygon-light, or fb-light theme and prioritize a validated source/solution.cpp over the Step 4 solution suite.
 ---
 
 # Write Vietnamese editorials
 
-Create one standalone, scrollable HTML page at `outputs/editorial.html`. Do not create slides, a Markdown-only explanation, or a second solution source file. Do not spawn subagents.
+Create one standalone, scrollable HTML page at `outputs/editorial.html`. Do not create slides, a Markdown-only explanation, or a contest-wide page collecting several problems. Do not spawn subagents. Write a companion source file only under the opt-in rule in `Companion implementation`.
 
 An editorial is a **derivation, not a summary**. The goal is not a short page; the goal is that a strong contestant can follow the reasoning, reconstruct the algorithm, and implement it without guessing a missing step. It should read like a contestant explaining a solution they found themselves, not like a solution translated into Vietnamese after the fact.
 
@@ -13,12 +13,11 @@ An editorial is a **derivation, not a summary**. The goal is not a short page; t
 
 Read all available source-of-truth files before writing:
 
-1. `source/problem-context.md`;
-2. `source/subtask.md` when present;
-3. `source/solution.cpp` when present;
-4. `outputs/solution/manifest.md` and the AC sources it references when present;
-5. `outputs/statement.txt`, `outputs/checker.cpp`, and `outputs/validator.cpp` when present;
-6. the current `outputs/editorial.html` when reviewing or updating it.
+1. `source/problem-context.md` — including its constraints and subtask ladder;
+2. `source/solution.cpp` when present;
+3. `outputs/solution/manifest.md` and the AC sources it references when present;
+4. `outputs/statement.txt`, `outputs/checker.cpp`, and `outputs/validator.cpp` when present;
+5. the current `outputs/editorial.html` when reviewing or updating it.
 
 Require all prerequisite workflow gates to have completed successfully. Select the implementation to explain in this order:
 
@@ -29,7 +28,30 @@ When the source solution and suite ACs exist and are valid, prioritize the algor
 
 Compare the validated source solution with every validated full-scope AC in `outputs/solution/manifest.md`. If a suite AC is materially better in asymptotic complexity, memory, robustness, or implementation simplicity, keep the required source-solution explanation as the main editorial, then add a brief `Lời giải tốt hơn` section near the bottom. State the improved idea, its complexity, and why it improves on the main approach. Do not add this section for cosmetic differences or equal-quality reformulations. Never promote an unvalidated candidate.
 
-Take the problem name and mathematical semantics from the source-of-truth files. Use the final statement to confirm contestant-facing notation. Never infer time limits, memory limits, subtasks, points, samples, or constraints that are not provided. Omit unavailable metadata rows. If `source/subtask.md` is absent, do not invent subtasks.
+Take the problem name and mathematical semantics from the source-of-truth files. Use the final statement to confirm contestant-facing notation. Never infer time limits, memory limits, subtasks, points, samples, or constraints that are not provided. Omit unavailable metadata rows. If `source/problem-context.md` states no subtasks, do not invent them.
+
+### Cross-check the restatement before deriving anything
+
+The restatement is load-bearing: every paragraph of the derivation is built on top of it, so a restatement error silently invalidates the whole page. Check it against `source/problem-context.md` and `outputs/statement.txt` before writing prose, and re-check it when reviewing an existing editorial. The failures that actually happen:
+
+- **Subtask points and bounds.** Copy the split and the per-rung bounds from `source/problem-context.md`; do not assume an even distribution or reuse a split from another problem.
+- **Output format.** A grid of characters is not one character per line; a single number is not a list. Confirm against `outputs/checker.cpp` when it exists.
+- **Problem-defining guarantees.** Acyclic versus cyclic, directed versus undirected, self-loops and parallel edges allowed or not, connectivity guaranteed or not, values distinct or not. A guarantee missed here produces whole paragraphs handling a case the problem excludes.
+- **The exact object being optimized or counted.** Getting the quantity subtly wrong — a cost over pairs of the input rather than pairs of the structure, a maximum where the problem asks for a count — reverses the derivation that follows.
+
+When a mismatch is found, fix the restatement first, then re-derive every part of the solution that leaned on the wrong claim. Do not patch the restatement and leave the derivation as it was.
+
+## Calibrate to the reader
+
+Ask who still needs this editorial, and set skip depth to that reader. Length is not difficulty: a longer writeup does not make a harder problem, and a hard problem does not license a five-page essay.
+
+| Kind of problem | Assume they know | Still explain |
+|---|---|---|
+| Classical or first-technique (range sum, an introductory DSU-on-tree) | almost nothing about that technique | the structure itself in a few sentences, then the problem |
+| Around 1400–1900 | the usual technique names | a one-line reminder only when the twist is unusual |
+| 2000+, or the last rung of an OI problem | segment tree, BIT, DSU, binary lifting, standard DP | only the problem-specific twist |
+
+This sets how much to assume. The sections below set what to explain; the two are independent, and compact and complete are not opposites. Proofs follow the same calibration: an easy or immediate step folds into the claim that uses it, a non-obvious or counter-intuitive one gets a real proof with real mathematics.
 
 ## Build the derivation before writing prose
 
@@ -79,7 +101,9 @@ transition derivation is main content and stays even when it is long.
 
 ## Write in Vietnamese
 
-Write every reader-facing sentence and page label in Vietnamese, except that the rating field must be labeled exactly `Expected rating`. Keep algorithm, technique, and data-structure names in their canonical English form, including `segment tree`, `convex hull trick`, `binary search`, `divide and conquer`, `CDQ`, `BFS`, `DFS`, `DSU`, and `LCA`. Explain their problem-specific role in Vietnamese; do not add general tutorials for standard techniques.
+Write every reader-facing sentence and page label in Vietnamese, except the three header metadata rows, which are labeled exactly `Time limit`, `Memory limit`, and `Expected rating`. Keep algorithm, technique, and data-structure names in their canonical English form, including `segment tree`, `convex hull trick`, `binary search`, `divide and conquer`, `CDQ`, `BFS`, `DFS`, `DSU`, and `LCA`. Explain their problem-specific role in Vietnamese; do not add general tutorials for standard techniques.
+
+Read [`references/vi-glossary.md`](references/vi-glossary.md) before writing. It fixes the page chrome labels, the terms that stay English, the statement label order, and the canonical Vietnamese gloss for graph, tree, game, and combinatorics vocabulary. Follow it rather than translating word for word. If the user corrects a term, update the glossary in the same turn instead of only patching the HTML.
 
 Preserve input identifiers exactly as defined by the statement, including capitalization. Keep newly introduced notation consistent. Use KaTeX notation `\(...\)` and `\[...\]`; escape user-facing `<` and `&` in HTML.
 
@@ -101,6 +125,16 @@ Better:
 
 > Vì các đỉnh trong cùng một component luôn phải được xử lý cùng nhau, ta có thể gộp mỗi component thành một đơn vị, và DSU làm được việc này. Sau khi xét hết các cạnh, mỗi tập của DSU tương ứng đúng một component, nên từ đây ta chỉ làm việc trên các component thay vì từng đỉnh.
 
+### Question-then-answer bridges
+
+At the widest seams of the derivation, voice the reader's own question at the moment it arises and answer it immediately. The question marks the seam; the answer carries the reasoning across it.
+
+> Làm sao đếm được số cách xây mà không phải thử mọi tổ hợp đầu-cuối? Hãy đọc các thao tác theo chiều ngược của thời gian.
+
+> Viết lại như vậy có ích gì? Chi phí bây giờ không còn phụ thuộc vào xâu ban đầu nữa.
+
+Ask only what the reader is genuinely wondering at that point, and answer in the very next clause or sentence. Never leave a question hanging and never ask one for effect. One or two per editorial, at the biggest jumps, is typical; more turns the page into an interrogation. This device is the exception to the ban on meta-narration below, and it is the only one.
+
 ### Avoid AI writing signals
 
 - Do not use `—` as a default clause connector; prefer commas, periods, or parentheses.
@@ -113,12 +147,22 @@ Better:
 
 ## Choose and apply one theme
 
-Use a theme explicitly requested by the user. Otherwise use `space-dark`.
+`space-dark` is the default. The other themes are opt-in: use one only when the user names it.
 
-- `space-dark`: dark JetBrains Mono page.
-- `polygon-light`: light, statement-like page.
+| id | Look |
+|---|---|
+| `space-dark` | Dark JetBrains Mono page. Terminal prefixes on the headings. The default. |
+| `polygon-light` | Light serif page with a navy title bar and statement-like chrome. |
+| `fb-light` | Light feed layout: white panels on a gray canvas, rounded corners, all-monospace type, accent-colored `>` and `[+]` heading prefixes. |
 
-Copy the complete selected template from `references/themes/<id>.html` to `outputs/editorial.html`, then replace its marked slots and placeholder sections. Preserve that template's CSS, chrome, width, badges, square panels, and print stylesheet verbatim. Do not mix theme tokens, add a theme toggle, or depend on adjacent files. CDN fonts and KaTeX from the template are allowed.
+Copy the complete selected template from `references/themes/<id>.html` to `outputs/editorial.html`, then replace its marked slots and placeholder sections. Preserve that template's CSS, chrome, width, badges, panels, print stylesheet, and any trailing script verbatim. Do not mix theme tokens, add a theme toggle, or depend on adjacent files. CDN fonts and KaTeX from the template are allowed.
+
+`fb-light` carries two behaviors that constrain how the body is written:
+
+- **A collapsible title.** Put `<div class="pt-body">` immediately after `<h1 class="problem-title">` and wrap the metadata block, the tags, and every section inside it, closing it just before the footer. Without that wrapper the title has nothing to collapse. Copy the trailing toggler script verbatim; its print stylesheet forces collapsed content open so a closed page still prints in full.
+- **Paragraph guide dots.** Every top-level prose paragraph directly inside a section gets a faint dot in the left gutter, so the reader can see which reasoning step they have reached. Write one reasoning step per `<p>`.
+
+State the complexity in the theme's `.complexity` div with KaTeX inside. Never use `<pre class="complexity">`: KaTeX does not render inside `<pre>`.
 
 If the user asks for a new visual style, add a separate theme template instead of modifying an existing theme's design tokens.
 
@@ -129,7 +173,7 @@ If the user asks for a new visual style, add a separate theme template instead o
 Include:
 
 - the problem name;
-- time and memory limits only when authoritative values exist;
+- `Time limit` and `Memory limit` rows, only when authoritative values exist;
 - an `Expected rating` field containing a Codeforces-style rating as a plain number when it can be responsibly estimated;
 - concise Codeforces-style tags inferred from the validated algorithm.
 
@@ -139,7 +183,9 @@ Do not block completion merely to ask for an estimated difficulty or tags. Clear
 
 Restate the mathematical task in normal Vietnamese, without the story. Keep all rules that affect correctness, followed by the authoritative constraints. Highlight two to five load-bearing facts with `<mark>` when useful, such as an operation being mandatory, strict inequalities, tie-breaking, or unusual output semantics.
 
-When subtasks exist, list the global constraints and every subtask with its bounds and points. Otherwise list only the constraints; do not announce that there are no subtasks and do not name the contest format.
+Order the section as restatement → `Yêu cầu` → `Giới hạn` → `Subtask`. `Yêu cầu` states what to compute or print and is the last line of the restatement, immediately above `Giới hạn`; it never comes after the subtask list.
+
+When subtasks exist, list the global constraints and every subtask with its bounds and points. Name them `Subtask 1`, `Subtask 2`, … in the visible text, never \(g_1\) or `g1`; an HTML `id` may stay `g1`. Otherwise list only the constraints; do not announce that there are no subtasks and do not name the contest format.
 
 ### Lời giải
 
@@ -161,7 +207,19 @@ Derive transitions rather than announcing them: which choices exist, what each c
 
 Do not create an algorithm box, paste code, or add pseudocode. Displayed formulas, recurrences, diagrams, inline SVG, and short ASCII illustrations are allowed when they materially clarify the argument.
 
-A card must contain a claim the reader needs later. Fold easy algebra and immediate special cases into the observation that uses them. Remove tautologies and decorative cards. Prefer a few substantial cards over many fragments, and do not turn every small idea into its own heading.
+#### What earns a card
+
+A card interrupts the prose, so it must earn the interruption. Reserve it for a claim the whole solution rests on and the reader must carry forward — the one that, removed, breaks the derivation. Routine steps stay in the flow as prose: small algebra, an immediate special case, a state that is obviously sufficient, a fact the previous sentence already implies. When in doubt, no card.
+
+Pivotal claims come in recognizable shapes. Test the shape before boxing:
+
+- **The problem-closing step**: the formula that turns the last piece of reasoning into the DP or into the answer. It is the hardest thing on the page to see and the last piece of the puzzle.
+- **A representation rewrite that strips the input's influence**: a cost rewritten as a sum over pairs of symbols no longer depends on the input object at all. State the payoff next to the formula.
+- **A transformation that opens the solution**: reading the operations backwards in time, filling a table inside out, exchanging the roles of index and value.
+
+A typical editorial uses zero or one card, occasionally two when the pivots are genuinely distinct. They must never form a ladder. If you find yourself writing `Nhận xét 1`, `Nhận xét 2`, `Nhận xét 3` for routine steps, move them back into the prose; number cards only when several genuinely build on each other. Some problems read perfectly well with no card at all — do not invent one to look complete, and do not create a `Bổ đề` that does not exist. If a lemma *is* the problem, keep its proof in full and drop the surrounding cards instead.
+
+Remove tautologies and decorative cards. If removing a card would not change the next step, remove it. Prefer a few substantial cards over many fragments, and do not turn every small idea into its own heading.
 
 ### Tính đúng đắn
 
@@ -189,6 +247,18 @@ Add `Cách giải khác` only for a genuinely different correct approach or a me
 
 Explain implementation details only where they are not obvious from the algorithm: why a particular data structure, how indices are represented, how lazy propagation is encoded, how the state is initialized, why `long long` is required, why an operation order matters. Do not walk through the code line by line; the reader should be able to write the implementation from the editorial alone.
 
+## Companion implementation
+
+Write `outputs/solution.cpp` only when the user explicitly asks for code that matches the editorial. It is never produced by default and is not part of Step 8.
+
+- **Mirror the editorial, not the source solution.** Implement exactly the algorithm the page derives. Where the explained algorithm and `source/solution.cpp` deliberately differ, follow the editorial; a reader who implements the page must get this file.
+- **Comments say what is happening, not why it is correct.** The role of each array, which step of the derivation a block performs, what a formula's terms mean in code. The reasoning and the proofs stay on the page. Add a why-comment only when it fits in one short clause, and never comment trivial code such as input reading, output loops, or a plain `sort`.
+- Keep it self-contained GNU C++17, and follow the repository's C++ I/O convention: `cin`/`cout` with `ios_base::sync_with_stdio(false); cin.tie(nullptr);`, never `scanf`/`printf`.
+- Accumulate modular sums in `long long` before applying `%` when two reduced values can sum past `INT_MAX`.
+- **Verify against the whole test set, not just the samples.** Run every generated input and diff against the expected answers. A sample-only check stays clean while a size or format defect hides in the large tests.
+
+This file does not replace anything in `outputs/solution/`, and it is never used as the validated implementation the editorial explains.
+
 ## Handle subtasks
 
 Always report authoritative subtask bounds and points in the problem summary, but do not force a solution section for every subtask. Treat subtasks as constraint metadata, not as proof that distinct intended solutions exist.
@@ -212,7 +282,10 @@ Verify all of the following:
 - the explained algorithm, variables, edge cases, and complexity match the selected implementation;
 - `source/solution.cpp` is selected whenever it exists and passed Step 1; otherwise a validated full-scope AC from `outputs/solution/manifest.md` is selected;
 - when a validated full-scope AC is materially better than the selected source solution, a brief bottom section introduces that improvement and gives its correct complexity;
-- the restatement and constraints match the source-of-truth files;
+- the restatement and constraints match the source-of-truth files, including subtask points and bounds, output format, problem-defining guarantees, and the exact quantity being optimized or counted;
+- the statement section runs restatement → `Yêu cầu` → `Giới hạn` → `Subtask`, and the wording follows `references/vi-glossary.md`;
+- the complexity is a `.complexity` div with KaTeX inside, never `<pre class="complexity">`;
+- cards are limited to pivotal claims: no `Nhận xét 1/2/3` ladder over routine steps, no invented `Bổ đề`;
 - the checker semantics and described output semantics agree;
 - the validator's accepted input semantics and described input semantics agree;
 - every non-obvious step needed for correctness has a proof;
@@ -223,5 +296,6 @@ Verify all of the following:
 - no AI-slop signals remain: stray `—`, fake contrasts, `mấu chốt`/`insight` filler, meta-narration, synonym cycling, excessive headings or bullets, generic closing paragraph;
 - every subtask solution section contributes a distinct useful approach; no section merely restates a full solution that already handles later subtasks;
 - no wrong-answer implementation, generator behavior, or setter-only note leaks into the tutorial;
-- only one supplied theme is used and its CSS/chrome remain intact;
+- only one supplied theme is used and its CSS, chrome, and trailing script remain intact; on `fb-light`, `<div class="pt-body">` wraps the whole body and each `<p>` carries one reasoning step;
+- when the user asked for a companion implementation, `outputs/solution.cpp` mirrors the editorial's algorithm, compiles, and passes the full test set;
 - no subtask, limit, rating, sample, or alternative solution is presented as authoritative without support.
