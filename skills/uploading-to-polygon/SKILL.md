@@ -2,7 +2,9 @@
 name: uploading-to-polygon
 description: >
   Upload a finished outputs/ package to Codeforces Polygon through the external
-  cf-polygon-mcp server — create the problem (or report that it already exists),
+  cf-polygon-mcp server — take the Polygon problem name from
+  source/problem-context.md (ask when it states none), create the problem or,
+  when that name exists, ask whether to update it or make a copy,
   push the Vietnamese statement with its Scoring section, upload validator.cpp,
   gentest.cpp, the checker named by problem.json (a std:: token or checker.cpp),
   and every solution tagged with its intended verdict,
@@ -10,8 +12,8 @@ description: >
   and per-test points, commit without email, build the package, and hand over
   the manual "grant codeforces READ" step. Triggers on upload this problem to
   polygon, upload to codeforces, push to polygon, đẩy lên polygon, take it to
-  polygon, sync to polygon. Runs after `creating-problems` Step 8 and its
-  cross-artifact consistency gate.
+  polygon, sync to polygon. Runs after `creating-problems` Step 7 and its
+  cross-artifact consistency gate; the opt-in Step 8 editorial is not required.
 ---
 
 # Uploading to Polygon
@@ -44,10 +46,11 @@ Use `yagni-principles` here too: upload what the package contains, nothing more.
 PROBLEM = working repository root (the one with source/ and outputs/)
 ```
 
-Source of truth, in this order: `source/problem-context.md` (constraints and subtask
-scoring included), `outputs/problem.json` (limits, I/O mode, `format`, the checker
+Source of truth, in this order: `source/problem-context.md` (constraints, subtask
+scoring, **and the Polygon problem name**), `outputs/problem.json` (limits, I/O mode, `format`, the checker
 decision, subtask points), `outputs/statement.txt`, `outputs/solution/manifest.md`. **Never invent a number
-the package does not state** — no time limit, no memory limit, no subtask points.
+the package does not state** — no time limit, no memory limit, no subtask points —
+and never invent the Polygon problem name.
 
 **Precondition — the package is finished.** These must exist and be current:
 
@@ -95,7 +98,7 @@ is a stop-and-look, not a shrug.
 
 ```
   0 preflight            [block until answered]
-  1 create in Polygon    [gate: id recorded, block]
+  1 create or update     [gate: id recorded, block]
   2 limits
   3 statement (type english, content in Vietnamese)
   4 checker + validator + generator + solutions
@@ -104,8 +107,12 @@ is a stop-and-look, not a shrug.
   7 grant codeforces READ  [manual, owner only]
 ```
 
-Phase 1 is the one blocking gate: the problem must **exist** on Polygon and its
-id must be recorded before any other phase runs.
+Two gates block. Phase 0 needs the **Polygon problem name**, and it comes from
+`source/problem-context.md`; when that file states none, ask the user and do
+nothing else until they answer. Phase 1 then needs the problem to **exist** on
+Polygon with its id recorded before any other phase runs — and when a problem
+with that name already exists, the user decides whether to update it or create a
+copy.
 
 ---
 
@@ -115,45 +122,80 @@ id must be recorded before any other phase runs.
    `outputs/problem.json` loads, and its `checker` is one of the two shapes —
    `{ "kind": "stock", "name": "<token>" }` or `{ "kind": "custom", "file": "checker.cpp" }`.
 2. The MCP server is connected and its tools resolve.
-3. **Polygon name.** The package has no slug field. Derive a candidate from the
-   working directory name (lowercase ASCII, digits and hyphens only) and
-   **confirm it with the user** before creating anything. The statement's
-   Vietnamese title (`\textbf{Tên bài:}`) is a separate thing — it becomes the
-   statement `name` in Phase 3, not the Polygon slug.
+3. **Polygon problem name (blocking).** It comes from
+   `source/problem-context.md` — the field that names the Polygon problem
+   (`problem_id`, `Polygon name`, or the same idea under another label). Read it
+   there and use it verbatim.
+
+   - **It is stated** → that is the name. Do not rewrite it, do not "normalize"
+     it, do not prefer a directory name over it.
+   - **It is not stated** → **ask the user for it and stop until they answer.**
+     No other preflight step, no `get_problems`, no file upload, nothing runs
+     first. Never derive a slug from the working directory name, the statement
+     title, or the editorial as a substitute for asking.
+
+   Do not write the answer back into `source/problem-context.md`; that file is a
+   source-of-truth the sibling skills own. Record it in `outputs/polygon.json`
+   in Phase 1 instead, and report that `problem-context.md` is missing the field
+   so the author can add it.
+
+   The statement's Vietnamese title (`\textbf{Tên bài:}`) is a separate thing —
+   it becomes the statement `name` in Phase 3, not the Polygon problem name.
 4. **Limits.** Read the time and memory limit from `source/problem-context.md`;
    when it states none, read `limits.time_ms_published` and `limits.memory_mb`
    from `outputs/problem.json`. If neither has them, ask. A limit that Step 0
    proposed and Step 4 never measured is an assumption — confirm it with the
    user before publishing it.
 5. **Already uploaded?** If `outputs/polygon.json` exists, this package already
-   has a Polygon id. Ask: re-sync that same problem (update info, statement,
-   files, solutions, tests, commit again) or stop. Never silently create a
-   second problem.
+   has a Polygon id. Take that as an existing problem and put the Phase 1
+   question to the user — update that problem, or create a copy — rather than
+   assuming either. Never silently create a second problem, and never silently
+   overwrite one.
 6. **Samples.** Read `outputs/example-test/` — workflow Step 5b produced the
    `test_<i>.inp`/`test_<i>.out` pairs, and those are the samples. Upload them
    as-is; do not re-derive answers or substitute inputs of your own. If the
    directory is missing or an `.out` is absent, the package is unfinished: stop
    and send it back to Step 5b rather than picking samples here.
-7. State the bindings, the confirmed slug and the limits in the first status
-   update.
+7. State the bindings, the problem name **and where it came from**
+   (`problem-context.md` or the user's answer), and the limits in the first
+   status update.
 
 ---
 
-### 1. Create in Polygon (gate, block)
+### 1. Create or update in Polygon (gate, block)
+
+The `problem_id` every later call takes is the **numeric Polygon id**, and only
+Polygon issues it: `create_problem` returns it in `result.id`, `get_problems`
+reports it for a problem that already exists. The name from Phase 0 is what you
+look the problem up by — it is not the `problem_id`.
 
 Prefer **MCP** `get_problems` / `create_problem`. Raw HTTP
 `problem.createProblem` / `problem.list` can 404 or time out while MCP still
 works — do not call the API "down" until MCP also fails.
 
-1. `get_problems(name=<slug>)`.
-   - A non-deleted problem with that name exists → **stop** and tell the user:
-     *the Polygon problem already exists with id `<id>`*. Never create a
-     duplicate, never guess a new slug on your own.
-2. Otherwise `create_problem(name=<slug>)`.
+1. `get_problems(name=<name from Phase 0>)`.
+2. **A non-deleted problem with that name exists → ask the user, and wait.**
+   Report the id and owner you found, then put exactly two choices:
+
+   - **Update the existing problem** — re-sync this package onto id `<id>`:
+     info, statement, files, solutions, tests, commit again. Every later phase
+     overwrites what is there, so say so before they choose.
+   - **Create a copy** — a *new* Polygon problem. Polygon names are unique, so
+     ask the user for the new name too; never coin a variant like
+     `<name>-2`, `<name>-v2` or `<name>-copy` yourself. Then
+     `create_problem(name=<new name>)`. The copy is built from this package by
+     the phases below — this skill does not clone the old problem's revisions.
+
+   Do not pick for them, do not default to update because it is cheaper, and do
+   not default to copy because it is safer. No phase runs until they answer.
+3. No problem with that name → `create_problem(name=<name>)`.
    - `status: success` → `result.id` (and `result.owner`) is your id.
-   - `status: error` saying the name exists → same stop as above.
+   - `status: error` saying the name exists → the lookup missed it; go back to
+     step 2 and ask.
    - Any other `status: error` → report and stop.
-3. **Record the id** in `outputs/polygon.json` — the only file this skill writes:
+4. **Record the id** in `outputs/polygon.json` — the only file this skill writes.
+   On *update*, the file must already agree with the id you resolved; if it names
+   a different id, stop and ask rather than rewriting it:
 
 ```json
 { "id": 123456, "owner": "nudetiger", "name": "sum-of-paths" }
@@ -461,6 +503,10 @@ as the user confirms each phase.
 
 ## Done
 
+- [ ] The Polygon problem name came from `source/problem-context.md`, or from
+      the user when that file states none — never from a directory name
+- [ ] When that name already existed on Polygon, the user chose update or copy,
+      and the choice is stated in the report
 - [ ] `outputs/polygon.json` records `id`, `owner`, `name`
 - [ ] Limits match `source/problem-context.md`, else `outputs/problem.json`
       (TL, ML, I/O names); no unconfirmed provisional limit published

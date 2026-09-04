@@ -65,6 +65,7 @@ profiles:
         - "Generator: skip adversarial profiles that exist only to kill WA/TLE candidates from the solution-kill matrix, since light-weight does not generate those candidates. Structural invariants and subtask-scope enforcement still apply in full. Running the validator over every generated test is never relaxed."
 
       step8_editorial:
+        - "Step 8 is opt-in in both profiles, so this applies only when the user asks for the editorial."
         - "A concise editorial covering the algorithm, complexity, and one worked example is sufficient. Full proof-level derivation of every step is optional."
 
       cross_artifact_gate:

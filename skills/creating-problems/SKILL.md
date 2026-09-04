@@ -4,7 +4,7 @@ description: >
   Prepare a competitive-programming problem end to end — an idea and an
   intended solution to a Codeforces Polygon package: statement, checker,
   solution suite, input validator, generator config, test script, generator,
-  Vietnamese editorial. Triggers on create a problem, prepare a
+  and an opt-in Vietnamese editorial. Triggers on create a problem, prepare a
   problem, set a problem, chuẩn bị đề, sinh test, generate tests, take this
   idea to a Polygon package, run the workflow, execute the problem-preparation
   workflow. Umbrella over validate-solution, polygon-statement,
@@ -56,17 +56,20 @@ Execute these workflow steps in this exact order:
 5. create `outputs/validator.cpp`;
    - then Step 5b: create the statement's example tests in `outputs/example-test/`;
 6. create `outputs/generator-config.md`;
-7. create `outputs/test-script.txt` and `outputs/gentest.cpp` from that config;
-8. create `outputs/editorial.html`.
+7. create `outputs/test-script.txt` and `outputs/gentest.cpp` from that config.
 
 Do not reorder or skip a mandatory gate unless the user explicitly changes the workflow.
 
-Two steps are optional and are skipped by default; produce them only on explicit request:
+Three steps are optional and are skipped by default; produce them only on explicit request:
 
 - Step 2b `outputs/tex-statement.tex` — only after Step 2 has produced
   `outputs/statement.txt`.
-- Step 9 upload to Codeforces Polygon — only after Step 8 and the cross-artifact
-  consistency gate below have passed.
+- Step 8 `outputs/editorial.html` — only after Step 7 has produced the test
+  suite.
+- Step 9 upload to Codeforces Polygon — only after Step 7 and the cross-artifact
+  consistency gate below have passed. It does not wait on Step 8: the editorial
+  is not uploaded, so a package with no `outputs/editorial.html` is still
+  complete for Step 9.
 
 Skipping an optional step is never a workflow failure.
 
@@ -487,14 +490,15 @@ Load specialized skills only when applicable:
 
 If a problem needs another specialized structure, create a focused skill under `skills/` rather than bloating the generic generator skill.
 
-## Step 8 — `outputs/editorial.html`
+## Step 8 (optional) — `outputs/editorial.html`
 
-Use the `writing-editorials` skill. The editorial must be written in Vietnamese. Prefer the validated `source/solution.cpp` as the implementation to explain; when the source solution is absent, use a validated full-scope AC solution declared in `outputs/solution/manifest.md`. A subtask-only AC may support that subtask's section but must not be presented as a full solution.
+Use the `writing-editorials` skill. Run it only on explicit request; a workflow
+that ends at Step 7 with no editorial is finished, not incomplete. The editorial must be written in Vietnamese. Prefer the validated `source/solution.cpp` as the implementation to explain; when the source solution is absent, use a validated full-scope AC solution declared in `outputs/solution/manifest.md`. A subtask-only AC may support that subtask's section but must not be presented as a full solution.
 
 ## Step 9 (optional) — upload to Codeforces Polygon
 
 Use the `uploading-to-polygon` skill. Run it only on explicit request, and never
-before Step 8 and the cross-artifact consistency gate below have passed. It
+before Step 7 and the cross-artifact consistency gate below have passed. It
 pushes the finished `outputs/` package to Polygon through the external
 cf-polygon-mcp server and records the problem id in `outputs/polygon.json`; it
 never regenerates or repairs an artifact. A package that fails the gate is fixed
@@ -518,7 +522,7 @@ Before finishing, cross-check:
 - the decision is `"custom"` whenever the statement admits more than one correct output;
 - `outputs/statement.txt`'s limits, I/O mode, and problem name agree with `outputs/problem.json`;
 - multi-test format agrees everywhere;
-- `outputs/editorial.html` describes in Vietnamese the algorithm and complexity of the validated `source/solution.cpp` when it exists, otherwise a validated full-scope AC from `outputs/solution/manifest.md`;
+- `outputs/editorial.html`, when Step 8 produced one, describes in Vietnamese the algorithm and complexity of the validated `source/solution.cpp` when it exists, otherwise a validated full-scope AC from `outputs/solution/manifest.md`;
 - every generated test can be consumed by every suite source whose declared scope contains that test and by `source/solution.cpp` when the latter exists;
 - every generated test is accepted by `outputs/validator.cpp`, while representative malformed/invalid inputs are rejected;
 - `outputs/example-test/` holds 1-2 `test_<i>.inp`/`test_<i>.out` pairs, each `.inp` is accepted by `outputs/validator.cpp`, each `.out` is the verbatim output of the validated solution named in the report, and both match the statement's input/output format;

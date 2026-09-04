@@ -34,7 +34,7 @@ as `cp-problem-generation:<skill>`.
 | 5b | — | Writes `outputs/example-test/test_<i>.inp` and `.out`: one or two small, hand-written example inputs whose answers are produced by **running** the validated solution (`source/solution.cpp`, else a full-scope AC from the suite), each accepted by the Step 5 validator. These are the statement's samples — Step 2b wires them into `\exmpfile` and Step 9 uploads them as the Polygon samples. Specified in `creating-problems`; no skill of its own |
 | 6 | `generator-config` | Writes `outputs/generator-config.md`: the design contract turning constraints, subtasks, and solution weaknesses into the test plan. Must be complete before anything is generated |
 | 7 | `generating-tests` | Derives `outputs/test-script.txt` from that contract — the generated test set with its subtask/rate/seed options and adversarial profile coverage — then implements `outputs/gentest.cpp` with testlib, turning those semantic options into concrete input and delegating structures to the generator skills below. Every generated test must be accepted by the Step 5 validator |
-| 8 | `writing-editorials` | `outputs/editorial.html`, a standalone Vietnamese editorial (themes in `skills/writing-editorials/references/themes/`) |
+| 8 | `writing-editorials` | Optional: `outputs/editorial.html`, a standalone Vietnamese editorial (themes in `skills/writing-editorials/references/themes/`). Skipped by default; Step 9 does not wait on it |
 | 9 | `uploading-to-polygon` | Optional: pushes the finished `outputs/` package to Codeforces Polygon through the external cf-polygon-mcp server — problem, limits, statement, checker/validator/generator, tagged solutions, samples, script, per-test points, commit, package build — and records the id in `outputs/polygon.json`. Mirrors the package; never regenerates it |
 
 Step 4 — the solution suite in `outputs/solution/` and its `manifest.md` — has no skill of
@@ -72,7 +72,7 @@ Competitive-Programming-Problem-Generation/
     ├── generating-tests/SKILL.md       (+ references/generator-patterns.md)
     ├── polygon-validator/SKILL.md
     ├── generator-{tree,graph,array,number-theory,string}/SKILL.md
-    ├── writing-editorials/SKILL.md     (+ references/themes/*.html)
+    ├── writing-editorials/SKILL.md     # optional Step 8 (+ references/themes/*.html)
     ├── tex-statement/SKILL.md
     ├── uploading-to-polygon/SKILL.md   # optional Step 9: push outputs/ to Polygon
     └── yagni-principles/SKILL.md
@@ -107,7 +107,7 @@ it except a `preference.yml`, and only if you want a per-problem rigor profile:
    ├─ generator-config.md            # Step 6 — the design contract
    ├─ test-script.txt                # Step 7
    ├─ gentest.cpp                    # Step 7
-   └─ editorial.html                 # Step 8
+   └─ editorial.html                 # Step 8, on request
 ```
 
 ## Setup
