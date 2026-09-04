@@ -117,16 +117,16 @@ This is the minimum that satisfies two hard requirements simultaneously: the eva
 survive (or measurability is lost permanently) and must stay out of the skill's context (or
 the blind split is fake). A directory boundary enforces both and documents itself.
 
-**Placement:** Step 9a, mandatory whenever Step 9 runs. Reads the Step 1 solution, writes
+**Placement:** Step 8a, mandatory whenever Step 8 runs. Reads the Step 1 solution, writes
 `outputs/difficulty.md` (estimate, band, prerequisites, anchors compared, deltas applied,
 confidence) so a bad number can be audited later.
 
 **Failure behaviour: degrade, don't block.** No validated solution ⇒ `not estimable` plus
-reason in `outputs/difficulty.md`; Step 9 renders `chưa xác định` and continues. The
+reason in `outputs/difficulty.md`; Step 8 renders `chưa xác định` and continues. The
 honest absence stays visible instead of being papered over with a guess.
 
-**Edits:** `AGENTS.md` Purpose list gains Step 9a; `writing-editorials/SKILL.md:133-135`
-consumes rather than re-estimates; `preference.yml` gains `step9a_difficulty` with a
+**Edits:** `creating-problems` Purpose list gains Step 8a; `writing-editorials/SKILL.md:133-135`
+consumes rather than re-estimates; `preference.yml` gains `step8a_difficulty` with a
 light-weight override of one anchor instead of three.
 
 ## 7. Limits
@@ -150,7 +150,7 @@ light-weight override of one anchor instead of three.
 | 3 | Rubric v0 (Passes A-E), run blind on eval | predictions vs truth |
 | 4 | MAE, ±200%, ±300%, bias, error-by-band | `calibration/metrics.md` |
 | 5 | Tune bias, then band compression | rubric v1 |
-| 6 | Freeze, write skill, integrate as Step 9a | skill + edits to `AGENTS.md`, `writing-editorials`, `preference.yml` |
+| 6 | Freeze, write skill, integrate as Step 8a | skill + edits to `creating-problems`, `writing-editorials`, `preference.yml` |
 
 **Stop condition:** MAE ≤ 200 with |bias| ≤ 75, or two consecutive iterations failing to
 beat the ±40 error bar — whichever comes first.

@@ -1,9 +1,8 @@
+.DS_Store
+Thumbs.db
+*.swp
 /.vscode/
-source/solution.exe
-source/solution.inp
-source/solution.out
+
+# Scratch testlib checkout used while developing the validator skill.
 /.tmp-validator-testlib/
-outputs/tex-statement.aux
-outputs/tex-statement.log
-outputs/tex-statement.fls
-outputs/tex-statement.fdb_latexmk
+/competitive-programming-problem-preparer-main/

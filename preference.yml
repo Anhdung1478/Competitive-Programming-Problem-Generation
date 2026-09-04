@@ -1,9 +1,10 @@
-# Rigor profile for the problem-preparation workflow in AGENTS.md.
+# Rigor profile for the problem-preparation workflow in the
+# `creating-problems` skill.
 #
-# `heavy` is AGENTS.md exactly as written — the full workflow, no shortcuts.
-# `light-weight` is a set of overrides layered on top of AGENTS.md for quick,
+# `heavy` is that skill exactly as written — the full workflow, no shortcuts.
+# `light-weight` is a set of overrides layered on top of it for quick,
 # low-stakes generation. Anything not listed under a profile's `overrides`
-# still follows AGENTS.md unchanged. This file never redefines a step; it
+# still follows the skill unchanged. This file never redefines a step; it
 # only says which parts of its rigor may be relaxed.
 
 default: heavy
@@ -12,7 +13,7 @@ profiles:
   heavy:
     description: >
       Careful generation for both the solution suite and the test data.
-      Follow AGENTS.md exactly as written. Use whenever the package is
+      Follow the `creating-problems` skill exactly as written. Use whenever the package is
       headed for real contestants, grading, or anything the user did not
       explicitly call quick/rough/draft.
     overrides: {}
@@ -26,11 +27,12 @@ profiles:
       this profile does not generate in the first place.
 
     never_relaxed:
-      - "Step 1's hard stop on a confirmed compile error, correctness defect, complexity violation, or overflow risk — a found defect still blocks Step 2-9 in both profiles."
+      - "Step 1's hard stop on a confirmed compile error, correctness defect, complexity violation, or overflow risk — a found defect still blocks Step 2-8 in both profiles."
       - "source-of-truth precedence and the no-edit rule for source/problem-context.md, source/solution.cpp, source/subtask.md."
       - "the C++ I/O convention (no scanf/printf/etc.) in every generated C++ file."
       - "the mandatory ambiguity gate: still ask before guessing a fact that changes correctness."
-      - "the checker-skip rule already in AGENTS.md Step 3 (unique output -> Polygon standard checker) applies the same way in both profiles."
+      - "the checker-skip rule already in `creating-problems` Step 3 (unique output -> Polygon standard checker) applies the same way in both profiles."
+      - "Step 5's input validator: it is written in both profiles, and every generated test must be accepted by it."
 
     overrides:
       step1_validate_solution:
@@ -40,22 +42,20 @@ profiles:
         - "Lean toward a Polygon standard checker whenever the statement plausibly implies unique output; do not spend effort on a careful deterministic/non-unique/optimization classification pass. Ask only if it is genuinely unclear whether output is unique."
 
       step4_solution_suite:
-        - "Generate exactly one full-scope AC solution (AGENTS.md already skips subtask-scoped AC by default in both profiles). Skip WA and TLE candidates too, unless the user asks for them or the problem invites an obvious, cheap-to-write one."
+        - "Generate exactly one full-scope AC solution (the workflow already skips subtask-scoped AC by default in both profiles). Skip WA and TLE candidates too, unless the user asks for them or the problem invites an obvious, cheap-to-write one."
         - "Validate that one AC with hand-picked/sample cases and a couple of edge cases; a full differential/brute-force sweep is optional."
 
-      step5_generator_config:
+      step5_validator:
+        - "Still write the validator in full — it defines the legal input domain the later steps must respect. The invalid-mutation rejection sweep may be reduced to a few spot checks (one bound violation, one malformed layout) instead of covering every mutation class."
+
+      step6_generator_config:
         - "Record input schema, bounds, and 3-5 generation profiles (small, large/near-limit, edge case). Omit the solution-kill matrix when there are no WA/TLE candidates to kill."
 
-      step6_test_script:
-        - "Keep the default 100 generated tests. The 50%-at-rate>=0.90 split and the [0.70,0.80)/[0.80,0.90) coverage requirement are relaxed to 'at least one small test and one near-limit test per subtask'."
+      step7_test_script_and_gentest:
+        - "Script: keep the default 100 generated tests. The 50%-at-rate>=0.90 split and the [0.70,0.80)/[0.80,0.90) coverage requirement are relaxed to 'at least one small test and one near-limit test per subtask'."
+        - "Generator: skip adversarial profiles that exist only to kill WA/TLE candidates from the solution-kill matrix, since light-weight does not generate those candidates. Structural invariants and subtask-scope enforcement still apply in full. Running the validator over every generated test is never relaxed."
 
-      step7_gentest:
-        - "Skip adversarial profiles that exist only to kill WA/TLE candidates from the solution-kill matrix, since light-weight does not generate those candidates. Structural invariants and subtask-scope enforcement still apply in full."
-
-      step8_validator:
-        - "No change: stays optional and skipped by default in both profiles."
-
-      step9_editorial:
+      step8_editorial:
         - "A concise editorial covering the algorithm, complexity, and one worked example is sufficient. Full proof-level derivation of every step is optional."
 
       cross_artifact_gate:
