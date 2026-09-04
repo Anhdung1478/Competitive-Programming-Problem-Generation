@@ -20,7 +20,7 @@ edge-case rule that the source files do not state.
 |---|---|
 | Writing or changing the statement's wording, notation, or subtask list | `polygon-statement` (Step 2), then come back here |
 | The Polygon package's `statement.txt` itself | `polygon-statement` |
-| The sample data the `\exmpfile` lines would point at | `generating-tests` |
+| The sample data the `\exmpfile` lines point at | workflow Step 5b, `outputs/example-test/` |
 | Explaining the solution to contestants | `writing-editorials` (Step 8) |
 
 Rendering `statement.txt` into `.tex` is unambiguously here. "Fix the statement" is not —
@@ -32,8 +32,10 @@ Read, in this order, everything that exists:
 
 1. `outputs/statement.txt` — the prose to render. Required. If it is missing, stop and say
    Step 2 has not run; do not compose a statement here.
-2. `source/problem-context.md` — the problem's source of truth.
-3. `source/subtask.md` — subtask bounds and scoring.
+2. `source/problem-context.md` — the problem's source of truth, including its constraints
+   and its subtask bounds and scoring.
+3. `outputs/example-test/` — the sample `.inp`/`.out` pairs from Step 5b, when the
+   directory exists. Read the files themselves; they decide what `\Examples` contains.
 4. `outputs/tex-statement.tex` — when reviewing or updating an existing file.
 
 `source/*` files win over `outputs/statement.txt`, and `outputs/statement.txt` wins over
@@ -149,7 +151,7 @@ Two things change shape rather than merely moving:
   reader checking whether their `long long` is wide enough should not have to read prose.
 - **Subtasks become the `subtasks` environment**, not a plain `itemize`. Read §4 of
   `AUTHORING.md` for its exact row syntax and keep the percentages and bounds byte-identical
-  to `source/subtask.md`. Do not recompute or renumber them.
+  to `source/problem-context.md`. Do not recompute or renumber them.
 
 Inline math, `\texttt{}`, `\textbf{}`, and `itemize` carry over unchanged. Keep every
 Vietnamese diacritic exactly as written.
@@ -163,33 +165,42 @@ a statement is indistinguishable from a real one. If the user has already announ
 provisional testing limit for the solution suite, say explicitly in your report that the
 document carries a provisional number.
 
-## Samples belong to whatever produced the tests
+## Samples come from `outputs/example-test/`
 
 Sample tests come in through `\exmpfile`; inline data is impossible, not merely
 discouraged, and `AUTHORING.md` §5 explains why.
 
 **Wire up sample files; never author them.** A sample invented while typesetting has no
-checker, generator, or model solution behind it, and a wrong expected output is the most
+checker, validator, or model solution behind it, and a wrong expected output is the most
 expensive error a statement can carry: it looks authoritative, contradicts the real tests,
-and contestants find it before the setter does.
+and contestants find it before the setter does. Workflow Step 5b already produced the
+examples by running the validated solution; your job is to point at them.
 
-- **Sample files exist** (in `outputs/`, or exported from Polygon) — reference them with
-  `\exmpfile` and read them, so the Input and Output sections describe the format they are
-  actually in.
-- **They do not exist** — the normal state in this repository, since `outputs/statement.txt`
-  carries no samples — then leave `\Examples` out entirely and say so in your report. A
-  `\exmpfile` pointing at a missing file does not compile, and that would forfeit the whole
-  verification pass below over data that is not yours to write. Record exactly what to add
-  once tests land:
+- **`outputs/example-test/` exists** — the normal state once Step 5b has run. Reference
+  each `test_<i>.inp`/`test_<i>.out` pair in index order, and read the files, so the Input
+  and Output sections describe the format the samples are actually in. Paths are relative
+  to `outputs/`, where the `.tex` lives:
 
   ```latex
   \Examples
   \begin{example}
-  \exmpfile{ex1.in}{ex1.out}%
+  \exmpfile{example-test/test_1.inp}{example-test/test_1.out}%
+  \exmpfile{example-test/test_2.inp}{example-test/test_2.out}%
   \end{example}
   ```
 
-  Then re-run this skill after Step 7 to fill the block in.
+  Confirm every referenced file exists before compiling — a `\exmpfile` pointing at a
+  missing file does not compile, and that forfeits the whole verification pass below.
+
+- **It does not exist** (this skill was run before Step 5b, or standalone on a repository
+  that has no examples yet) — leave `\Examples` out entirely and say so in your report,
+  recording the block above as what to add. Do not invent sample data to fill the gap, and
+  do not lift a case out of `outputs/test-script.txt`. Re-run this skill after Step 5b to
+  fill the block in.
+
+Never edit the `.inp`/`.out` files to make them typeset better. If a sample renders badly —
+an over-long line, say — that is a message for Step 5b about the example, not something to
+fix here.
 
 ## Build
 
@@ -305,7 +316,8 @@ confirm every bound, symbol, and subtask percentage survived the conversion.
 - the file written and the PDF's page count;
 - what the log check found — clean, or the exact warnings;
 - the limits the panel reads;
-- that `\Examples` was omitted, and what to add when samples exist;
-- every disagreement found between `outputs/statement.txt`, `source/problem-context.md`,
-  and `source/subtask.md`, with the artifact that must change;
+- which `outputs/example-test/` files `\Examples` references — or, if the directory is
+  missing, that `\Examples` was omitted and what to add once Step 5b has run;
+- every disagreement found between `outputs/statement.txt` and `source/problem-context.md`,
+  with the artifact that must change;
 - any limit carried as provisional rather than authoritative.
