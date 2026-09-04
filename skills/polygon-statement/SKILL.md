@@ -7,6 +7,14 @@ description: Create or review outputs/statement.txt for a Codeforces Polygon pro
 
 This skill owns problem prose and notation only. It does not invent algorithmic constraints or test data.
 
+## Read first
+
+1. `source/problem-context.md` — source of truth for the problem, its constraints, and its subtask ladder.
+2. `outputs/problem.json` — Step 0's shaped numbers. Take from it: `name` and `title.vi` for the heading, `io` for whether the problem reads `stdin`/`stdout` or a named `.inp`/`.out` pair, `limits` when the statement quotes them, and each rung's `id` and `points` for the Subtask section.
+3. `source/solution.cpp` when present — for notation only.
+
+`problem-context.md` wins on conflict. Where it and `outputs/problem.json` disagree, write what the markdown says and report the conflict; do not edit either file to make them agree.
+
 ## Language
 
 Use Vietnamese unless the user explicitly requests another language.
@@ -147,9 +155,9 @@ The checker must implement exactly this contract.
 
 ## Subtasks
 
-Copy constraints and scoring from `subtask.md`; do not recalculate or “improve” them.
+Copy constraints from `problem-context.md`, and take each rung's percentage from `outputs/problem.json`: `subtasks[].points` against `polygon.total_points` in `preference.yml`, so a 40-point rung out of 100 prints as $40\%$. Do not recalculate or “improve” either.
 
-If `subtask.md` is absent, do not fabricate subtasks. Ask whether the intended setup is a single full-score group or whether subtask information is missing.
+If `problem-context.md` states no subtasks, do not fabricate them. Ask whether the intended setup is a single full-score group or whether subtask information is missing.
 
 Check that percentages sum to 100% when percentages are provided.
 
@@ -159,4 +167,4 @@ Read the finished statement as a contestant who has not seen the solution.
 
 Flag any sentence that permits two materially different implementations.
 
-Check that all constraints quoted in prose agree with `problem-context.md` and `subtask.md`.
+Check that all constraints quoted in prose agree with `problem-context.md`.
