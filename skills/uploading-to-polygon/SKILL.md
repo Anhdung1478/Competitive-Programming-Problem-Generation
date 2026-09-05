@@ -102,6 +102,31 @@ Polygon's own HTTP API (the Appendix) uses a *different* envelope: `status` is
 success carries `result`. `FAILED` arrives with HTTP 400 for a bad parameter or
 an access violation. Do not test a raw-API response for `status == "success"`.
 
+## The API reference — look it up, never guess
+
+[`references/polygon-api.md`](references/polygon-api.md) is the complete Polygon
+HTTP API as this skill needs it. **Read it instead of searching.**
+
+| You need | Go to |
+|---|---|
+| Which method performs this phase's action | §1 *Action → method index* — one row per action, raw method **and** MCP wrapper |
+| The exact parameter names and which are required | §4 *Methods* |
+| How to sign a raw request | §2 |
+| What a response looks like, and what `FAILED` means | §3, §5 |
+| The legal value of a `tag` / `accessType` / `state` / … | §6 |
+| Whether a limit or a points value is in range | §7 |
+
+Each phase below names its methods and links straight into §4. Before any raw
+call: **find the row in §1, read the parameters in §4, then call.** Do not
+fetch the web docs, do not grep, do not infer a parameter name from an MCP
+argument name — the two differ (see Phase 5's plural/singular trap). If a method
+you want is not in §1 or §4, §1 lists the ones that must never be called and the
+ones that **do not exist**; check there before concluding the docs are incomplete.
+
+The MCP server's own tool schemas are still the authority for MCP argument
+spelling — read them before an MCP call. The reference is the authority for the
+raw API.
+
 ---
 
 ## Pipeline
@@ -180,13 +205,33 @@ asks for one — and then ask them for that name rather than coining
    as-is; do not re-derive answers or substitute inputs of your own. If the
    directory is missing or an `.out` is absent, the package is unfinished: stop
    and send it back to Step 5b rather than picking samples here.
-7. State the bindings, the problem name **and where it came from**
+7. **The generator must not force line endings (cheap gate, run it).**
+
+   ```text
+   grep -nE '_setmode|_O_BINARY|freopen[^;]*stdout|[\]r' outputs/gentest.cpp
+   ```
+
+   (`[\]r` matches a literal `\r` in the source — a bare `\r` pattern would
+   match every `return`.)
+
+   Any hit is a **stop**: Polygon generates and validates tests under a Windows
+   toolchain whose strict testlib `eoln()` requires CRLF, so a generator forcing
+   bare LF fails every package build in Phase 6 — after the upload, with an error
+   that names the wrong test. Send it back to
+   `cp-problem-generation:generating-tests` rather than uploading. That every
+   test validates on the authoring machine is not evidence against this; it is
+   the symptom.
+8. State the bindings, the problem name **and where it came from**
    (`problem-context.md` or the user's answer), and the limits in the first
    status update.
 
 ---
 
 ### 1. Create or resolve the problem (gate, block)
+
+> **API:** [`problems.list`](references/polygon-api.md#problemslist),
+> [`problem.create`](references/polygon-api.md#problemcreate),
+> [`problem.info`](references/polygon-api.md#probleminfo)
 
 The `problem_id` every later call takes is the **numeric Polygon id**, and only
 Polygon issues it: `create_problem` returns it in `result.id`, `get_problems`
@@ -229,6 +274,14 @@ The gate closes when that file exists and loads.
 ---
 
 ### 1b. Wipe the old content (re-upload only)
+
+> **API:** [`problem.discardWorkingCopy`](references/polygon-api.md#problemdiscardworkingcopy),
+> [`problem.clearScript`](references/polygon-api.md#problemclearscript),
+> [`problem.tests`](references/polygon-api.md#problemtests),
+> [`problem.deleteTest`](references/polygon-api.md#problemdeletetest),
+> [`problem.files`](references/polygon-api.md#problemfiles),
+> [`problem.solutions`](references/polygon-api.md#problemsolutions),
+> [`problem.statements`](references/polygon-api.md#problemstatements)
 
 Only when Phase 1 resolved an **existing** problem. A fresh `create_problem`
 skips this phase entirely.
@@ -303,6 +356,9 @@ Polygon deletes unevenly, and the skill must not pretend otherwise:
 
 ### 2. Limits
 
+> **API:** [`problem.updateInfo`](references/polygon-api.md#problemupdateinfo)
+> — all parameters optional, omitted ones untouched; bounds in §7
+
 `update_problem_info(problem_id, …)`:
 
 | field | from |
@@ -312,9 +368,6 @@ Polygon deletes unevenly, and the skill must not pretend otherwise:
 | `memory_limit` (MB) | `source/problem-context.md`, else `limits.memory_mb` in `outputs/problem.json` |
 | `interactive` | `false` — this pack does not model interactive problems |
 
-Raw equivalent: `problem.updateInfo`, whose parameters are `inputFile`,
-`outputFile`, `interactive`, `wellFormed`, `skipDuplicatedTestsValidation`,
-`timeLimit`, `memoryLimit` — all optional, all left untouched when omitted.
 Two failure modes worth knowing before the call:
 
 - `timeLimit` must be 250–15000 and divisible by 50; `memoryLimit` 4–1024.
@@ -327,9 +380,17 @@ Do not touch `wellFormed` or `skipDuplicatedTestsValidation` — the package's
 tests are generated from a validated script, and silencing the duplicate-test
 check would hide a real generator bug.
 
+`wellFormed` in particular is the natural first guess when a build fails on
+`Expected EOLN`, and it is **not** a remedy: it does not normalise line endings
+for the validator. Both values were tested on the same package across four
+builds with no effect. Fix the generator (Phase 0 step 7), not this flag.
+
 ---
 
 ### 3. Statement — type `english`, content in Vietnamese
+
+> **API:** [`problem.saveStatement`](references/polygon-api.md#problemsavestatement)
+> — `lang` is the only required parameter; **an omitted field keeps its old value**
 
 `save_problem_statement(problem_id, lang="english", …)`: the statement
 **type/language slot is always `english`**, because Codeforces contest import
@@ -348,13 +409,9 @@ Split it on its section headers:
 | `\textbf{Subtask}` itemize | `scoring` |
 | sample explanations, if the package has any | `notes` |
 
-`problem.saveStatement` takes `lang` (the only required parameter) plus
-`encoding`, `name`, `legend`, `input`, `output`, `scoring`, `interaction`,
-`notes`, `tutorial`, `showInReview`, `showCautionsAndGrammaticalFixes` — and
-**an omitted field is left as it was**, not cleared.
-
-That matters on a re-upload: Phase 1b could not delete the statement, so a
-field this package does not fill would still hold the old problem's prose.
+That an omitted field is left as it was matters on a re-upload: Phase 1b could
+not delete the statement, so a field this package does not fill would still hold
+the old problem's prose.
 **Send every field the package does not use as an empty string** in the same
 call — at minimum `notes` and `tutorial`, plus `scoring` when `format` is
 `"icpc"` and `interaction` always (this pack has no interactive problems). The
@@ -383,16 +440,19 @@ Rules that survive the transfer:
 
 ### 4. Checker, validator, generator, solutions
 
+> **API:** [`problem.saveFile`](references/polygon-api.md#problemsavefile),
+> [`problem.saveSolution`](references/polygon-api.md#problemsavesolution),
+> [`problem.setValidator`](references/polygon-api.md#problemsetvalidator),
+> [`problem.setChecker`](references/polygon-api.md#problemsetchecker);
+> the full `tag` set is §6
+
 Upload source files first, then bind roles. `save_problem_file` takes
 `file_type="source"` and either `local_path` or `file_content`.
 
-The raw calls behind this phase, for when MCP is missing one:
-`problem.saveFile(type="source", name=…, file=<content>)`,
-`problem.saveSolution(name=…, file=<content>, tag=…)`,
-`problem.setValidator(validator=…)`, `problem.setChecker(checker=…)`. Every one
-of them **overwrites by name**, which is exactly what a re-upload wants — so
-never pass `checkExisting=true` here: that flag makes the call add-only and it
-fails outright on a name that already exists. The `resource`/`aux` file types
+Every one of those raw calls **overwrites by name**, which is exactly what a
+re-upload wants — so never pass `checkExisting=true` here: that flag makes the
+call add-only and it fails outright on a name that already exists.
+The `resource`/`aux` file types
 and the `forTypes`/`stages`/`assets` resource properties are not used by this
 pack; upload everything as `type="source"`.
 
@@ -426,15 +486,39 @@ pack; upload everything as `type="source"`.
      checker names.
 4. **Solutions.** Upload **every** solution with
    `save_problem_solution(problem_id, name=<basename>, local_path=…,
-   tag=<mapped>)`. Tags come from the filename convention plus the *measured*
-   verdicts recorded in `outputs/solution/manifest.md`:
+   tag=<mapped>)`.
 
-| package file | Polygon type | API tag |
-|---|---|---|
-| `source/solution.cpp` — the validated official solution | Main correct solution | `MA` |
-| `outputs/solution/ac-*.cpp` — the other correct solutions | Accepted | `OK` |
-| `outputs/solution/tle-*.cpp` | Time limit exceeded | `TL` |
-| `outputs/solution/wa-*.cpp` | Incorrect | `RJ` |
+**The tag is the measured verdict, not the filename.** Resolve it in this order,
+per file:
+
+1. **`outputs/solution/manifest.md` states a `Polygon tag:` line for the file** →
+   use that tag **verbatim**. It exists precisely because the measured verdict
+   departs from the filename prefix, and overriding it re-creates the bug it
+   records.
+2. **Otherwise** → the filename prefix supplies the default:
+
+   | package file | Polygon type | API tag |
+   |---|---|---|
+   | `source/solution.cpp` — the validated official solution | Main correct solution | `MA` |
+   | `outputs/solution/ac-*.cpp` — the other correct solutions | Accepted | `OK` |
+   | `outputs/solution/tle-*.cpp` | Time limit exceeded | `TL` |
+   | `outputs/solution/wa-*.cpp` | Incorrect | `RJ` |
+
+The prefix is a *default*, and it is the half that can be wrong: it records what
+the author intended the candidate to do, while Polygon's `verify=true` build
+checks what it actually does. A mismatch fails the entire package:
+
+```text
+PackageException: tle-dfs-enumeration.cpp got RE on tests#3
+which violates tag(s): solution tag TIME_LIMIT_EXCEEDED
+```
+
+A candidate that fails *different ways on different tests* — RE on the large
+tests, TLE on the medium ones — is `RJ`, and the manifest should already say so.
+If you hit the error above and the manifest has no `Polygon tag:` line, the gap
+is upstream: fix it in `cp-problem-generation:creating-problems` Step 4 so the
+next re-upload does not re-derive the same broken tag, then upload again. Do not
+patch the tag only here.
 
 Notes on the mapping:
 
@@ -443,12 +527,13 @@ Notes on the mapping:
   filename. When the package has no `source/solution.cpp`, promote one
   full-scope `ac-full-*.cpp` to `MA` and leave the rest `OK`.
 - `ac-subtask-*.cpp` is correct only inside its subtask, so it fails the full
-  test set: upload it as **Incorrect** (`RJ`), not `OK`.
+  test set: upload it as **Incorrect** (`RJ`), not `OK`. This is a prefix
+  default that already disagrees with its own prefix — an explicit
+  `Polygon tag:` line in the manifest is better.
 - `RJ` (Incorrect) means "any verdict except accepted", which is exactly what a
-  `wa-*` candidate is. Do not narrow it to `WA` on a guess. Polygon's full tag
-  set is `MA`, `OK`, `RJ`, `TL`, `TO` (time limit **or** accepted), `TM` (time
-  **or** memory limit), `WA`, `PE`, `ML`, `NR` (do not run), `RE`; this pack
-  uses only `MA`, `OK`, `RJ`, `TL`, and `NR` for a Phase 1b leftover.
+  `wa-*` candidate is. Do not narrow it to `WA` on a guess. Polygon accepts a
+  wider tag set (§6 of the reference); this pack uses only `MA`, `OK`, `RJ`,
+  `TL`, and `NR` for a Phase 1b leftover.
 - Per-testset or per-group overrides exist (`problem.editSolutionExtraTags`),
   but this pack has one testset and no groups — never call it.
 - A `light-weight` package legitimately has a single AC and no WA/TLE zoo; that
@@ -457,6 +542,13 @@ Notes on the mapping:
 ---
 
 ### 5. Tests
+
+> **API:** [`problem.enablePoints`](references/polygon-api.md#problemenablepoints),
+> [`problem.saveTest`](references/polygon-api.md#problemsavetest),
+> [`problem.saveScript`](references/polygon-api.md#problemsavescript),
+> [`problem.tests`](references/polygon-api.md#problemtests).
+> **Read `problem.saveTest` in §4 before the first sample** — the
+> statement-I/O parameter names are the one thing agents get wrong here.
 
 **Points, no groups.** `format` in `outputs/problem.json` decides: `"oi"` →
 `enable_problem_points(problem_id, enable=true)`; `"icpc"` → leave points off, and
@@ -507,17 +599,16 @@ save_problem_test(
   test_points=0)
 ```
 
-If you call Polygon's raw `problem.saveTest` HTTP API instead, its parameters
-are `testset`, `testIndex`, `testInput`, `testGroup`, `testPoints`,
-`testDescription`, `testUseInStatements`, **`testInputForStatements`**,
-**`testOutputForStatements`** and `verifyInputOutputForStatements` — every
-statement key carries the `test` prefix and the plural `Statements`. The
-singular `inputForStatement` / `outputForStatement` are fields of the `Test`
-object that `problem.tests` *returns*; passing those names to `saveTest` sets
-nothing and is silently ignored, which is the classic empty-Examples bug. Read
-back with the singular names, write with the plural ones.
+If you call Polygon's raw
+[`problem.saveTest`](references/polygon-api.md#problemsavetest) instead: every
+statement key carries the `test` prefix and the plural `Statements`
+(`testInputForStatements`, `testOutputForStatements`). The singular
+`inputForStatement` / `outputForStatement` are fields of the `Test` object that
+`problem.tests` *returns*; passing those names to `saveTest` sets nothing and is
+silently ignored — the classic empty-Examples bug. **Write plural, read
+singular.**
 
-Note what is *not* in that list: there is **no `testOutput`**. Polygon stores no
+Note what is *not* in the parameter list: there is **no `testOutput`**. Polygon stores no
 expected answer for a test — the answer is whatever the main correct solution
 prints, which is why exactly one `MA` matters. The only answer text you upload
 is `testOutputForStatements`, the sample answer *displayed* in the statement,
@@ -573,6 +664,12 @@ would fail the build here; that is a bug to fix in `polygon-validator`.
 
 ### 6. Readiness → commit (no email) → build
 
+> **API:** [`problem.cautions`](references/polygon-api.md#problemcautions),
+> [`problem.commitChanges`](references/polygon-api.md#problemcommitchanges),
+> [`problem.buildPackage`](references/polygon-api.md#problembuildpackage),
+> [`problem.packages`](references/polygon-api.md#problempackages);
+> package states are §6
+
 1. `check_problem_readiness(problem_id, testset="tests")`.
    - `blocking_issues` non-empty → fix each real issue, but **judge first**. One
      known false positive: `scriptLine missing from script: …` — the tool's
@@ -581,13 +678,10 @@ would fail the build here; that is a bug to fix in `polygon-validator`.
      Polygon's own package build is the authority over this tool's verdict.
    - Only `warnings` → judge each. Acceptable: no validator tests, no checker
      tests, no package yet, empty tutorial.
-   - The raw equivalent is `problem.cautions`, which inspects the current
-     working copy and always returns the four arrays `common`, `statement`,
-     `structure`, `issues` (each possibly empty) plus `packageReadinessIssues`,
-     `latestPackageWarnings` and cached `ai` tips. It starts no new AI request,
-     and `NO_CHECKER_TESTS` / `NO_VALIDATOR_TESTS` are suppressed when the
-     corresponding `NO_CHECKER` / `NO_VALIDATOR` caution is present — a missing
-     tests caution disappearing is not the same as it being fixed.
+   - The raw equivalent is `problem.cautions`. Reading its arrays: a
+     `NO_CHECKER_TESTS` / `NO_VALIDATOR_TESTS` caution is *suppressed* while the
+     corresponding `NO_CHECKER` / `NO_VALIDATOR` is present — it disappearing is
+     not the same as it being fixed.
 2. `commit_problem_changes(problem_id, minor_changes=true,
    message="<slug>: upload from cp-problem-generation")` — raw
    `problem.commitChanges(minorChanges=true, message=…)`, which needs WRITE
@@ -607,10 +701,25 @@ would fail the build here; that is a bug to fix in `polygon-validator`.
    builds the standard, linux and windows packages (linux and windows carry the
    generated tests; standard does not), and `verify=true` runs every solution on
    every test so the tags from Phase 4 are actually checked.
+
+   **`full=false` proves nothing about the tests.** It produces only a
+   `standard` package, which never materialises the generated tests — so the
+   generator and the validator never run, and the build reaches `READY` on a
+   package that cannot generate. A `standard`-only `READY` is **not** evidence
+   the tests generate; it is how a broken generator stays hidden. Always
+   `full=true`, and check that `linux` and `windows` reached `READY` too, not
+   just `standard`.
    - `decision: package_ready` → done.
    - `package_failed` / `build_timeout` / `workflow_error` → read
      `recovery_actions`, fix the named cause, retry. Never re-commit blindly
      after a build failed on the script or a solution.
+   - `PackageException: <file>.cpp got <VERDICT> on tests#<N> which violates
+     tag(s): solution tag <TAG>` means `verify=true` observed a verdict the
+     Phase 4 tag does not allow. The tag is wrong, **not** the test — do not
+     delete the test or loosen the limit to make the tag true. Fix it in
+     `creating-problems` Step 4 with a `Polygon tag:` line (`RJ` when the
+     candidate fails different ways on different tests), then re-upload that
+     solution. See Phase 4.
    - Do **not** rebuild if Polygon says a full verified package for this
      revision already exists; use it, or commit a new revision first.
    - After assigning points, commit and rebuild so scoring sticks;
@@ -618,9 +727,31 @@ would fail the build here; that is a bug to fix in `polygon-validator`.
    - `PackageException: Got exception while generating tests: Can't generate
      input or answer for test <N> [… Validator 'validator.exe' returns exit code
      3 [FAIL <msg>]]` means the validator rejected a regenerated test (testlib
-     exit 3 = FAIL). Causes, in order: a script line whose argv does not
-     reproduce the intended subtask/bounds, or a generator violating a
-     validator constraint — both upstream bugs.
+     exit 3 = FAIL). Causes, in this order:
+
+     1. **A generator that forces bare LF** — the most likely and the least
+        visible. Re-run the Phase 0 step 7 grep on `outputs/gentest.cpp` for
+        `_setmode`/`_O_BINARY` **before** suspecting anything else; see
+        `cp-problem-generation:generating-tests`. `FAIL Expected EOLN (stdin,
+        line 1)` is this one almost every time.
+     2. A script line whose argv does not reproduce the intended
+        subtask/bounds.
+     3. A generator violating a validator constraint.
+
+     All three are upstream bugs — none is fixed here.
+
+     Two traps in reading this error:
+
+     - `Can't generate input or answer for test <N> [Request skipped because of
+       previous errors in the requests batch [Reason: …]]` means test `N` was
+       **skipped**. The `Reason` belongs to a *different* test in the same batch,
+       and `N` changes between rebuilds of identical data. Do not bisect toward
+       test `N`, and do not read `(stdin, line 1)` as a claim about that test's
+       first line.
+     - To see what Polygon actually feeds the validator, temporarily bind a
+       validator that dumps the first ~36 characters with `{CR}`/`{LF}`/`{SP}`
+       markers via `quitf(_fail, …)`. The package error quotes the bytes
+       verbatim. One build settles what six builds of inference will not.
 
 **An OK verification is not a package — always create one after it.** A clean
 readiness check, a `CommitResult` with `committed: true`, solutions verifying
@@ -641,6 +772,9 @@ later step cleared their statement fields.
 ---
 
 ### 7. Grant `codeforces` READ
+
+> **API:** [`problem.setAccess`](references/polygon-api.md#problemsetaccess),
+> [`problem.accesses`](references/polygon-api.md#problemaccesses)
 
 Importing the problem into a Codeforces contest requires the special
 `codeforces` user to have **READ** access.
@@ -691,49 +825,30 @@ Never invent a tool name for a server that does not have it.
 ## Appendix — direct Polygon API calls
 
 When the MCP server lacks a capability (bulk `testPoints` updates, a compact
-readback of every test's points), call Polygon's HTTP API directly — it is
-the same API the server wraps. Base URL `https://polygon.codeforces.com/api/`;
-credentials are the server's `POLYGON_API_KEY` / `POLYGON_API_SECRET`.
+readback of every test's points), call Polygon's HTTP API directly — it is the
+same API the server wraps. Credentials are the server's `POLYGON_API_KEY` /
+`POLYGON_API_SECRET`.
 
-**Signing — pure stdlib** (do not import the installed `cf-polygon-mcp` package;
-outside its venv its compiled deps fail to import). With `hashlib`, `random`,
-`time`, `urllib`:
+**Everything about the raw API lives in
+[`references/polygon-api.md`](references/polygon-api.md)**: base URL and signing
+in §2 (pure `hashlib`/`random`/`time`/`urllib` — do not import the installed
+`cf-polygon-mcp` package, its compiled deps fail outside its venv), envelope and
+throttling in §3, methods in §4. Look the call up there; do not reconstruct it
+from memory.
 
-1. params = method args + `apiKey` + `time` (unix seconds, as str). `time` must
-   be within **5 minutes** of Polygon's clock or the request is denied — a
-   skewed local clock looks exactly like a bad signature.
-2. `rand` = any 6 characters; random digits are fine, and a fresh `rand` per
-   request is recommended.
-3. sort params **by name, then by value** (a repeated name like `testIndex`
-   sorts among its own values), exclude `apiSig` itself, join as `k=v&k=v`
-4. `base = f"{rand}/{method}?{joined}#{secret}"`; `sig = sha512(base)` in lower
-   hex
-5. add `apiSig = rand + sig`; GET → query string, otherwise POST form body.
-   Send a large body (a source file, a test input, a script) as POST form data.
+What the raw API is actually *for* here, beyond a missing MCP tool:
 
-Useful calls: `problem.info` (limits sanity check), `problem.tests(testset,
-noInputs=true)` (every test's `index`, `points`, `manual`, `useInStatements`,
-`scriptLine`, `group`, `inputForStatement`, `outputForStatement` — the cheap way
-to confirm the points layout end to end; `noInputs=true` keeps the response
-small), `problem.saveTest` with `testPoints` and no other test field (a pure
-points update; `group` stays empty because groups are off),
-`problem.files` / `problem.solutions` (the Phase 1b leftover diff),
-`problem.statements` (stale language slots), `problem.deleteTest` and
-`problem.clearScript` (the Phase 1b wipe), `problem.discardWorkingCopy`,
-`problem.setAccess` / `problem.accesses` (Phase 7).
-
-Read-only reads that never touch the working copy: `problem.viewFile(type,
-name)`, `problem.viewSolution(name)`, `problem.script(testset)`,
-`problem.testInput` / `problem.testAnswer` — each returns the **raw file**, not
-JSON, so do not parse them as an envelope.
-
-**Throttling.** The API rate-limits bursts — plain `429 Too Many Requests`
-(HTML body), typically around the ~25th rapid call; also retry 502/503/504/521
-with backoff. Sleep ~1–2 s between calls in a loop (points for ~100 tests takes
-minutes), then verify the whole range and retry the stragglers.
+| Need | Call |
+|---|---|
+| Bulk points when MCP times out over ~100 tests | `problem.saveTest` with `testPoints` and no other test field — a pure points update; `group` stays empty because groups are off |
+| Confirm the whole points layout cheaply | `problem.tests(testset, noInputs=true)` |
+| Limits sanity check | `problem.info` |
+| The Phase 1b leftover diff and wipe | `problem.files`, `problem.solutions`, `problem.statements`, `problem.clearScript`, `problem.deleteTest`, `problem.discardWorkingCopy` |
+| Phase 7 access | `problem.setAccess`, `problem.accesses` |
 
 Prefer MCP for create, sample statement I/O and `build_problem_package_and_wait`;
-raw API for bulk points when MCP times out.
+raw API for bulk points when MCP times out. Budget for the throttling in §3 —
+points for ~100 tests takes several minutes at ~2 s per call plus backoff.
 
 ## Degraded mode — no MCP server
 
@@ -767,7 +882,9 @@ re-upload from Phase 2 as usual.
 - [ ] `validator.cpp` and `gentest.cpp` uploaded and bound; the checker bound per
       `outputs/problem.json` — `checker.cpp` uploaded on `"custom"`, the `std::`
       token bound with no upload on `"stock"`
-- [ ] Every solution uploaded with its mapped tag; exactly one `MA`
+- [ ] Every solution uploaded with its resolved tag — a `Polygon tag:` line in
+      `outputs/solution/manifest.md` used verbatim where one exists, the
+      filename-prefix default only where none does; exactly one `MA`
 - [ ] Points enabled (OI); groups never enabled; every non-sample test carries
       an equal share of `preference.yml` → `polygon.total_points`, summing exactly
 - [ ] Samples uploaded as tests `1..S` with statement I/O verified via
@@ -777,9 +894,13 @@ re-upload from Phase 2 as usual.
 - [ ] Readiness clean apart from the known `scriptLine` false positive
 - [ ] Committed with `minor_changes=true` (no email) and the `CommitResult`
       actually reports `committed: true`
+- [ ] `outputs/gentest.cpp` forces no line-ending mode — the Phase 0 step 7 grep
+      for `_setmode` / `_O_BINARY` / `freopen…stdout` / a literal `\r` came back
+      empty
 - [ ] A package was **created after** the verification came back OK — and again
       after every later fix or re-commit — with `problem.packages` showing a
-      full, verified package in state `READY` for the committed revision
+      full, verified package in state `READY` for the committed revision;
+      `linux` and `windows` reached `READY`, not `standard` alone
 - [ ] `codeforces` READ granted via `problem.setAccess` and confirmed by
       `problem.accesses` — or, when the call failed for insufficient direct
       access, granted in the web UI and confirmed by the user

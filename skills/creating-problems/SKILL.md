@@ -291,8 +291,37 @@ Also generate representative WA and/or TLE candidates when a realistic contestan
 - material difference from `source/solution.cpp` when it exists;
 - for AC: validation evidence and supported domain;
 - for WA: the precise defect and at least one valid counterexample when feasible;
-- for TLE: the bottleneck, the limit used for classification, and an adversarial profile that exposes it;
-- profiles or properties that Steps 6-7 should use to distinguish/kill the candidate.
+- for TLE: the bottleneck, the limit used for classification, **the input size the classification was measured at**, and an adversarial profile that exposes it;
+- profiles or properties that Steps 6-7 should use to distinguish/kill the candidate;
+- a ``Polygon tag: `<TAG>` `` line whenever the measured verdict does not match the filename prefix — see below.
+
+### The `Polygon tag:` line
+
+The filename prefix (`ac-`, `wa-`, `tle-`) records the *intent* of the candidate. The Polygon tag records what it *does*, and Step 9 uploads the tag, not the prefix. When they differ, the manifest must say so explicitly:
+
+```markdown
+### tle-dfs-enumeration.cpp
+
+- Intended verdict: TLE
+- Polygon tag: `RJ`
+- Reason: recursion is one frame per path cell, so at `n = 10^6` it overflows the
+  stack (RE) before the time limit; medium `n` still times out.
+```
+
+`uploading-to-polygon` reads that line verbatim and only falls back to the prefix default when it is absent. Without it, a re-upload silently re-derives `TL` from the filename and the package build fails again.
+
+Write the line whenever any of these hold:
+
+- the candidate fails **different ways on different tests** — RE on the large tests, TLE on the medium ones. `RJ` ("any verdict except accepted") is the correct tag; do not pick whichever verdict you saw first.
+- a `tle-*` candidate crashes rather than times out at the sizes the test set reaches (`RJ`, or `RE` when it is reliably a crash everywhere);
+- an `ac-subtask-*` candidate is being uploaded, which fails the full test set by construction (`RJ`).
+
+Polygon's `verify=true` build checks every tag against the observed verdict and **fails the whole package** on a mismatch:
+
+```text
+PackageException: tle-dfs-enumeration.cpp got RE on tests#3
+which violates tag(s): solution tag TIME_LIMIT_EXCEEDED
+```
 
 ### Time-limit policy
 
@@ -318,9 +347,11 @@ For each WA/TLE candidate:
 - confirm that its documented failure classification is real rather than assumed;
 - minimize and record a WA counterexample when feasible;
 - benchmark or complexity-check a TLE on adversarial valid inputs, while also confirming that it succeeds on at least some weak/small inputs;
+- **classify a TLE at the constraint bound the test set will actually reach**, not by extrapolating from small cases. A candidate measured only at `n <= 20` has an assumed verdict, not a measured one, and the manifest must not claim otherwise. Record the size you measured at;
+- **check a recursive candidate for stack depth at maximum `n`.** One frame per element at `n = 10^6` overflows the stack long before the time limit, and a crash and a timeout are different Polygon tags. Where the verdict changes with `n`, that is the ``Polygon tag: `RJ` `` case above;
 - never use an intentional WA/TLE as a jury solution or correctness oracle.
 
-Step 4 passes when the manifest is complete, every source compiles, every AC is correct on its declared scope, and every intentional WA/TLE is plausible and accurately characterized. An intentional WA/TLE verdict is not a Step 4 failure. Do not proceed to Step 5 while an AC is mislabeled, a candidate's scope is ambiguous, or the manifest and source suite disagree.
+Step 4 passes when the manifest is complete, every source compiles, every AC is correct on its declared scope, and every intentional WA/TLE is plausible and accurately characterized — including a `Polygon tag:` line wherever the measured verdict departs from the filename prefix. An intentional WA/TLE verdict is not a Step 4 failure. Do not proceed to Step 5 while an AC is mislabeled, a candidate's scope is ambiguous, a TLE verdict is extrapolated rather than measured at the real bound, or the manifest and source suite disagree.
 
 ## Step 5 — `outputs/validator.cpp`
 
@@ -527,6 +558,7 @@ Before finishing, cross-check:
 - every AC solution's input/output semantics == source-of-truth files;
 - every AC solution agrees with `source/solution.cpp` or the semantic checker on all cross-checks within its declared scope when the source solution exists;
 - every WA/TLE has a documented failure mechanism and corresponding test-generation target;
+- every WA/TLE verdict was measured at the bound the test set reaches, and any candidate whose verdict differs from its filename prefix — or differs across test sizes — carries a `Polygon tag:` line in `outputs/solution/manifest.md`;
 - statement input order == `outputs/gentest.cpp` output order;
 - validator read order and accepted domain == statement input semantics;
 - statement bounds == `outputs/generator-config.md` bounds == generator bounds;

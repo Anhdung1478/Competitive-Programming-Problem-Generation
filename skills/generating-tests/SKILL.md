@@ -292,6 +292,25 @@ Emit the test with `cout` only. Do not use `printf`, `puts`, `putchar`, or any o
 stdio call; testlib's own helpers (`println`, `rnd`) remain fine. Separate tokens with
 `' '` and end lines with `'\n'`.
 
+**Never force a line-ending mode.** Leave stdout in text mode and let `cout << '\n'` emit
+the host's native ending. Specifically, `gentest.cpp` must contain no
+`_setmode(_fileno(stdout), _O_BINARY)`, no `setmode`, no `freopen(NULL, "wb", stdout)`,
+no `<io.h>`/`<fcntl.h>` include added for that purpose, and no literal `"\r\n"`.
+
+Polygon generates *and validates* tests under a Windows toolchain, where strict testlib
+`eoln()` requires CRLF, so a generator that forces bare LF fails **every** package build:
+
+```text
+PackageException: Got exception while generating tests: Can't generate input or answer
+for test N [... Validator 'validator.exe' returns exit code 3
+[FAIL Expected EOLN (stdin, line 1)]]
+```
+
+The give-away is that every test validates locally — the data is fine, only the line
+endings disagree with the judging toolchain. If a validator on the authoring machine wants
+different endings, normalise the *file* at validation time; see
+`cp-problem-generation:polygon-validator`. Never encode that workaround in the generator.
+
 ## Common implementation traps
 
 Avoid:
@@ -307,7 +326,9 @@ Avoid:
 - printing extra spaces/newlines;
 - time-based random seeds;
 - adding `--seed` instead of using the required positional seed;
-- writing the test with `printf`/`puts` instead of `cout`.
+- writing the test with `printf`/`puts` instead of `cout`;
+- forcing stdout into binary mode (`_setmode`/`_O_BINARY`) or printing `"\r\n"` — it breaks
+  every Polygon package build.
 
 ## Final verification
 
@@ -319,6 +340,9 @@ Script/generator consistency, before running anything:
 - all subtask ids exist;
 - every rate is in `[0.70, 1.00]`, about half `>= 0.90`;
 - exactly 100 tests exist by default;
+- `grep -nE '_setmode|_O_BINARY|freopen[^;]*stdout|[\]r' outputs/gentest.cpp` returns
+  nothing — `[\]r` matches a literal `\r` in the source, where a bare `\r` pattern would
+  match every `return`;
 - lines use `> $` when the jury answer comes from the official solution;
 - every WA/TLE target in `outputs/solution/manifest.md` is covered by a script profile or
   has a documented reason it cannot be targeted safely.

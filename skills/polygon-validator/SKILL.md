@@ -80,17 +80,30 @@ Compile with the same `testlib.h` environment used by Polygon when available. Th
 
 Do not add temporary invalid files to the repository. If `testlib.h` is unavailable, perform static review and clearly report that compilation/runtime validation remains pending.
 
-## Local testing on Windows
+## Line endings — local runs and Polygon
 
-Polygon judges on Linux, where every test file ends its lines with a bare `\n`. In strict (validation) mode `testlib` decides what an end-of-line is at COMPILE time: a validator built on Windows without `FOR_LINUX` requires `\r\n` and rejects a correct LF test with `FAIL Expected EOLN (stdin, line 1)` (exit code 3).
+In strict (validation) mode `testlib` fixes what an end-of-line is at **compile time**, not at read time:
 
-Compile the validator with `-DFOR_LINUX` for local runs so it applies Polygon's line-ending rule to LF test files:
+| Validator built | `readEoln()` accepts |
+|---|---|
+| on Windows without `-DFOR_LINUX` (or with `-DFOR_WINDOWS`) | `\r\n` only |
+| on Linux, or anywhere with `-DFOR_LINUX` | `\n` only |
 
-```text
-g++ -std=gnu++17 -O2 -I<testlib dir> -DFOR_LINUX -o validator.exe outputs/validator.cpp
-```
+**Polygon builds packages under a Windows toolchain** — its build log names `validator.exe` — so the validator Polygon runs sits on the CRLF branch, and the tests Polygon generates are CRLF. Polygon also rewrites a manual test's `testInput` to CRLF however it was submitted. CRLF is Polygon's canonical test-file form; the older belief that "Polygon judges on Linux, so tests are LF" is wrong and has broken package builds.
 
-Do not "fix" this by making the generator emit CRLF and do not drop `readEoln`; the generator must keep writing `\n` (see the `_setmode(_fileno(stdout), _O_BINARY)` guard in `outputs/gentest.cpp`).
+The rule that follows is simple: **nothing forces a line-ending mode; every part uses its host's native one.** A generator on Windows writes CRLF, a generator on Linux writes LF, and a validator compiled on that same host agrees with it either way.
+
+- **Compile the local validator natively** — plain, no `-DFOR_LINUX` on a Windows box:
+
+  ```text
+  g++ -std=gnu++17 -O2 -I<testlib dir> -o validator.exe outputs/validator.cpp
+  ```
+
+  It then matches both the local generator's output and Polygon's `validator.exe`.
+- **Never make the generator emit a fixed line ending** to satisfy a validator. A `_setmode(_fileno(stdout), _O_BINARY)` guard, `freopen(NULL, "wb", stdout)`, or a literal `"\r\n"` in `outputs/gentest.cpp` forces bare LF, and that **fails every Polygon package build** with `Validator 'validator.exe' returns exit code 3 [FAIL Expected EOLN (stdin, line 1)]` — see `cp-problem-generation:generating-tests`. Do not drop `readEoln` either.
+- **Normalise a file, never the source.** When one specific file's endings do not match the local validator — an LF sample checked out from git, an input from a Linux machine — convert that file at validation time (`sed -i 's/\r*$/\r/'`, or feed it to a throwaway validator built with `-DFOR_LINUX`). Never carry that workaround back into `gentest.cpp` or `validator.cpp`.
+
+`FAIL Expected EOLN (stdin, line 1)` (exit code 3) is always this mismatch — the file's endings versus the branch the validator was compiled onto. It is not a malformed first line, whatever the line number says.
 
 ## Final checks
 
