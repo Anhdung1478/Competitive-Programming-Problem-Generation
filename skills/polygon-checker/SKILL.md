@@ -16,7 +16,7 @@ Not every problem needs a written checker. Record the decision in `outputs/probl
 "checker": { "kind": "custom", "file": "checker.cpp" }
 ```
 
-`name` is the verbatim Polygon token — `std::` prefix and `.cpp` suffix included — so `uploading-to-polygon` hands it straight to `set_problem_checker` without assembling a string.
+`name` is the verbatim Polygon token — `std::` prefix and `.cpp` suffix included — so `uploading-to-polygon` hands it straight to `polygon_set_checker` without assembling a string.
 
 **Stock is permitted only when the output is unique for every valid input *and* one of these tokens compares it exactly:**
 

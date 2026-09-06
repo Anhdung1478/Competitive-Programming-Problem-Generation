@@ -13,38 +13,41 @@ this skill does not use.
 
 ## 1. Action → method index
 
-The one table to look at before any call. `MCP` names are cf-polygon-mcp's
-wrappers; read the server's own schema for its exact argument spelling, but the
-**raw** column is authoritative about what Polygon actually accepts.
+The one table to look at before any call. The `Tool` column names the bundled
+`polygon` server's wrapper — read its loaded schema for the exact argument
+spelling, and see [`polygon-tools.md`](polygon-tools.md) for the registry — but
+the **raw** column is authoritative about what Polygon actually accepts.
 
-| Phase | Action | Raw method | MCP wrapper |
+| Phase | Action | Raw method | Tool |
 |---|---|---|---|
-| 1 | Find a problem by name | [`problems.list`](#problemslist) (plural!) | `get_problems` |
-| 1 | Create the problem | [`problem.create`](#problemcreate) | `create_problem` |
-| 1 | Read id / revision / accessType | [`problems.list`](#problemslist), [`problem.info`](#probleminfo) | `get_problems` |
-| 1b | Throw away uncommitted work | [`problem.discardWorkingCopy`](#problemdiscardworkingcopy) | `discard_problem_changes` (if present) |
-| 1b | Clear the test script | [`problem.clearScript`](#problemclearscript) | — |
-| 1b | List surviving tests | [`problem.tests`](#problemtests) with `noInputs=true` | `get_problem_tests` |
-| 1b | Delete tests | [`problem.deleteTest`](#problemdeletetest) | — |
-| 1b | Diff files for leftovers | [`problem.files`](#problemfiles), [`problem.solutions`](#problemsolutions) | — |
-| 1b | Find stale statement languages | [`problem.statements`](#problemstatements) | — |
-| 1b | Neutralise a leftover solution | [`problem.saveSolution`](#problemsavesolution) with `tag=NR` | `save_problem_solution` |
-| 2 | Time / memory / I/O files | [`problem.updateInfo`](#problemupdateinfo) | `update_problem_info` |
-| 3 | Statement fields | [`problem.saveStatement`](#problemsavestatement) | `save_problem_statement` |
-| 4 | Upload validator / generator / checker source | [`problem.saveFile`](#problemsavefile) `type=source` | `save_problem_file` |
-| 4 | Bind the validator | [`problem.setValidator`](#problemsetvalidator) | `set_problem_validator` |
-| 4 | Bind the checker (incl. `std::` token) | [`problem.setChecker`](#problemsetchecker) | `set_problem_checker` |
-| 4 | Upload a solution with its tag | [`problem.saveSolution`](#problemsavesolution) | `save_problem_solution` |
-| 5 | Turn per-test points on | [`problem.enablePoints`](#problemenablepoints) (no `testset`) | `enable_problem_points` |
-| 5 | Upload a sample / set points | [`problem.saveTest`](#problemsavetest) | `save_problem_test` |
-| 5 | Upload the generator script | [`problem.saveScript`](#problemsavescript) | `save_problem_script` |
-| 5 | Read tests back | [`problem.tests`](#problemtests) | `get_problem_tests` |
-| 6 | Readiness / cautions | [`problem.cautions`](#problemcautions) | `check_problem_readiness` |
-| 6 | Commit without email | [`problem.commitChanges`](#problemcommitchanges) `minorChanges=true` | `commit_problem_changes` |
-| 6 | Start the build | [`problem.buildPackage`](#problembuildpackage) (does **not** wait) | `build_problem_package_and_wait` |
-| 6 | Poll for a READY package | [`problem.packages`](#problempackages) | — |
-| 7 | Grant `codeforces` READ | [`problem.setAccess`](#problemsetaccess) | — |
-| 7 | Verify the grant | [`problem.accesses`](#problemaccesses) | — |
+| 0 | Prove the key, secret and clock | [`problems.list`](#problemslist) | `polygon_whoami` |
+| 1 | Find a problem by name | [`problems.list`](#problemslist) (plural!) | `polygon_problems_list` |
+| 1 | Create the problem | [`problem.create`](#problemcreate) | `polygon_problem_create` |
+| 1 | Read id / revision / accessType | [`problems.list`](#problemslist), [`problem.info`](#probleminfo) | `polygon_problems_list`, `polygon_problem_info` |
+| 1b | Throw away uncommitted work | [`problem.discardWorkingCopy`](#problemdiscardworkingcopy) | `polygon_discard_working_copy` |
+| 1b | Clear the test script | [`problem.clearScript`](#problemclearscript) | `polygon_clear_script` |
+| 1b | List surviving tests | [`problem.tests`](#problemtests) with `noInputs=true` | `polygon_tests` |
+| 1b | Delete tests | [`problem.deleteTest`](#problemdeletetest) | `polygon_delete_tests` |
+| 1b | Diff files for leftovers | [`problem.files`](#problemfiles), [`problem.solutions`](#problemsolutions) | `polygon_files`, `polygon_solutions` |
+| 1b | Find stale statement languages | [`problem.statements`](#problemstatements) | `polygon_statements` |
+| 1b | Neutralise a leftover solution | [`problem.saveSolution`](#problemsavesolution) with `tag=NR` | `polygon_save_solution` |
+| 2 | Time / memory / I/O files | [`problem.updateInfo`](#problemupdateinfo) | `polygon_problem_update_info` |
+| 3 | Statement fields | [`problem.saveStatement`](#problemsavestatement) | `polygon_save_statement` |
+| 4 | Upload validator / generator / checker source | [`problem.saveFile`](#problemsavefile) `type=source` | `polygon_save_file` |
+| 4 | Bind the validator | [`problem.setValidator`](#problemsetvalidator) | `polygon_set_validator` |
+| 4 | Bind the checker (incl. `std::` token) | [`problem.setChecker`](#problemsetchecker) | `polygon_set_checker` |
+| 4 | Upload a solution with its tag | [`problem.saveSolution`](#problemsavesolution) | `polygon_save_solution` |
+| 5 | Turn per-test points on | [`problem.enablePoints`](#problemenablepoints) (no `testset`) | `polygon_enable_points` |
+| 5 | Upload a sample | [`problem.saveTest`](#problemsavetest) | `polygon_save_test` |
+| 5 | Set points on many tests | [`problem.saveTest`](#problemsavetest) ×N | `polygon_save_test_points` |
+| 5 | Upload the generator script | [`problem.saveScript`](#problemsavescript) | `polygon_save_script` |
+| 5 | Read tests back | [`problem.tests`](#problemtests) | `polygon_tests` |
+| 6 | Readiness / cautions | [`problem.cautions`](#problemcautions) | `polygon_cautions` |
+| 6 | Commit without email | [`problem.commitChanges`](#problemcommitchanges) `minorChanges=true` | `polygon_commit` |
+| 6 | Build and wait for a package | [`problem.buildPackage`](#problembuildpackage) (does **not** wait) + [`problem.packages`](#problempackages) | `polygon_build_package_and_wait` |
+| 6 | Poll for a READY package | [`problem.packages`](#problempackages) | `polygon_packages` |
+| 7 | Grant `codeforces` READ | [`problem.setAccess`](#problemsetaccess) | `polygon_set_access` |
+| 7 | Verify the grant | [`problem.accesses`](#problemaccesses) | `polygon_accesses` |
 
 **Methods this skill must never call:** `problem.enableGroups`,
 `problem.saveTestGroup`, `problem.setTestGroup`, `problem.viewTestGroup`
@@ -97,9 +100,9 @@ computed over the same parameter set either way.
 **Pin.** If the problem has a pin code, add the `pin` parameter to the request
 (and include it in the signature like any other parameter).
 
-**Do not import the installed `cf-polygon-mcp` package to sign** — outside its
-venv its compiled deps fail to import. `hashlib`, `random`, `time`, `urllib`
-are enough.
+**Do not import the bundled server's own package to sign** — outside its venv
+its compiled deps fail to import. `hashlib`, `random`, `time`, `urllib` are
+enough.
 
 ## 3. Envelope, errors, throttling
 
@@ -115,10 +118,10 @@ Raw API responses are JSON:
 A successful call with no `result` field (`problem.setAccess`,
 `problem.saveFile`, …) is **not** a failure.
 
-This envelope is *not* the MCP envelope. MCP writes return
-`status: success|error`, `action`, `message`, `result`, `error` (plus `stage`,
-`decision`, `can_retry`, `recovery_actions` on workflows). Never test a raw
-response for `status == "success"`.
+This envelope is *not* the tool envelope. Every `polygon_*` tool returns a dict
+carrying `ok`, and a failure is `{"ok": false, "error": "<this comment>",
+"method": "<this method>"}`, sometimes with `details`. Never test a raw response
+for `ok`, and never test a tool result for `status`.
 
 **Non-JSON methods.** These return the raw file with its own MIME type, not an
 envelope — do not parse them as JSON: `problem.viewFile`,

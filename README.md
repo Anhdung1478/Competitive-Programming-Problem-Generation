@@ -35,7 +35,7 @@ as `cp-problem-generation:<skill>`.
 | 6 | `generator-config` | Writes `outputs/generator-config.md`: the design contract turning constraints, subtasks, and solution weaknesses into the test plan. Must be complete before anything is generated |
 | 7 | `generating-tests` | Derives `outputs/test-script.txt` from that contract — the generated test set with its subtask/rate/seed options and adversarial profile coverage — then implements `outputs/gentest.cpp` with testlib, turning those semantic options into concrete input and delegating structures to the generator skills below. Every generated test must be accepted by the Step 5 validator |
 | 8 | `writing-editorials` | Optional: `outputs/editorial.html`, a standalone Vietnamese editorial (themes in `skills/writing-editorials/references/themes/`). Skipped by default; Step 9 does not wait on it |
-| 9 | `uploading-to-polygon` | Optional: pushes the finished `outputs/` package to Codeforces Polygon through the external cf-polygon-mcp server — problem, limits, statement, checker/validator/generator, tagged solutions, samples, script, per-test points, commit, package build, `codeforces` READ access — and records the id in `outputs/polygon.json`. A problem name that already exists on Polygon is wiped (script cleared, tests deleted, statement fields blanked) and re-synced from the package. Mirrors the package; never regenerates it |
+| 9 | `uploading-to-polygon` | Optional: pushes the finished `outputs/` package to Codeforces Polygon through the bundled `polygon` MCP server — problem, limits, statement, checker/validator/generator, tagged solutions, samples, script, per-test points, commit, package build, `codeforces` READ access — and records the id in `outputs/polygon.json`. A problem name that already exists on Polygon is wiped (script cleared, tests deleted, statement fields blanked) and re-synced from the package. Mirrors the package; never regenerates it |
 
 Step 4 — the solution suite in `outputs/solution/` and its `manifest.md` — has no skill of
 its own; it is specified directly in `creating-problems` and audited by
@@ -120,11 +120,13 @@ and a LaTeX toolchain only if you use the optional `tex-statement` step.
 `testlib.h` into a problem folder — keep one cached checkout and point at it.
 
 **Optional — Polygon upload.** Uploading a reviewed package to Codeforces Polygon goes
-through [gsh20040816/cf-polygon-mcp](https://github.com/gsh20040816/cf-polygon-mcp), a
-Polygon API MCP server configured **outside this pack** (in your `.mcp.json` / agent
-settings, with `POLYGON_API_KEY` and `POLYGON_API_SECRET`). This pack ships no
-`.mcp.json`, no MCP code, and **no secret ever lives in this repository**. Without that
-server the artifacts in `outputs/` are uploaded to Polygon by hand.
+through the **bundled `polygon` MCP server** in [`mcp-server/`](mcp-server/), wired by
+this repository's `.mcp.json` and run with [uv](https://docs.astral.sh/uv/) — so it
+needs `uv` and Python 3.10+. Set `POLYGON_API_KEY` and `POLYGON_API_SECRET` in the
+environment you launch Claude Code from; the server reads them itself and **no secret
+ever lives in this repository**. Setup is in
+[`mcp-server/README.md`](mcp-server/README.md). Without the server the artifacts in
+`outputs/` are uploaded to Polygon by hand.
 
 ## Installing
 

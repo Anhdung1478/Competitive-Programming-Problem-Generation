@@ -545,8 +545,8 @@ that ends at Step 7 with no editorial is finished, not incomplete. The editorial
 
 Use the `uploading-to-polygon` skill. Run it only on explicit request, and never
 before Step 7 and the cross-artifact consistency gate below have passed. It
-pushes the finished `outputs/` package to Polygon through the external
-cf-polygon-mcp server and records the problem id in `outputs/polygon.json`; it
+pushes the finished `outputs/` package to Polygon through the bundled
+`polygon` MCP server and records the problem id in `outputs/polygon.json`; it
 never regenerates or repairs an artifact. A package that fails the gate is fixed
 in its own step, not during upload.
 
