@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "cp-problem-generation",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Competitive Programming Problem Generation: idea + intended solution to a Polygon package (OI/ICPC, subtasks, tests, small solution zoo), plus an optional upload of a reviewed package to Codeforces Polygon via the bundled polygon MCP server. A HTML editorial as well. No contest MCP.",
   "author": {
     "name": "Anhdung1478"

@@ -8,7 +8,7 @@
     {
       "name": "cp-problem-generation",
       "description": "Competitive Programming Problem Generation: idea + intended solution to a Polygon package (OI/ICPC, subtasks, tests, small solution zoo), plus an optional upload of a reviewed package to Codeforces Polygon via the bundled polygon MCP server. A HTML editorial as well. No contest MCP.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "source": "./",
       "author": {
         "name": "Anhdung1478"

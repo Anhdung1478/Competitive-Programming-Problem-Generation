@@ -10,8 +10,9 @@ server's own process.
 1. **Get an API key.** Polygon → *Settings* → *API keys* → *Add API key*. You
    get a key and a secret; the secret is shown once.
 
-2. **Put them in the environment Claude Code launches with**, so the plugin's
-   `.mcp.json` can pass them through:
+2. **Put them in the environment Claude Code launches with.** `.mcp.json`
+   passes them through as `${POLYGON_API_KEY}` / `${POLYGON_API_SECRET}`, and
+   that expansion reads Claude Code's own process environment. Either:
 
    ```powershell
    # Windows, persisted for your user
@@ -25,8 +26,14 @@ server's own process.
    export POLYGON_API_SECRET="<secret>"
    ```
 
+   or an `env` block in your **user** settings, `~/.claude/settings.json`:
+
+   ```json
+   { "env": { "POLYGON_API_KEY": "<key>", "POLYGON_API_SECRET": "<secret>" } }
+   ```
+
    Then restart the terminal *and* Claude Code. The server reads its
-   environment at launch, so exporting a variable in some other terminal
+   environment once at launch, so exporting a variable in some other terminal
    mid-session changes nothing.
 
 3. **Check it.** Ask Claude to run `polygon_whoami` — the cheapest call that
@@ -36,6 +43,19 @@ server's own process.
 
 `uvx` runs the server straight from this directory; nothing needs installing by
 hand. It requires [uv](https://docs.astral.sh/uv/) and Python 3.10+.
+
+### Not a `.env` file, and not inside this plugin
+
+Nothing here loads a dotenv — the server reads `os.environ` and only that. More
+to the point, an installed plugin lives at a version-scoped path
+(`~/.claude/plugins/cache/<plugin>/<plugin>/<version>/`), so a secret written
+beside these files would be orphaned by the next version bump and silently stop
+working. Credentials belong to your user, not to a copy of the plugin.
+
+If the key never arrives, the failure is loud by design: an unset variable
+reaches the process as the literal string `${POLYGON_API_KEY}`, and the server
+treats an unexpanded placeholder as unset so you get "no credentials" rather
+than `Incorrect signature`.
 
 ## Configuration
 
