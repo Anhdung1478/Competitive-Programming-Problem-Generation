@@ -1,6 +1,6 @@
 # Competitive Programming Problem Generation
 
-Skill pack for **Claude Code and Cursor** that takes an idea and an intended solution to a
+Skill pack for **Claude Code** that takes an idea and an intended solution to a
 Codeforces Polygon package: OI/ICPC format, subtask scoring, statement, checker, a small
 solution zoo (AC / WA / TLE), an input validator, a config-first generator, a test script,
 and a Vietnamese HTML editorial. This repository is also a **Claude Code
@@ -145,15 +145,10 @@ git clone https://github.com/Anhdung1478/Competitive-Programming-Problem-Generat
 /plugin install cp-problem-generation@cp-problem-generation
 ```
 
-**Cursor.** Clone into your personal skills folder (available to every project) or into
-`.agents/skills/` of one project:
-
-```bash
-git clone https://github.com/Anhdung1478/Competitive-Programming-Problem-Generation ~/.cursor/skills/competitive-programming-problem-generation     # personal
-git clone https://github.com/Anhdung1478/Competitive-Programming-Problem-Generation .agents/skills/competitive-programming-problem-generation      # one project
-```
-
-Then reload or restart Cursor so the skills are picked up.
+**Other agents.** Any agent that reads the Claude Code plugin marketplace format can
+install it the same way — point its marketplace/plugin command at this repository;
+`.claude-plugin/marketplace.json` is what it looks for. Anything else can read the skills
+straight out of `skills/`, one `SKILL.md` per directory.
 
 An existing clone updates in place with `git pull`; a marketplace install updates with
 `/plugin marketplace update cp-problem-generation`.
@@ -164,6 +159,28 @@ In your problem repository, fill in `source/problem-context.md` — the problem,
 constraints, and its subtask limits and scoring all live there (plus
 `source/solution.cpp` when you have it). Copy `preference.yml`
 there too if you want a per-problem rigor profile; otherwise the pack's copy is used.
+
+A template for `source/problem-context.md`:
+
+```markdown
+**Problem name**: ?
+**Time limit**: ? s
+**Memory limit**: ? MB
+**Problem slug**: <your-problem-id-when-upload-to-polygon>
+
+**Requirement**: <optional, you can tell it to translate to Vietnamese and rewrite statement, add a lore or smth...>
+
+**Legend**: <lore and statement>
+
+**Input format**: <problem's input format>
+
+**Output format**: <problem's output format>
+
+**Constraints**: <leave blank if it has constraints already on input, output format; If not the Agent will ask you for constraints before generate the problem>
+
+**Subtask**: <subtask, point percentage and constraints of each subtask>
+```
+
 Then:
 
 ```text
