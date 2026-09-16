@@ -12,10 +12,8 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 10 done — Phase A complete, and Branch 1 re-verified by a blind re-run. Five
-under-specified points in `SKILL.md` are open (see Deviations); they are between-agent
-variance and should be fixed before Task 14. Next: Task 11 (freeze the 80-problem
-sample), pending user go-ahead.
+Task 10b done — the five SKILL.md tie-breaks are closed. Next: Task 11 (freeze the
+80-problem sample) — irreversible, see the re-run warnings below.
 
 ## Phase ledger
 
@@ -31,6 +29,7 @@ sample), pending user go-ahead.
 | 8 | A wiring | done | `preference.yml` | `grep -c step8a_difficulty` = 1 | 0 agents | 2026-09-16 |
 | 9 | A wiring | done | `README.md` | `grep -c calculating-difficulties` = 2 | 0 agents | 2026-09-16 |
 | 10 | A wiring | done | smoke-test transcript (scratchpad, not committed) | both branches produced a file | 0 agents | 2026-09-16 |
+| 10b | A wiring | done | `SKILL.md` five tie-breaks closed | `grep -c "below the Pass B floor"` = 1 | 0 agents | 2026-09-16 |
 | 11 | B corpus | not started | `calibration/corpus.md` + `.cache-cf-corpus/` | 80 rows, 80 `.txt` files | 0 agents, ~4 min curl | — |
 | 12 | B corpus | not started | `calibration/eval-set.md`, blind copies | `check` prints `ALL CHECKS PASSED` | 0 agents | — |
 | 13 | B corpus | not started | `references/anchors.md` (real, 56) | 56 rows, `check` still passes | ~6 agents | — |
@@ -74,7 +73,7 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
   digit-DP problems disproportionately draw both negative adjustments (textbook exercise,
   constraint leakage). **Fix before Task 14**: running baseline predictions against this
   contradiction lets each eval agent invent its own tie-break, which corrupts the very
-  measurements Phase C exists to produce.
+  measurements Phase C exists to produce. **Closed by Task 10b.**
 - **Task 10's Branch 1 was not run blind — since settled by a re-run.** The original agent
   read the expected floor before running the skill. A fresh agent then re-ran Branch 1 with
   `docs/`, `.superpowers/`, the earlier run's output and git history all fenced off, against
@@ -98,7 +97,7 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
   Evidence that these are real and not hypothetical: the two runs reached the same `-200`
   Pass D total by *different routes* — one applied `-100` textbook plus `-100` constraint
   leakage, the other `-200` textbook with leakage explicitly rejected. They tied by
-  coincidence. With ~5 agents per eval round, that is noise recorded as measurement.
+  coincidence. With ~5 agents per eval round, that is noise recorded as measurement. **Closed by Task 10b.**
 
 ## Before ending a session
 

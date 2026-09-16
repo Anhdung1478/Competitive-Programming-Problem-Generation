@@ -29,7 +29,7 @@ File existence is not proof of validation. With neither, **stop and write the `n
 Read `source/problem-context.md` and the validated implementation. Write down, before considering any number:
 
 - the prerequisite techniques the intended solution genuinely requires;
-- the count of **independent** non-obvious observations — two restatements of one idea count once;
+- the count of **independent** non-obvious observations. Two restatements of one idea count once. A step that follows routinely once the main technique is chosen is not a separate observation, however separable it looks — reducing a range query to two prefix queries, or compressing a state to its residue, is scaffolding, not insight. Count an observation only if a solver could have the main idea and still fail to find it;
 - the single hardest step, in one sentence;
 - implementation weight: how much code, and how error-prone;
 - whether the constraints force the intended solution, or a simpler one also fits;
@@ -55,7 +55,9 @@ Read [`references/anchors.md`](references/anchors.md). In the window `[floor, fl
 - one **similar** — one sentence;
 - one clearly **easier** — one sentence.
 
-State the estimate this placement implies. If no anchor in the window is comparable, widen to `[floor, floor+800]` and say in the output that the placement was weak.
+**Two categories are enough when the third cannot exist.** The window starts at the floor, so a problem that genuinely sits at its floor has nothing easier to compare against — that is the floor working, not a gap to paper over. Fill the categories the window supports, name the missing one in the output, and do not reach below the floor or invent a comparison to fill a slot.
+
+State the estimate this placement implies. If no anchor in the window is comparable, widen to `[floor, floor+800]` and say in the output that the placement was weak. Widening searches upward only; it can never supply an easier anchor, so never widen for that reason.
 
 ## Pass D — adjustments, capped at ±300
 
@@ -66,17 +68,18 @@ Apply only what Pass A actually found:
 | `+100` each, cap `+200` | each independent insight beyond the first |
 | `+100` | the statement disguises a standard object |
 | `+100` | genuinely heavy implementation, not merely long |
-| `-100` to `-200` | a textbook exercise in its technique |
-| `-100` | constraint leakage — `n ≤ 20` broadcasts "bitmask" |
+| `-100` to `-200` | a textbook exercise in its technique. `-100` is the default; charge `-200` only when the problem is the technique's bare demonstration case, with no secondary constraint and nothing combined on top |
+| `-100` | constraint leakage — a bound that names the technique by itself, readable from the constraints line alone without the legend, as `n ≤ 20` broadcasts "bitmask". A bound that merely rules out brute force is not leakage |
 
 **The total is capped at ±300**, and that cap is the point: deltas must never override the anchors. If the deltas want more than ±300, the anchor placement in Pass C was wrong — redo Pass C instead of raising the cap.
 
 ## Pass E — gates and output
 
-1. Round to the nearest `100`.
-2. Clamp to `[800, 3500]`.
-3. Attach the interval from `Calibration status` below.
-4. Write `outputs/difficulty.md`.
+1. **Raise to the Pass B floor if Pass D pushed the number below the Pass B floor.** The floor binds the final answer, not merely the anchor placement — otherwise a negative adjustment reopens exactly the failure Pass B exists to close. When this fires, say so in `Độ tin cậy`: the adjustments disagreed with the floor, and the floor won.
+2. Round to the nearest `100`.
+3. Clamp to `[800, 3500]`.
+4. Attach the interval from `Calibration status` below.
+5. Write `outputs/difficulty.md`.
 
 ## The output file
 
