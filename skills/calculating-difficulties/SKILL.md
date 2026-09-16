@@ -75,7 +75,7 @@ Apply only what Pass A actually found:
 
 ## Pass E — gates and output
 
-1. **Raise to the Pass B floor if Pass D pushed the number below the Pass B floor.** The floor binds the final answer, not merely the anchor placement — otherwise a negative adjustment reopens exactly the failure Pass B exists to close. When this fires, say so in `Độ tin cậy`: the adjustments disagreed with the floor, and the floor won.
+1. **If Pass D pushed the number below the Pass B floor, raise it back to that floor.** The floor binds the final answer, not merely the anchor placement — otherwise a negative adjustment reopens exactly the failure Pass B exists to close. When this fires, say so in `Độ tin cậy`: the adjustments disagreed with the floor, and the floor won.
 2. Round to the nearest `100`.
 3. Clamp to `[800, 3500]`.
 4. Attach the interval from `Calibration status` below.
