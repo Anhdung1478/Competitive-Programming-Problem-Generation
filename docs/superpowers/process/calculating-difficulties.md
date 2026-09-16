@@ -12,7 +12,7 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 12 done — 55 anchors / 24 eval / 1 excluded. Next: Task 13 (summarize the anchors).
+Task 13 done — 55 real anchors. Next: Task 14 (metrics verb + baseline).
 
 ## Phase ledger
 
@@ -31,7 +31,7 @@ Task 12 done — 55 anchors / 24 eval / 1 excluded. Next: Task 13 (summarize the
 | 10b | A wiring | done | `SKILL.md` five tie-breaks closed | `grep -c "below the Pass B floor"` = 1 | 0 agents | 2026-09-16 |
 | 11 | B corpus | done | `calibration/corpus.md` + `.cache-cf-corpus/` | 80 rows, 79 `.txt` files (1181C is PDF-only) | 0 agents, ~4 min curl | 2026-09-16 |
 | 12 | B corpus | done | `calibration/eval-set.md`, blind copies | `check` prints `ALL CHECKS PASSED` | 0 agents | 2026-09-16 |
-| 13 | B corpus | not started | `references/anchors.md` (real, 55) | 55 rows, `check` still passes | ~6 agents | — |
+| 13 | B corpus | done | `references/anchors.md` (real, 55) | 55 rows, `check` still passes | 6 agents | 2026-09-16 |
 | 14 | C calibrate | not started | `calibration/predictions-baseline.md` | 24 rows | ~5 agents | — |
 | 15 | C calibrate | not started | `calibration/predictions-round1.md` | 24 rows | ~5 agents | — |
 | 16 | C calibrate | not started | `calibration/metrics.md` | baseline + round 1 sections | 0 agents | — |
