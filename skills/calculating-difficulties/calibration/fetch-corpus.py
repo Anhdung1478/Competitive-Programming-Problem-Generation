@@ -308,10 +308,51 @@ def cmd_check():
     print("ALL CHECKS PASSED")
 
 
+def cmd_metrics():
+    if len(sys.argv) != 3:
+        sys.exit("usage: fetch-corpus.py metrics <predictions-file.md>")
+    truth = {r["slot"]: int(r["rating"]) for r in read_eval()}
+    bands = {r["slot"]: r["band"] for r in read_eval()}
+    path = Path(sys.argv[2])
+    preds = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("| eval-"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        preds[cells[0]] = int(cells[1])
+    missing = sorted(set(truth) - set(preds))
+    if missing:
+        sys.exit("predictions missing for: %s" % " ".join(missing))
+    errors = {s: preds[s] - truth[s] for s in truth}
+    n = len(errors)
+    mae = sum(abs(e) for e in errors.values()) / n
+    bias = sum(errors.values()) / n
+    within200 = 100.0 * sum(1 for e in errors.values() if abs(e) <= 200) / n
+    within300 = 100.0 * sum(1 for e in errors.values() if abs(e) <= 300) / n
+    print("## %s" % path.stem)
+    print()
+    print("n = %d   MAE = %.0f   bias = %+.0f   within200 = %.0f%%   within300 = %.0f%%"
+          % (n, mae, bias, within200, within300))
+    print()
+    print("| band | n | MAE | bias |")
+    print("|---|---|---|---|")
+    for band in sorted({bands[s] for s in truth}):
+        slots = [s for s in truth if bands[s] == band]
+        b_mae = sum(abs(errors[s]) for s in slots) / len(slots)
+        b_bias = sum(errors[s] for s in slots) / len(slots)
+        print("| %s | %d | %.0f | %+.0f |" % (band, len(slots), b_mae, b_bias))
+    print()
+    print("| slot | true | predicted | error |")
+    print("|---|---|---|---|")
+    for slot in sorted(truth):
+        print("| %s | %d | %d | %+d |" % (slot, truth[slot], preds[slot], errors[slot]))
+
+
 VERBS = {"sample": cmd_sample, "starter": cmd_starter, "fetch": cmd_fetch,
-         "split": cmd_split, "blind": cmd_blind, "check": cmd_check}
+         "split": cmd_split, "blind": cmd_blind, "check": cmd_check,
+         "metrics": cmd_metrics}
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2 or sys.argv[1] not in VERBS:
+    if len(sys.argv) < 2 or sys.argv[1] not in VERBS:
         sys.exit("usage: fetch-corpus.py {%s}" % "|".join(VERBS))
     VERBS[sys.argv[1]]()

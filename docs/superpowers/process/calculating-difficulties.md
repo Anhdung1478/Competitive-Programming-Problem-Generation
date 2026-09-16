@@ -12,7 +12,7 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 13 done — 55 real anchors. Next: Task 14 (metrics verb + baseline).
+Task 14 in progress — metrics verb added, baseline predictions running.
 
 ## Phase ledger
 
