@@ -80,7 +80,7 @@ Apply only what Pass A actually found:
 1. **If Pass D pushed the number below the Pass B floor, raise it back to that floor.** The floor binds the final answer, not merely the anchor placement — otherwise a negative adjustment reopens exactly the failure Pass B exists to close. When this fires, say so in `Độ tin cậy`: the adjustments disagreed with the floor, and the floor won.
 2. Round to the nearest `100`.
 3. Clamp to `[800, 3500]`.
-4. Emit a **range**, not a point estimate: `<number−300>-<number+300>`. The measured MAE is 329, so a single number would overstate what this skill knows — see `Calibration status` below.
+4. Emit a **range**, not a point estimate: `<number−300>-<number+300>`. The measured MAE is 329, so a single number would overstate what this skill knows — see `Calibration status` below. Clamp the range's endpoints to `[800, 3500]` too, the same bound as step 3.
 5. Write `outputs/difficulty.md`.
 
 ## The output file
@@ -150,7 +150,10 @@ Then continue. A missing estimate is not a workflow failure — Step 8 renders `
 
 Calibrated against 55 anchors drawn from rated Div1/Div2 problems (2018 onward), and
 measured blind on 24 held-out problems from the same sample — agents that saw the statement
-and these references, never a true rating.
+and these references, never a true rating. Those agents derived each intended solution from
+the statement alone; at runtime this skill reads a validated implementation instead, so the
+figures below are measured under harder conditions than it normally works in — likely
+pessimistic, but by an unmeasured amount.
 
 | | value |
 |---|---|
@@ -167,6 +170,14 @@ roughly halves the error of an unaided guess (658 → 329) and doubles the hit r
 ±200 (25% → 50%), but it still over-rates easy problems and under-rates hard ones. So it
 emits a **range**, not a `±` interval: the interval was not earned. Report the estimate as
 `<placement−300>-<placement+300> (ước lượng)`.
+
+**Known ceiling.** A problem whose prerequisites match no row in `tag-floors.md` floors at
+`1100`, and the passes above can then reach at most about `2200`. That is not a judgement
+the skill is making — it is a limit of the floor table, and 45% of the anchors are themselves
+untagged while spanning 1200 to 2600, so an untagged problem is not necessarily an easy one.
+When Pass B lands on `1100`, treat the result as a **lower bound** rather than a placement,
+and say so in `Độ tin cậy`. The two largest misses in the measurement above were both of
+this kind.
 
 A 24-problem eval set carries roughly ±40 standard error, so treat these figures as accurate
 to about that much and no better. Codeforces ratings themselves quantize to 100 and carry

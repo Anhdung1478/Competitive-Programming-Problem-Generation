@@ -171,3 +171,18 @@ n = 24   MAE = 329   bias = +179   within200 = 50%   within300 = 62%
 | eval-22 | 1400 | 1900 | +500 |
 | eval-23 | 2200 | 2200 | +0 |
 | eval-24 | 1100 | 1100 | +0 |
+
+## Post-freeze corrections
+
+- **`1797C` label corrected after measurement.** `anchors.md` carried `1500 | Div1+2`; the
+  corpus (written from the Codeforces API) says `1600 | Div2`. Corrected in `anchors.md` on
+  2026-09-16, after the rounds above were measured. `1797C` was a comparison anchor for
+  `eval-21` in rounds 1 and 3, so the shipped anchor table differs by this one 100-point
+  label from the table those rounds used. Not re-measured: a 100-point change to one of 55
+  anchors is far inside the ±40 standard error on MAE, and re-running a round to chase it
+  would cost more than it could resolve.
+- **Two prediction rows cite an anchor id that does not exist.** `predictions-round2.md`
+  (`eval-21`) and `predictions-round3.md` (`eval-11`) both name `1063D`; the anchor table
+  contains `1063C`. The blindness check in the eval protocol looks for agents naming real
+  Codeforces problem ids, so a mistyped id passed through it. Effect on the aggregate is at
+  most 1 row of 24 and the figures above are unchanged; recorded here rather than left silent.

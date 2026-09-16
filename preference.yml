@@ -74,6 +74,7 @@ profiles:
         - "Step 8a runs whenever Step 8 runs, in both profiles; it is cheap and it never blocks."
         - "Compare against one anchor instead of two or three, and skip the harder/easier bracketing when the single anchor is clearly comparable. Passes A, B, D and E are unchanged — the floor, the ±300 cap, and the rounding/clamping gates are not relaxed."
         - "A one-line confidence note is enough; the adjustment table may be omitted when no adjustment was applied."
+        - "The measured accuracy (MAE 329, n=24) was taken with Pass C's full 2-3 anchor comparison. When this profile's single-anchor shortcut is used, the output footer must say `hiệu chuẩn 2026-09-16, MAE 329, n=24 (đo với đối chiếu đầy đủ)` — the headline figure does not describe the shortened procedure."
 
       cross_artifact_gate:
         - "Still check bounds/format/subtask consistency across all produced files. Skip the WA/TLE-to-test-coverage cross-check, since light-weight does not produce WA/TLE candidates."

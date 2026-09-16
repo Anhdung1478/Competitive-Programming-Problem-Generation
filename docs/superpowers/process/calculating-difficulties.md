@@ -12,7 +12,7 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Complete. Frozen 2026-09-16, MAE 329, n=24, baseline 658. Targets missed; ships as a range.
+Complete. Frozen 2026-09-16, MAE 329, n=24, baseline 658. Targets missed; ships as a range. Final review fixes applied.
 
 ## Phase ledger
 

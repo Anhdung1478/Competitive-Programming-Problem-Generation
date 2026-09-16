@@ -6,6 +6,11 @@ This never runs at skill runtime. The skill itself is offline.
     sample    pick 10 rated Div1/Div2 problems per 200-point band -> corpus.md
     starter   pick 1 per band and fetch it, for the provisional anchor set
     fetch     download every sampled statement into the cache as plain text
+    split     assign each corpus row an anchor/eval/excluded role -> eval-set.md
+    blind     write eval statements to CACHE/blind, title stripped, for eval agents
+    check     verify corpus/eval-set/anchors integrity (row counts, roles,
+              anchor/eval disjointness, no eval leakage, label integrity)
+    metrics   score a predictions file against the eval set's true ratings
 
 WARNING: do not re-run `sample` once corpus.md is committed. The Codeforces
 problemset grows, so a second run selects a different 80 problems and silently
@@ -269,6 +274,19 @@ def cmd_blind():
     print("wrote %d blind statements to %s" % (len(read_eval()), out))
 
 
+def read_anchor_labels():
+    """Parse id/rating/div out of every table row in references/anchors.md."""
+    rows = []
+    for line in ANCHORS.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("|") or line.startswith("| id ") or set(line) <= set("|- "):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) < 3:
+            continue
+        rows.append({"id": cells[0], "rating": cells[1], "div": cells[2]})
+    return rows
+
+
 def cmd_check():
     rows = read_corpus()
     failures = []
@@ -280,9 +298,9 @@ def cmd_check():
     unassigned = [r["id"] for r in rows if r["role"] not in ("anchor", "eval", "excluded")]
     if unassigned:
         failures.append("unassigned rows: %s" % " ".join(unassigned))
-    if len(anchors) + len(evals) + len(excluded) != len(rows):
-        failures.append("anchors + eval + excluded = %d, expected %d" % (
-            len(anchors) + len(evals) + len(excluded), len(rows)))
+    if excluded != EXCLUDED:
+        failures.append("excluded set = %s, expected EXCLUDED constant = %s" % (
+            sorted(excluded), sorted(EXCLUDED)))
     overlap = anchors & evals
     if overlap:
         failures.append("CONTAMINATION: %s in both sets" % " ".join(sorted(overlap)))
@@ -295,6 +313,16 @@ def cmd_check():
         leaked = sorted(e for e in evals if re.search(r"\|\s*%s\s*\|" % re.escape(e), text))
         if leaked:
             failures.append("CONTAMINATION: eval ids present in anchors.md: %s" % " ".join(leaked))
+        corpus_by_id = {r["id"]: r for r in rows}
+        for a in read_anchor_labels():
+            c = corpus_by_id.get(a["id"])
+            if c is None:
+                failures.append("LABEL MISMATCH: %s in anchors.md not found in corpus.md" % a["id"])
+                continue
+            if a["rating"] != c["rating"] or a["div"] != c["div"]:
+                failures.append(
+                    "LABEL MISMATCH: %s anchors.md says %s | %s, corpus.md says %s | %s" % (
+                        a["id"], a["rating"], a["div"], c["rating"], c["div"]))
     if EVAL.exists():
         listed = {r["id"] for r in read_eval()}
         if listed != evals:

@@ -545,7 +545,7 @@ If a problem needs another specialized structure, create a focused skill under `
 Use the `writing-editorials` skill. Run it only on explicit request; a workflow
 that ends at Step 7 with no editorial is finished, not incomplete. The editorial must be written in Vietnamese. Prefer the validated `source/solution.cpp` as the implementation to explain; when the source solution is absent, use a validated full-scope AC solution declared in `outputs/solution/manifest.md`. A subtask-only AC may support that subtask's section but must not be presented as a full solution.
 
-## Step 8a — `outputs/difficulty.md`
+## Step 8a (with Step 8) — `outputs/difficulty.md`
 
 Use the `calculating-difficulties` skill. It runs whenever Step 8 runs, and may be run
 alone at any point after Step 1. It reads the validated solution and

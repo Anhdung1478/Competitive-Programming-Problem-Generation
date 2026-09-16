@@ -22,12 +22,12 @@ because a problem "feels" harder.
 | 1989C | 1400 | Div2 | DSU, basic graph traversal with a twist, binary search on answer | Classify reviewers into nine outcome types, resolve the unambiguous ones directly, then binary-search the achievable minimum rating checking feasibility with the flexible ones. |
 | 2127C | 1400 | Div1+2 | two pointers, prefix sums, sorting + greedy | Realize k rounds are irrelevant since repeating one pair suffices; sort interval endpoints to find the pair minimizing forced rearrangement cost. |
 | 2245C | 1400 | Div1+2 | none | Exploit that prefix mex is non-decreasing; greedily interleave "next missing value" and "largest unused value" insertions to hit the target XOR k. |
-| 1797C | 1500 | Div1+2 | none | Query three well-chosen cells (Chebyshev distances) and algebraically solve the resulting max() equations to pin down the king's row and column. |
 | 1804C | 1500 | Div1+2 | none | Use that triangular numbers mod n repeat with period at most 2n, so brute-force check every force f from 1 to min(p, 2n). |
 | 1924A | 1500 | Div1 | two pointers, prefix sums, sorting + greedy | Greedily partition s into consecutive blocks each covering all k letters; at least n full blocks means YES, else build a missing witness. |
 | 2109C1 | 1500 | Div2 | none | Interactive: repeated digit-sum reduction shrinks x to a few candidates; feedback from add/mul/div then identifies and rebuilds x as n. |  <!-- unsure -->
 | 2140C | 1500 | Div2 | two pointers, prefix sums, sorting + greedy | Prove only one swap ever happens (Bob then ends); pick the best single swap via prefix max/min scans over parity-based value swings. |
 | 1455D | 1600 | Div2 | two pointers, prefix sums, sorting + greedy | Greedily scan left to right, swapping a_i with x whenever a_i > x and a_i breaks the sorted order built so far. |
+| 1797C | 1600 | Div2 | none | Query three well-chosen cells (Chebyshev distances) and algebraically solve the resulting max() equations to pin down the king's row and column. |
 | 980B | 1600 | Div2 | none | Ad hoc construction: exploit top-bottom mirror symmetry between the two paths, placing hotels symmetrically (or blocking a full row) to force equal path counts. |
 | 1073D | 1700 | Div2 | DSU, basic graph traversal with a twist, binary search on answer | Binary search on the number of full laps around the circle; prefix sums give the spend per lap, then simulate the final partial lap. |
 | 1228C | 1700 | Div2 | none | Factorize x by trial division, then for each prime sum floor(n/p^i) (Legendre-style) to get its exponent, and multiply modpow results. |
