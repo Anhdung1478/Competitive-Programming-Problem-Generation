@@ -17,7 +17,8 @@ Read all available source-of-truth files before writing:
 2. `source/solution.cpp` when present;
 3. `outputs/solution/manifest.md` and the AC sources it references when present;
 4. `outputs/statement.txt`, `outputs/checker.cpp`, and `outputs/validator.cpp` when present;
-5. the current `outputs/editorial.html` when reviewing or updating it.
+5. `outputs/difficulty.md` when present — the Step 8a estimate;
+6. the current `outputs/editorial.html` when reviewing or updating it.
 
 Require all prerequisite workflow gates to have completed successfully. Select the implementation to explain in this order:
 
@@ -174,10 +175,10 @@ Include:
 
 - the problem name;
 - `Time limit` and `Memory limit` rows, only when authoritative values exist;
-- an `Expected rating` field containing a Codeforces-style rating as a plain number when it can be responsibly estimated;
+- an `Expected rating` field copied verbatim from `outputs/difficulty.md` — including its interval and the `(ước lượng)` marker — or `chưa xác định` when that file is absent or records `not estimable`;
 - concise Codeforces-style tags inferred from the validated algorithm.
 
-Do not block completion merely to ask for an estimated difficulty or tags. Clearly treat the rating as an estimate. Never write a leading `*` before it.
+Do not estimate the rating here. Step 8a owns it: copy `outputs/difficulty.md`'s number or write `chưa xác định`. Do not block completion to ask for a difficulty or tags, do not re-derive a number the file already carries, and never write a leading `*` before it.
 
 ### Tóm tắt đề bài
 
@@ -298,4 +299,5 @@ Verify all of the following:
 - no wrong-answer implementation, generator behavior, or setter-only note leaks into the tutorial;
 - only one supplied theme is used and its CSS, chrome, and trailing script remain intact; on `fb-light`, `<div class="pt-body">` wraps the whole body and each `<p>` carries one reasoning step;
 - when the user asked for a companion implementation, `outputs/solution.cpp` mirrors the editorial's algorithm, compiles, and passes the full test set;
-- no subtask, limit, rating, sample, or alternative solution is presented as authoritative without support.
+- no subtask, limit, rating, sample, or alternative solution is presented as authoritative without support;
+- the `Expected rating` row is a copy of `outputs/difficulty.md` or `chưa xác định` — never a number this editorial invented.
