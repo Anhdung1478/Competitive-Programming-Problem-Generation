@@ -1,0 +1,204 @@
+#!/usr/bin/env python
+"""Build-time corpus tool for the calculating-difficulties skill.
+
+This never runs at skill runtime. The skill itself is offline.
+
+    sample    pick 10 rated Div1/Div2 problems per 200-point band -> corpus.md
+    starter   pick 1 per band and fetch it, for the provisional anchor set
+    fetch     download every sampled statement into the cache as plain text
+
+WARNING: do not re-run `sample` once corpus.md is committed. The Codeforces
+problemset grows, so a second run selects a different 80 problems and silently
+invalidates every measurement taken against the first.
+"""
+import html
+import json
+import random
+import re
+import subprocess
+import sys
+import time
+import urllib.request
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent          # .../calculating-difficulties/calibration
+SKILL = HERE.parent                             # .../calculating-difficulties
+REPO = SKILL.parents[1]                         # repository root
+CACHE = REPO / ".cache-cf-corpus"
+CORPUS = HERE / "corpus.md"
+
+SEED = 20260916
+CUTOFF = 1514764800                             # 2018-01-01 UTC
+BANDS = [(1100 + 200 * i, 1299 + 200 * i) for i in range(8)]
+PER_BAND = 10
+UA = "Mozilla/5.0 (compatible; cp-problem-generation calibration)"
+COLUMNS = ["id", "rating", "div", "date", "band", "role"]
+
+
+def api(path):
+    req = urllib.request.Request("https://codeforces.com/api/" + path,
+                                 headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=120) as resp:
+        payload = json.load(resp)
+    if payload.get("status") != "OK":
+        sys.exit("CF API refused %s: %s" % (path, payload.get("comment")))
+    return payload["result"]
+
+
+def division(contest_name):
+    d1 = "Div. 1" in contest_name
+    d2 = "Div. 2" in contest_name
+    if d1 and d2:
+        return "Div1+2"
+    if d1:
+        return "Div1"
+    if d2:
+        return "Div2"
+    return None
+
+
+def band_of(rating):
+    return (rating - 1100) // 200
+
+
+def candidates():
+    problems = api("problemset.problems")["problems"]
+    contests = {c["id"]: c for c in api("contest.list?gym=false")}
+    pool = {b: [] for b in range(len(BANDS))}
+    for p in problems:
+        rating = p.get("rating")
+        if rating is None or not (1100 <= rating <= 2699):
+            continue
+        contest = contests.get(p.get("contestId"))
+        if not contest or contest.get("startTimeSeconds", 0) < CUTOFF:
+            continue
+        div = division(contest.get("name", ""))
+        if not div:
+            continue
+        pool[band_of(rating)].append({
+            "id": "%s%s" % (p["contestId"], p["index"]),
+            "rating": rating,
+            "div": div,
+            "date": time.strftime("%Y-%m-%d", time.gmtime(contest["startTimeSeconds"])),
+            "role": "",
+        })
+    return pool
+
+
+def pick(pool, per_band, seed):
+    rng = random.Random(seed)
+    rows = []
+    for b in range(len(BANDS)):
+        entries = sorted(pool[b], key=lambda e: e["id"])
+        if len(entries) < per_band:
+            sys.exit("band %d has only %d candidates" % (BANDS[b][0], len(entries)))
+        rows.extend(sorted(rng.sample(entries, per_band), key=lambda e: e["id"]))
+    return rows
+
+
+def write_corpus(rows):
+    lines = [
+        "# Corpus — the frozen sample",
+        "",
+        "Build-time only. Never read at skill runtime, never named by SKILL.md.",
+        "Written by `fetch-corpus.py`. Do not edit the table by hand.",
+        "",
+        "| id | rating | div | date | band | role |",
+        "|---|---|---|---|---|---|",
+    ]
+    for e in rows:
+        b = band_of(int(e["rating"]))
+        lines.append("| %s | %s | %s | %s | %d-%d | %s |" % (
+            e["id"], e["rating"], e["div"], e["date"], BANDS[b][0], BANDS[b][1], e["role"]))
+    CORPUS.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def read_corpus():
+    if not CORPUS.exists():
+        sys.exit("%s does not exist — run `sample` first" % CORPUS)
+    rows = []
+    for line in CORPUS.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("|") or line.startswith("| id ") or set(line) <= set("|- "):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        rows.append(dict(zip(COLUMNS, cells)))
+    return rows
+
+
+def to_text(page_html):
+    match = re.search(r'<div class="problem-statement">(.*?)</html>', page_html, re.S)
+    body = match.group(1) if match else page_html
+    body = re.sub(r"<script.*?</script>", " ", body, flags=re.S)
+    body = re.sub(r"<br\s*/?>", "\n", body)
+    body = re.sub(r"</(p|div|li)>", "\n", body)
+    body = re.sub(r"<[^>]+>", " ", body)
+    body = html.unescape(body)
+    body = re.sub(r"[ \t]+", " ", body)
+    body = re.sub(r"\n\s*\n+", "\n\n", body)
+    return body.strip()
+
+
+def fetch_one(problem_id):
+    match = re.match(r"(\d+)([A-Za-z]\d*)$", problem_id)
+    if not match:
+        return "malformed id"
+    url = "https://codeforces.com/problemset/problem/%s/%s" % match.groups()
+    proc = subprocess.run(["curl", "-sS", "-m", "60", "-A", UA, url],
+                          capture_output=True, text=True,
+                          encoding="utf-8", errors="replace")
+    if proc.returncode != 0:
+        return "curl exit %d" % proc.returncode
+    if "problem-statement" not in proc.stdout:
+        return "no statement in response"
+    text = to_text(proc.stdout)
+    if len(text) < 200:
+        return "extracted only %d chars" % len(text)
+    CACHE.mkdir(exist_ok=True)
+    (CACHE / ("%s.txt" % problem_id)).write_text(text, encoding="utf-8")
+    return None
+
+
+def cmd_sample():
+    if CORPUS.exists():
+        sys.exit("%s already exists. Re-sampling invalidates every measurement taken "
+                 "against it. Delete it deliberately if that is what you mean." % CORPUS)
+    rows = pick(candidates(), PER_BAND, SEED)
+    write_corpus(rows)
+    print("sampled %d problems into %s" % (len(rows), CORPUS))
+
+
+def cmd_starter():
+    rows = pick(candidates(), 1, SEED + 99)
+    print("| id | rating | div | date |")
+    for e in rows:
+        err = fetch_one(e["id"])
+        print("| %s | %s | %s | %s |%s" % (
+            e["id"], e["rating"], e["div"], e["date"], "" if err is None else "  FAILED: " + err))
+        time.sleep(1.5)
+    print("statements cached in %s" % CACHE)
+
+
+def cmd_fetch():
+    rows = read_corpus()
+    missing = [r for r in rows if not (CACHE / ("%s.txt" % r["id"])).exists()]
+    print("%d already cached, %d to fetch" % (len(rows) - len(missing), len(missing)))
+    failures = []
+    for i, row in enumerate(missing, 1):
+        err = fetch_one(row["id"])
+        print("  [%d/%d] %s%s" % (i, len(missing), row["id"],
+                                  "" if err is None else "  FAILED: " + err))
+        if err:
+            failures.append(row["id"])
+        time.sleep(1.5)
+    print("cached: %d / %d" % (len(rows) - len(failures), len(rows)))
+    if failures:
+        print("re-run `fetch` to retry: %s" % " ".join(failures))
+        sys.exit(1)
+
+
+VERBS = {"sample": cmd_sample, "starter": cmd_starter, "fetch": cmd_fetch}
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2 or sys.argv[1] not in VERBS:
+        sys.exit("usage: fetch-corpus.py {%s}" % "|".join(VERBS))
+    VERBS[sys.argv[1]]()

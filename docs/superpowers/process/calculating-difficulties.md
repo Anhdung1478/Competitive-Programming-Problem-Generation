@@ -12,14 +12,14 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 1 done. Next: Task 2 (`fetch-corpus.py`, sample + fetch verbs).
+Task 2 done. Next: Task 3 (SKILL.md v0).
 
 ## Phase ledger
 
 | Task | Phase | Status | Artifact | Verify it is really done | Cost | Date |
 |---|---|---|---|---|---|---|
 | 1 | A wiring | done | `docs/superpowers/process/calculating-difficulties.md` | this file exists and is committed | — | 2026-09-16 |
-| 2 | A wiring | not started | `skills/calculating-difficulties/calibration/fetch-corpus.py` | `python …/fetch-corpus.py` prints usage | 0 agents | — |
+| 2 | A wiring | done | `skills/calculating-difficulties/calibration/fetch-corpus.py` | `python …/fetch-corpus.py` prints usage | 0 agents | 2026-09-16 |
 | 3 | A wiring | not started | `skills/calculating-difficulties/SKILL.md` | frontmatter `name:` matches the directory | 0 agents | — |
 | 4 | A wiring | not started | `references/tag-floors.md` | 8 technique rows | 0 agents | — |
 | 5 | A wiring | not started | `references/anchors.md` (starter) | 8 rows, ratings from the API | 0 agents | — |

@@ -6,3 +6,9 @@ Thumbs.db
 # Scratch testlib checkout used while developing the validator skill.
 /.tmp-validator-testlib/
 /competitive-programming-main/
+
+# Codeforces statement cache for the calculating-difficulties calibration.
+/.cache-cf-corpus/
+
+# Subagent-driven-development scratch (ledger, briefs, review packages).
+/.superpowers/
