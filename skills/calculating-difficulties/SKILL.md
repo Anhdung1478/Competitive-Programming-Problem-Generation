@@ -43,7 +43,7 @@ Read [`references/tag-floors.md`](references/tag-floors.md). Take the hardest te
 
 A floor is not an estimate. It is the level below which this problem cannot land, whatever the code looks like. It exists to block the common failure of rating a digit-DP problem 1400 because the implementation came out clean.
 
-If the solution requires nothing on the list, the floor is `1100`.
+If the solution requires nothing on the list, the floor is `900`.
 
 ## Pass C — anchor placement
 

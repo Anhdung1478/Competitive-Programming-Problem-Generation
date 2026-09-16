@@ -12,7 +12,7 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 14 in progress — metrics verb added, baseline predictions running.
+Task 17 round 2 — floors shifted -200, re-eval running.
 
 ## Phase ledger
 
