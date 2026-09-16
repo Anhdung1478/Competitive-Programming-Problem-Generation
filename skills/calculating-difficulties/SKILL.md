@@ -43,7 +43,7 @@ Read [`references/tag-floors.md`](references/tag-floors.md). Take the hardest te
 
 A floor is not an estimate. It is the level below which this problem cannot land, whatever the code looks like. It exists to block the common failure of rating a digit-DP problem 1400 because the implementation came out clean.
 
-If the solution requires nothing on the list, the floor is `900`.
+If the solution requires nothing on the list, the floor is `1100`.
 
 ## Pass C — anchor placement
 
@@ -56,6 +56,8 @@ Read [`references/anchors.md`](references/anchors.md). In the window `[floor, fl
 - one clearly **easier** — one sentence.
 
 **Two categories are enough when the third cannot exist.** The window starts at the floor, so a problem that genuinely sits at its floor has nothing easier to compare against — that is the floor working, not a gap to paper over. Fill the categories the window supports, name the missing one in the output, and do not reach below the floor or invent a comparison to fill a slot.
+
+**Trust the anchor's rating over your own sense of difficulty.** The characteristic failure of this pass is treating the anchors as a sanity check on a number you already formed — which leaves the scale compressed, easy problems rated too high and hard ones too low. Read the anchor's rating first, decide whether this problem is harder or easier than *that specific problem*, and let the number follow from the comparison. If your estimate ends more than `300` away from every anchor you compared against, you did not place the problem against them — redo the comparison rather than keeping the number.
 
 State the estimate this placement implies. If no anchor in the window is comparable, widen to `[floor, floor+800]` and say in the output that the placement was weak. Widening searches upward only; it can never supply an easier anchor, so never widen for that reason.
 
