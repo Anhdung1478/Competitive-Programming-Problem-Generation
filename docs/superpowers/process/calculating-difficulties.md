@@ -12,7 +12,7 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 7 done. Next: Task 8 (preference.yml).
+Task 8 done. Next: Task 9 (README).
 
 ## Phase ledger
 
@@ -25,7 +25,7 @@ Task 7 done. Next: Task 8 (preference.yml).
 | 5 | A wiring | done | `references/anchors.md` (starter) | 8 rows, ratings from the API | 0 agents | 2026-09-16 |
 | 6 | A wiring | done | `skills/creating-problems/SKILL.md` | `grep -c "Step 8a"` ≥ 3 | 0 agents | 2026-09-16 |
 | 7 | A wiring | done | `skills/writing-editorials/SKILL.md` | `grep -c "difficulty.md"` ≥ 2 | 0 agents | 2026-09-16 |
-| 8 | A wiring | not started | `preference.yml` | `grep -c step8a_difficulty` = 1 | 0 agents | — |
+| 8 | A wiring | done | `preference.yml` | `grep -c step8a_difficulty` = 1 | 0 agents | 2026-09-16 |
 | 9 | A wiring | not started | `README.md` | `grep -c calculating-difficulties` = 2 | 0 agents | — |
 | 10 | A wiring | not started | smoke-test transcript | both branches produced a file | 0 agents | — |
 | 11 | B corpus | not started | `calibration/corpus.md` + `.cache-cf-corpus/` | 80 rows, 80 `.txt` files | 0 agents, ~4 min curl | — |

@@ -36,6 +36,7 @@ profiles:
       - "Step 5's input validator: it is written in both profiles, and every generated test must be accepted by it."
       - "Step 5b's example outputs: every outputs/example-test/*.out is the verbatim output of a validated solution, never hand-written, in both profiles."
       - "Step 5b's write-back: whenever outputs/tex-statement.tex exists, the examples always land in its \\Examples block and the document is recompiled, in both profiles."
+      - "Step 8a's `not estimable` rule: with no Step 1-validated solution the difficulty is recorded as not estimable in both profiles. A guess never stands in for a missing validation."
 
     overrides:
       step0_shaping:
@@ -68,6 +69,11 @@ profiles:
       step8_editorial:
         - "Step 8 is opt-in in both profiles, so this applies only when the user asks for the editorial."
         - "A concise editorial covering the algorithm, complexity, and one worked example is sufficient. Full proof-level derivation of every step is optional."
+
+      step8a_difficulty:
+        - "Step 8a runs whenever Step 8 runs, in both profiles; it is cheap and it never blocks."
+        - "Compare against one anchor instead of two or three, and skip the harder/easier bracketing when the single anchor is clearly comparable. Passes A, B, D and E are unchanged — the floor, the ±300 cap, and the rounding/clamping gates are not relaxed."
+        - "A one-line confidence note is enough; the adjustment table may be omitted when no adjustment was applied."
 
       cross_artifact_gate:
         - "Still check bounds/format/subtask consistency across all produced files. Skip the WA/TLE-to-test-coverage cross-check, since light-weight does not produce WA/TLE candidates."
