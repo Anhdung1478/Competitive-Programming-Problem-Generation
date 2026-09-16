@@ -40,6 +40,7 @@ or more — "statement + tests", "sinh test", "idea to package" — stay here.
 | Only the test script or the generator | `generating-tests` |
 | Only the input validator | `polygon-validator` |
 | Only an HTML editorial | `writing-editorials` |
+| Only an estimated difficulty/rating | `calculating-difficulties` |
 | Only pushing a finished package to Codeforces Polygon | `uploading-to-polygon` |
 
 ## Purpose
@@ -60,12 +61,15 @@ Execute these workflow steps in this exact order:
 
 Do not reorder or skip a mandatory gate unless the user explicitly changes the workflow.
 
-Three steps are optional and are skipped by default; produce them only on explicit request:
+Four steps are optional and are skipped by default; produce them only on explicit request:
 
 - Step 2b `outputs/tex-statement.tex` — only after Step 2 has produced
   `outputs/statement.txt`.
 - Step 8 `outputs/editorial.html` — only after Step 7 has produced the test
-  suite.
+  suite. Step 8a runs with it.
+- Step 8a `outputs/difficulty.md` — mandatory whenever Step 8 runs, and
+  available on its own any time after Step 1. It never blocks: with no
+  validated solution it records `not estimable` and the workflow continues.
 - Step 9 upload to Codeforces Polygon — only after Step 7 and the cross-artifact
   consistency gate below have passed. It does not wait on Step 8: the editorial
   is not uploaded, so a package with no `outputs/editorial.html` is still
@@ -540,6 +544,21 @@ If a problem needs another specialized structure, create a focused skill under `
 
 Use the `writing-editorials` skill. Run it only on explicit request; a workflow
 that ends at Step 7 with no editorial is finished, not incomplete. The editorial must be written in Vietnamese. Prefer the validated `source/solution.cpp` as the implementation to explain; when the source solution is absent, use a validated full-scope AC solution declared in `outputs/solution/manifest.md`. A subtask-only AC may support that subtask's section but must not be presented as a full solution.
+
+## Step 8a — `outputs/difficulty.md`
+
+Use the `calculating-difficulties` skill. It runs whenever Step 8 runs, and may be run
+alone at any point after Step 1. It reads the validated solution and
+`source/problem-context.md`, and writes `outputs/difficulty.md`: the estimate with its
+interval, the prerequisite floor, the anchors compared, every adjustment applied, and a
+confidence line.
+
+The estimate is a comparability figure on the Codeforces scale, not a prediction of how
+any particular group will perform, and never a per-subtask rating.
+
+With no validated solution the file records `not estimable` plus the reason, and the
+workflow continues — Step 8 then renders `chưa xác định`. Never let a guess stand in for
+a missing validation, and never block Step 9 on this step.
 
 ## Step 9 (optional) — upload to Codeforces Polygon
 
