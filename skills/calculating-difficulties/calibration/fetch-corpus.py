@@ -34,6 +34,15 @@ PER_BAND = 10
 UA = "Mozilla/5.0 (compatible; cp-problem-generation calibration)"
 COLUMNS = ["id", "rating", "div", "date", "band", "role"]
 
+EVAL_PER_BAND = 3
+EVAL = HERE / "eval-set.md"
+ANCHORS = SKILL / "references" / "anchors.md"
+
+# Codeforces serves 1181C's statement as a native PDF, so it cannot be fetched
+# or summarized. It stays in the frozen corpus as a record of the sample and is
+# excluded from both roles.
+EXCLUDED = {"1181C"}
+
 
 def api(path):
     req = urllib.request.Request("https://codeforces.com/api/" + path,
@@ -196,7 +205,111 @@ def cmd_fetch():
         sys.exit(1)
 
 
-VERBS = {"sample": cmd_sample, "starter": cmd_starter, "fetch": cmd_fetch}
+def cmd_split():
+    rows = read_corpus()
+    if any(r["role"] for r in rows):
+        sys.exit("roles are already assigned in %s — re-splitting would move problems "
+                 "between the anchor and eval sets and invalidate every measurement" % CORPUS)
+    rng = random.Random(SEED + 1)
+    by_band = {}
+    for row in rows:
+        if row["id"] in EXCLUDED:
+            row["role"] = "excluded"
+            continue
+        by_band.setdefault(row["band"], []).append(row)
+    for band in sorted(by_band):
+        entries = sorted(by_band[band], key=lambda e: e["id"])
+        chosen = {e["id"] for e in rng.sample(entries, EVAL_PER_BAND)}
+        for entry in entries:
+            entry["role"] = "eval" if entry["id"] in chosen else "anchor"
+    write_corpus(rows)
+
+    evals = sorted([r for r in rows if r["role"] == "eval"], key=lambda r: r["id"])
+    excluded = [r for r in rows if r["role"] == "excluded"]
+    lines = [
+        "# Eval set — held out",
+        "",
+        "Build-time only. Never read at skill runtime, never named by SKILL.md, and never",
+        "shown to an agent that is about to predict a rating. The whole accuracy claim",
+        "rests on these 24 problems being unseen by the rubric.",
+        "",
+        "| slot | id | rating | band |",
+        "|---|---|---|---|",
+    ]
+    for n, row in enumerate(evals, 1):
+        lines.append("| eval-%02d | %s | %s | %s |" % (n, row["id"], row["rating"], row["band"]))
+    EVAL.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print("split: %d anchors, %d eval, %d excluded -> %s" % (
+        len(rows) - len(evals) - len(excluded), len(evals), len(excluded), EVAL))
+
+
+def read_eval():
+    if not EVAL.exists():
+        sys.exit("%s does not exist — run `split` first" % EVAL)
+    rows = []
+    for line in EVAL.read_text(encoding="utf-8").splitlines():
+        if not line.startswith("| eval-"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        rows.append(dict(zip(["slot", "id", "rating", "band"], cells)))
+    return rows
+
+
+def cmd_blind():
+    out = CACHE / "blind"
+    out.mkdir(parents=True, exist_ok=True)
+    for row in read_eval():
+        src = CACHE / ("%s.txt" % row["id"])
+        if not src.exists():
+            sys.exit("missing %s — run `fetch` first" % src)
+        body = src.read_text(encoding="utf-8")
+        # Drop the leading "D. Problem Title" line so the slot cannot be traced by name.
+        body = body.split("\n", 1)[1].lstrip() if "\n" in body else body
+        (out / ("%s.txt" % row["slot"])).write_text(body, encoding="utf-8")
+    print("wrote %d blind statements to %s" % (len(read_eval()), out))
+
+
+def cmd_check():
+    rows = read_corpus()
+    failures = []
+    if len(rows) != len(BANDS) * PER_BAND:
+        failures.append("corpus has %d rows, expected %d" % (len(rows), len(BANDS) * PER_BAND))
+    anchors = {r["id"] for r in rows if r["role"] == "anchor"}
+    evals = {r["id"] for r in rows if r["role"] == "eval"}
+    excluded = {r["id"] for r in rows if r["role"] == "excluded"}
+    unassigned = [r["id"] for r in rows if r["role"] not in ("anchor", "eval", "excluded")]
+    if unassigned:
+        failures.append("unassigned rows: %s" % " ".join(unassigned))
+    if len(anchors) + len(evals) + len(excluded) != len(rows):
+        failures.append("anchors + eval + excluded = %d, expected %d" % (
+            len(anchors) + len(evals) + len(excluded), len(rows)))
+    overlap = anchors & evals
+    if overlap:
+        failures.append("CONTAMINATION: %s in both sets" % " ".join(sorted(overlap)))
+    for band in sorted({r["band"] for r in rows}):
+        n_eval = sum(1 for r in rows if r["band"] == band and r["role"] == "eval")
+        if n_eval != EVAL_PER_BAND:
+            failures.append("band %s has %d eval, expected %d" % (band, n_eval, EVAL_PER_BAND))
+    if ANCHORS.exists():
+        text = ANCHORS.read_text(encoding="utf-8")
+        leaked = sorted(e for e in evals if re.search(r"\|\s*%s\s*\|" % re.escape(e), text))
+        if leaked:
+            failures.append("CONTAMINATION: eval ids present in anchors.md: %s" % " ".join(leaked))
+    if EVAL.exists():
+        listed = {r["id"] for r in read_eval()}
+        if listed != evals:
+            failures.append("eval-set.md lists %d ids, corpus marks %d" % (len(listed), len(evals)))
+    for failure in failures:
+        print("FAIL  %s" % failure)
+    if failures:
+        sys.exit(1)
+    print("anchors: %d   eval: %d   excluded: %d   disjoint: yes" % (
+        len(anchors), len(evals), len(excluded)))
+    print("ALL CHECKS PASSED")
+
+
+VERBS = {"sample": cmd_sample, "starter": cmd_starter, "fetch": cmd_fetch,
+         "split": cmd_split, "blind": cmd_blind, "check": cmd_check}
 
 if __name__ == "__main__":
     if len(sys.argv) != 2 or sys.argv[1] not in VERBS:

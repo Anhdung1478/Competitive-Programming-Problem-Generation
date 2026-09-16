@@ -12,7 +12,7 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 11 done — corpus frozen. Next: Task 12 (split + blind + check).
+Task 12 done — 55 anchors / 24 eval / 1 excluded. Next: Task 13 (summarize the anchors).
 
 ## Phase ledger
 
@@ -29,9 +29,9 @@ Task 11 done — corpus frozen. Next: Task 12 (split + blind + check).
 | 9 | A wiring | done | `README.md` | `grep -c calculating-difficulties` = 2 | 0 agents | 2026-09-16 |
 | 10 | A wiring | done | smoke-test transcript (scratchpad, not committed) | both branches produced a file | 0 agents | 2026-09-16 |
 | 10b | A wiring | done | `SKILL.md` five tie-breaks closed | `grep -c "below the Pass B floor"` = 1 | 0 agents | 2026-09-16 |
-| 11 | B corpus | done | `calibration/corpus.md` + `.cache-cf-corpus/` | 80 rows, 80 `.txt` files | 0 agents, ~4 min curl | 2026-09-16 |
-| 12 | B corpus | not started | `calibration/eval-set.md`, blind copies | `check` prints `ALL CHECKS PASSED` | 0 agents | — |
-| 13 | B corpus | not started | `references/anchors.md` (real, 56) | 56 rows, `check` still passes | ~6 agents | — |
+| 11 | B corpus | done | `calibration/corpus.md` + `.cache-cf-corpus/` | 80 rows, 79 `.txt` files (1181C is PDF-only) | 0 agents, ~4 min curl | 2026-09-16 |
+| 12 | B corpus | done | `calibration/eval-set.md`, blind copies | `check` prints `ALL CHECKS PASSED` | 0 agents | 2026-09-16 |
+| 13 | B corpus | not started | `references/anchors.md` (real, 55) | 55 rows, `check` still passes | ~6 agents | — |
 | 14 | C calibrate | not started | `calibration/predictions-baseline.md` | 24 rows | ~5 agents | — |
 | 15 | C calibrate | not started | `calibration/predictions-round1.md` | 24 rows | ~5 agents | — |
 | 16 | C calibrate | not started | `calibration/metrics.md` | baseline + round 1 sections | 0 agents | — |
@@ -97,6 +97,14 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
   Pass D total by *different routes* — one applied `-100` textbook plus `-100` constraint
   leakage, the other `-200` textbook with leakage explicitly rejected. They tied by
   coincidence. With ~5 agents per eval round, that is noise recorded as measurement. **Closed by Task 10b.**
+
+- **Task 12: `1181C` excluded from both roles.** Codeforces serves its statement as a
+  native PDF (`%PDF-1.5`, no `problem-statement` div), not HTML, so it cannot be fetched or
+  summarized like the other 79 sampled problems. It was excluded via an `EXCLUDED` constant
+  in `fetch-corpus.py` rather than dropped from `corpus.md` — the frozen row set is
+  untouched; only its `role` cell reads `excluded`. The split is 55 anchor / 24 eval / 1
+  excluded (not the planned 56/24), and the `1900-2099` band draws its 3 eval from 9
+  candidates instead of 10.
 
 ## Before ending a session
 
