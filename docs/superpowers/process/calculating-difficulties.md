@@ -12,8 +12,7 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 10b done — the five SKILL.md tie-breaks are closed. Next: Task 11 (freeze the
-80-problem sample) — irreversible, see the re-run warnings below.
+Task 11 done — corpus frozen. Next: Task 12 (split + blind + check).
 
 ## Phase ledger
 
@@ -30,7 +29,7 @@ Task 10b done — the five SKILL.md tie-breaks are closed. Next: Task 11 (freeze
 | 9 | A wiring | done | `README.md` | `grep -c calculating-difficulties` = 2 | 0 agents | 2026-09-16 |
 | 10 | A wiring | done | smoke-test transcript (scratchpad, not committed) | both branches produced a file | 0 agents | 2026-09-16 |
 | 10b | A wiring | done | `SKILL.md` five tie-breaks closed | `grep -c "below the Pass B floor"` = 1 | 0 agents | 2026-09-16 |
-| 11 | B corpus | not started | `calibration/corpus.md` + `.cache-cf-corpus/` | 80 rows, 80 `.txt` files | 0 agents, ~4 min curl | — |
+| 11 | B corpus | done | `calibration/corpus.md` + `.cache-cf-corpus/` | 80 rows, 80 `.txt` files | 0 agents, ~4 min curl | 2026-09-16 |
 | 12 | B corpus | not started | `calibration/eval-set.md`, blind copies | `check` prints `ALL CHECKS PASSED` | 0 agents | — |
 | 13 | B corpus | not started | `references/anchors.md` (real, 56) | 56 rows, `check` still passes | ~6 agents | — |
 | 14 | C calibrate | not started | `calibration/predictions-baseline.md` | 24 rows | ~5 agents | — |
