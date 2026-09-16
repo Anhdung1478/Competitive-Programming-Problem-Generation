@@ -80,7 +80,7 @@ Apply only what Pass A actually found:
 1. **If Pass D pushed the number below the Pass B floor, raise it back to that floor.** The floor binds the final answer, not merely the anchor placement — otherwise a negative adjustment reopens exactly the failure Pass B exists to close. When this fires, say so in `Độ tin cậy`: the adjustments disagreed with the floor, and the floor won.
 2. Round to the nearest `100`.
 3. Clamp to `[800, 3500]`.
-4. Attach the interval from `Calibration status` below.
+4. Emit a **range**, not a point estimate: `<number−300>-<number+300>`. The measured MAE is 329, so a single number would overstate what this skill knows — see `Calibration status` below.
 5. Write `outputs/difficulty.md`.
 
 ## The output file
@@ -90,7 +90,7 @@ Write exactly this shape:
 ```markdown
 # Độ khó ước lượng
 
-**Expected rating: 2300 ± 200 (ước lượng)**
+**Expected rating: 2000-2600 (ước lượng)**
 
 Con số này là mức để so sánh, không phải dự đoán kết quả của học sinh. Nó cho biết
 bài này thuộc nhóm nào trên thang Codeforces, và không áp dụng cho từng subtask.
@@ -123,7 +123,7 @@ Tổng điều chỉnh: +100 (giới hạn ±300).
 unusual technique, or a solution whose complexity depends on input shape>
 
 ---
-Nguồn: kỹ năng `calculating-difficulties`, <calibration status line>.
+Nguồn: kỹ năng `calculating-difficulties`, hiệu chuẩn 2026-09-16, MAE 329, n=24.
 ```
 
 Keep it to that. This file is an audit trail, not an essay.
@@ -148,4 +148,26 @@ Then continue. A missing estimate is not a workflow failure — Step 8 renders `
 
 ## Calibration status
 
-**Uncalibrated.** The floors and anchors here are drafts; no accuracy has been measured yet. Emit `± 200` as the interval and say `chưa hiệu chuẩn` in the source line of the output file.
+Calibrated against 55 anchors drawn from rated Div1/Div2 problems (2018 onward), and
+measured blind on 24 held-out problems from the same sample — agents that saw the statement
+and these references, never a true rating.
+
+| | value |
+|---|---|
+| MAE | 329 |
+| within ±200 | 50% |
+| within ±300 | 62% |
+| signed bias | +179 |
+| eval n | 24 |
+| baseline MAE (no rubric) | 658 |
+| frozen | 2026-09-16 |
+
+**The accuracy targets were MAE ≤ 200 and |bias| ≤ 75, and this skill missed both.** It
+roughly halves the error of an unaided guess (658 → 329) and doubles the hit rate within
+±200 (25% → 50%), but it still over-rates easy problems and under-rates hard ones. So it
+emits a **range**, not a `±` interval: the interval was not earned. Report the estimate as
+`<placement−300>-<placement+300> (ước lượng)`.
+
+A 24-problem eval set carries roughly ±40 standard error, so treat these figures as accurate
+to about that much and no better. Codeforces ratings themselves quantize to 100 and carry
+about ±150 of inherent noise: no method places a problem more precisely than that.

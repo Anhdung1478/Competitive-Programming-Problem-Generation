@@ -12,7 +12,7 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 17 round 3 — floors reverted, Pass C corrected, re-eval running.
+Complete. Frozen 2026-09-16, MAE 329, n=24, baseline 658. Targets missed; ships as a range.
 
 ## Phase ledger
 
@@ -32,11 +32,11 @@ Task 17 round 3 — floors reverted, Pass C corrected, re-eval running.
 | 11 | B corpus | done | `calibration/corpus.md` + `.cache-cf-corpus/` | 80 rows, 79 `.txt` files (1181C is PDF-only) | 0 agents, ~4 min curl | 2026-09-16 |
 | 12 | B corpus | done | `calibration/eval-set.md`, blind copies | `check` prints `ALL CHECKS PASSED` | 0 agents | 2026-09-16 |
 | 13 | B corpus | done | `references/anchors.md` (real, 55) | 55 rows, `check` still passes | 6 agents | 2026-09-16 |
-| 14 | C calibrate | not started | `calibration/predictions-baseline.md` | 24 rows | ~5 agents | — |
-| 15 | C calibrate | not started | `calibration/predictions-round1.md` | 24 rows | ~5 agents | — |
-| 16 | C calibrate | not started | `calibration/metrics.md` | baseline + round 1 sections | 0 agents | — |
-| 17 | C calibrate | not started | `metrics.md` rounds 2-3 | ≤ 3 rounds total | ~5 agents/round | — |
-| 18 | C calibrate | not started | frozen `SKILL.md` | no `Uncalibrated` string remains | 0 agents | — |
+| 14 | C calibrate | done | `calibration/predictions-baseline.md` | 24 rows | 5 agents | 2026-09-16 |
+| 15 | C calibrate | done | `calibration/predictions-round1.md` | 24 rows | 5 agents | 2026-09-16 |
+| 16 | C calibrate | done | `calibration/metrics.md` | baseline + round 1 sections | 0 agents | 2026-09-16 |
+| 17 | C calibrate | done | `metrics.md` rounds 2-3 | ≤ 3 rounds total | 10 agents, 2 rounds | 2026-09-16 |
+| 18 | C calibrate | done | frozen `SKILL.md` | no `Uncalibrated` string remains | 0 agents | 2026-09-16 |
 
 **Files on disk beat this table.** If a row says `done` and the artifact is not there, the
 artifact wins — correct the row and redo the task. A resume protocol that trusts its own
@@ -97,6 +97,15 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
   Pass D total by *different routes* — one applied `-100` textbook plus `-100` constraint
   leakage, the other `-200` textbook with leakage explicitly rejected. They tied by
   coincidence. With ~5 agents per eval round, that is noise recorded as measurement. **Closed by Task 10b.**
+
+- **Tuning ran the full 3-round cap and still missed the targets.** Round 1 (rubric v0)
+  brought MAE from a 658 baseline down to 408. Round 2 tried shifting every technique floor
+  down 200 to remove signed bias; it made both MAE (475) and bias (+250) worse and was
+  reverted in round 3, which instead fixed Pass C's anchor placement and kept the original
+  floors. Round 3 landed at MAE 329, bias +179, 50% within ±200 — the plan's hard cap of 3
+  rounds was reached before MAE ≤ 200 or |bias| ≤ 75 was hit. Because measured MAE (329) is
+  above the plan's 300 threshold for emitting a `±` interval, the frozen skill reports a
+  range (`<placement−300>-<placement+300>`) instead of a `±` interval, per Task 18.
 
 - **Task 12: `1181C` excluded from both roles.** Codeforces serves its statement as a
   native PDF (`%PDF-1.5`, no `problem-statement` div), not HTML, so it cannot be fetched or
