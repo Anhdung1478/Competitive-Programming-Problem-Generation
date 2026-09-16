@@ -61,7 +61,23 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
 
 ## Deviations from the plan
 
-(none yet)
+- **Known contradiction in `SKILL.md`, unfixed as of Task 10.** Pass B calls the prerequisite
+  floor "the level below which this problem cannot land, whatever the code looks like", but
+  Pass E's gates are only *round to 100* and *clamp to `[800, 3500]`* — nothing re-clamps to
+  the floor, so Pass D's adjustments can undercut it. The Task 10 smoke run hit this live:
+  Pass C placed the problem at 1900, Pass D totalled `-200`, and the naive result 1700 sat
+  below the 1900 digit-DP floor. The run treated the floor as binding and emitted 1900.
+  This is not an edge case — it reopens the exact failure Pass B exists to close, and
+  digit-DP problems disproportionately draw both negative adjustments (textbook exercise,
+  constraint leakage). **Fix before Task 14**: running baseline predictions against this
+  contradiction lets each eval agent invent its own tie-break, which corrupts the very
+  measurements Phase C exists to produce.
+- **Task 10's Branch 1 was not run blind.** The agent read the brief's expected floor before
+  running the skill. Branch 2 (the `not estimable` gate) is unaffected — a file-existence
+  check cannot be swayed by foreknowledge — and Branch 1's floor lookup, anchor window,
+  caps and arithmetic were each re-verified against the reference files afterwards. But the
+  claim Task 10 exists to prove, that a cold reader of `SKILL.md` reaches the right floor
+  unaided, is not demonstrated. A fresh-agent re-run of Branch 1 alone would settle it.
 
 ## Before ending a session
 
