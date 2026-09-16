@@ -12,7 +12,7 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 2 done. Next: Task 3 (SKILL.md v0).
+Task 3 done. Next: Task 4 (tag-floors.md).
 
 ## Phase ledger
 
@@ -20,7 +20,7 @@ Task 2 done. Next: Task 3 (SKILL.md v0).
 |---|---|---|---|---|---|---|
 | 1 | A wiring | done | `docs/superpowers/process/calculating-difficulties.md` | this file exists and is committed | — | 2026-09-16 |
 | 2 | A wiring | done | `skills/calculating-difficulties/calibration/fetch-corpus.py` | `python …/fetch-corpus.py` prints usage | 0 agents | 2026-09-16 |
-| 3 | A wiring | not started | `skills/calculating-difficulties/SKILL.md` | frontmatter `name:` matches the directory | 0 agents | — |
+| 3 | A wiring | done | `skills/calculating-difficulties/SKILL.md` | frontmatter `name:` matches the directory | 0 agents | 2026-09-16 |
 | 4 | A wiring | not started | `references/tag-floors.md` | 8 technique rows | 0 agents | — |
 | 5 | A wiring | not started | `references/anchors.md` (starter) | 8 rows, ratings from the API | 0 agents | — |
 | 6 | A wiring | not started | `skills/creating-problems/SKILL.md` | `grep -c "Step 8a"` ≥ 3 | 0 agents | — |
