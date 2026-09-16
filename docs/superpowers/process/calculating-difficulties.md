@@ -12,7 +12,10 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Task 10 done — Phase A complete. Next: Task 11 (freeze the 80-problem sample), pending user go-ahead.
+Task 10 done — Phase A complete, and Branch 1 re-verified by a blind re-run. Five
+under-specified points in `SKILL.md` are open (see Deviations); they are between-agent
+variance and should be fixed before Task 14. Next: Task 11 (freeze the 80-problem
+sample), pending user go-ahead.
 
 ## Phase ledger
 
@@ -72,12 +75,30 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
   constraint leakage). **Fix before Task 14**: running baseline predictions against this
   contradiction lets each eval agent invent its own tie-break, which corrupts the very
   measurements Phase C exists to produce.
-- **Task 10's Branch 1 was not run blind.** The agent read the brief's expected floor before
-  running the skill. Branch 2 (the `not estimable` gate) is unaffected — a file-existence
-  check cannot be swayed by foreknowledge — and Branch 1's floor lookup, anchor window,
-  caps and arithmetic were each re-verified against the reference files afterwards. But the
-  claim Task 10 exists to prove, that a cold reader of `SKILL.md` reaches the right floor
-  unaided, is not demonstrated. A fresh-agent re-run of Branch 1 alone would settle it.
+- **Task 10's Branch 1 was not run blind — since settled by a re-run.** The original agent
+  read the expected floor before running the skill. A fresh agent then re-ran Branch 1 with
+  `docs/`, `.superpowers/`, the earlier run's output and git history all fenced off, against
+  an isolated fixture. It reached the same floor (1900) and the same final rating (1900)
+  unaided, so the claim holds: a cold reader of `SKILL.md` lands on the right floor.
+
+- **Four further under-specified points in `SKILL.md`, found by that blind run.** None was
+  fatal to a single run; all four are sources of *between-agent variance*, which is what
+  Phase C measures. Fix them together with the floor gap above, before Task 14:
+  1. **Pass C's "clearly easier" anchor slot is unsatisfiable when the placement sits at the
+     floor** — and the documented fallback widens the window *upward* only, so it cannot
+     produce an easier anchor. Textbook cases sit at the floor by construction, so this
+     fires often rather than rarely.
+  2. **`-100 to -200` (textbook exercise) gives no rule for choosing within the range.**
+  3. **"Constraint leakage" is undefined at its boundary** — readable from the constraints
+     alone, or from constraints plus legend? The two runs split on exactly this question.
+  4. **Counting "independent non-obvious observations" is underdetermined** when sub-steps
+     are genuinely separable but individually routine; the stated rule ("two restatements of
+     one idea count once") only covers duplicate framings.
+
+  Evidence that these are real and not hypothetical: the two runs reached the same `-200`
+  Pass D total by *different routes* — one applied `-100` textbook plus `-100` constraint
+  leakage, the other `-200` textbook with leakage explicitly rejected. They tied by
+  coincidence. With ~5 agents per eval round, that is noise recorded as measurement.
 
 ## Before ending a session
 
