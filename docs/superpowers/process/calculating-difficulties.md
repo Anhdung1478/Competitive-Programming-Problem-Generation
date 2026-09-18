@@ -119,6 +119,42 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
   excluded (not the planned 56/24), and the `1900-2099` band draws its 3 eval from 9
   candidates instead of 10.
 
+## Next generation — extending the corpus to 200
+
+Not started. This is the planned follow-on, not work in progress.
+
+**Goal:** 80 problems -> 200, as an *addition*. The existing 80 are frozen and keep their
+roles; 120 new ones are appended, 15 per band, and all become anchors.
+
+**The decision that matters, already made:** the eval set stays frozen at the same 24
+problems. Every new problem becomes an anchor, so the final split is **175 anchors / 24 eval
+/ 1 excluded**. Growing the eval set would be the obvious move and it is the wrong one — it
+would change `n`, and the MAE of a different `n` cannot be compared with the 658 / 408 / 475 /
+329 already recorded. Those four numbers are the only evidence that any of the tuning helped.
+A round measured on the enlarged anchor set against the *same* 24 sits in the same table and
+answers the question directly: did more anchors help?
+
+**Why anchors are the right thing to buy.** The measurement says the anchor table, not the
+floor column, is what limits accuracy: shifting every floor by one constant (round 2) made
+MAE *worse*, while correcting Pass C's placement instruction (round 3) produced the best
+result. Three symptoms all point the same way — eval agents repeatedly had to widen Pass C's
+window for want of a comparable anchor, 4 of the 8 floor rows have **zero** anchors, and 25 of
+55 anchors are `none`-tagged. More anchors is the direct fix for a sparse window.
+
+**Open question the next session must rule on, with the evidence in hand:** whether to extend
+`tag-floors.md`'s 8-row vocabulary. 45% of anchors match no row, and untagged anchors span
+1200-2600, so `none` does not mean easy — yet a `none` problem floors at 1100 and can then
+reach at most ~2200 (the "Known ceiling" in `SKILL.md`). Extending the vocabulary would
+change floors, which changes measurements, so it belongs to a new generation and not to a
+patch. Ruling C12 deferred it for exactly that reason; this is when to revisit it.
+
+**Never, under any circumstances:** re-run `sample`, re-run `split`, or edit an existing row
+of `corpus.md`. Those would re-select or re-assign the frozen 80 and silently invalidate every
+measurement in `metrics.md`. The extension is append-only.
+
+The prompt to start that session is in
+`docs/superpowers/process/calculating-difficulties-extend-200.md`.
+
 ## Before ending a session
 
 1. Update **Where we are** and the ledger row you touched.
