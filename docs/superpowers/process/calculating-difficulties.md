@@ -12,7 +12,11 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Complete. Frozen 2026-09-16, MAE 329, n=24, baseline 658. Targets missed; ships as a range. Final review fixes applied.
+Complete and reviewed. Frozen 2026-09-16, MAE 329, n=24, baseline 658. All three
+accuracy targets missed, so the skill ships a range rather than a ± interval.
+Final whole-branch review and its scoped re-review are both clean: 7 findings raised,
+7 addressed. Branch `feat/calculating-difficulties` is deliberately **unmerged and
+unpushed** at the user's instruction.
 
 ## Phase ledger
 
@@ -51,8 +55,8 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
 - **`split` (Task 12).** Same reasoning — it refuses once roles are assigned. Re-splitting
   moves problems between the anchor and eval sets, which retroactively contaminates every
   round already measured.
-- **Summarization (Task 13).** ~6 agents over 56 statements. `references/anchors.md` having
-  56 rows means it is done. Re-run only if the anchor id set itself changed.
+- **Summarization (Task 13).** 6 agents over 55 statements. `references/anchors.md` having
+  55 rows means it is done. Re-run only if the anchor id set itself changed.
 - **Each eval round (Tasks 14, 15, 17).** ~5 agents each. Every round writes its own
   `predictions-round<N>.md` and *appends* a section to `metrics.md` — never overwrite one.
   The comparison between rounds is the only evidence that tuning helped.
