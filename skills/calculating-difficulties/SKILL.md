@@ -80,7 +80,7 @@ Apply only what Pass A actually found:
 1. **If Pass D pushed the number below the Pass B floor, raise it back to that floor.** The floor binds the final answer, not merely the anchor placement — otherwise a negative adjustment reopens exactly the failure Pass B exists to close. When this fires, say so in `Độ tin cậy`: the adjustments disagreed with the floor, and the floor won.
 2. Round to the nearest `100`.
 3. Clamp to `[800, 3500]`.
-4. Emit a **range**, not a point estimate: `<number−300>-<number+300>`. The measured MAE is 329, so a single number would overstate what this skill knows — see `Calibration status` below. Clamp the range's endpoints to `[800, 3500]` too, the same bound as step 3.
+4. Emit an interval, not a bare point estimate: `<number> ± 300`. The measured MAE is 279, which earns a `± 300` interval but nothing tighter — see `Calibration status` below. Clamp the interval's endpoints to `[800, 3500]` too, the same bound as step 3.
 5. Write `outputs/difficulty.md`.
 
 ## The output file
@@ -90,7 +90,7 @@ Write exactly this shape:
 ```markdown
 # Độ khó ước lượng
 
-**Expected rating: 2000-2600 (ước lượng)**
+**Expected rating: 2300 ± 300 (ước lượng)**
 
 Con số này là mức để so sánh, không phải dự đoán kết quả của học sinh. Nó cho biết
 bài này thuộc nhóm nào trên thang Codeforces, và không áp dụng cho từng subtask.
@@ -123,7 +123,7 @@ Tổng điều chỉnh: +100 (giới hạn ±300).
 unusual technique, or a solution whose complexity depends on input shape>
 
 ---
-Nguồn: kỹ năng `calculating-difficulties`, hiệu chuẩn 2026-09-16, MAE 329, n=24.
+Nguồn: kỹ năng `calculating-difficulties`, hiệu chuẩn 2026-09-19, MAE 279, n=24.
 ```
 
 Keep it to that. This file is an audit trail, not an essay.
@@ -148,7 +148,7 @@ Then continue. A missing estimate is not a workflow failure — Step 8 renders `
 
 ## Calibration status
 
-Calibrated against 55 anchors drawn from rated Div1/Div2 problems (2018 onward), and
+Calibrated against 171 anchors drawn from rated Div1/Div2 problems (2018 onward), and
 measured blind on 24 held-out problems from the same sample — agents that saw the statement
 and these references, never a true rating. Those agents derived each intended solution from
 the statement alone; at runtime this skill reads a validated implementation instead, so the
@@ -157,28 +157,62 @@ pessimistic, but by an unmeasured amount.
 
 | | value |
 |---|---|
-| MAE | 329 |
-| within ±200 | 50% |
+| MAE | 279 |
+| within ±200 | 58% |
 | within ±300 | 62% |
-| signed bias | +179 |
+| signed bias | −29 |
 | eval n | 24 |
 | baseline MAE (no rubric) | 658 |
-| frozen | 2026-09-16 |
+| anchors | 171 |
+| frozen | 2026-09-19 |
 
-**The accuracy targets were MAE ≤ 200 and |bias| ≤ 75, and this skill missed both.** It
-roughly halves the error of an unaided guess (658 → 329) and doubles the hit rate within
-±200 (25% → 50%), but it still over-rates easy problems and under-rates hard ones. So it
-emits a **range**, not a `±` interval: the interval was not earned. Report the estimate as
-`<placement−300>-<placement+300> (ước lượng)`.
+**Two of the three accuracy targets were missed.** The targets were MAE ≤ 200, ≥65% within
+±200, and |bias| ≤ 75. Measured MAE is 279 and 58% of estimates land within ±200, so the
+first two are still not met. The skill more than halves the error of an unaided guess
+(658 → 279) and more than doubles the hit rate within ±200 (25% → 58%), and that is the
+whole of what it has demonstrated.
+
+Because measured MAE is 279, which is at or below 300, the skill emits a `± 300` interval
+rather than a bare range. Report the estimate as `<placement> ± 300 (ước lượng)`. Nothing
+tighter is earned.
+
+**|bias| ≤ 75 is met for the first time, and the number is misleading.** Signed bias is −29.
+That near-zero aggregate is **cancellation, not accuracy** — the per-band biases are:
+
+| band | bias |
+|---|---|
+| 1100-1299 | +233 |
+| 1300-1499 | +400 |
+| 1500-1699 | −33 |
+| 1700-1899 | +133 |
+| 1900-2099 | +0 |
+| 2100-2299 | −267 |
+| 2300-2499 | −333 |
+| 2500-2699 | −367 |
+
+The scale is compressed from both ends: easy problems are still over-rated, hard ones still
+under-rated, and the two errors offset into an aggregate near zero. Read the per-band column,
+never the aggregate alone.
 
 **Known ceiling.** A problem whose prerequisites match no row in `tag-floors.md` floors at
 `1100`, and the passes above can then reach at most about `2200`. That is not a judgement
-the skill is making — it is a limit of the floor table, and 45% of the anchors are themselves
-untagged while spanning 1200 to 2600, so an untagged problem is not necessarily an easy one.
-When Pass B lands on `1100`, treat the result as a **lower bound** rather than a placement,
-and say so in `Độ tin cậy`. The two largest under-estimates in the measurement above were both floor-`1100`
-problems — though the ceiling itself never bound in that run: no floor-`1100` estimate
-exceeded `2100`.
+the skill is making — it is a limit of the floor table, and 37% of the anchors are themselves
+untagged while spanning roughly 1200 to 2600, so an untagged problem is not necessarily an
+easy one. When Pass B lands on `1100`, treat the result as a **lower bound** rather than a
+placement, and say so in `Độ tin cậy`. **The ceiling bound in the measurement above.** The
+highest estimate any floor-`1100` problem received was exactly `2200`, and two floor-`1100`
+problems in that run had true ratings above it — `2400` and `2300`, both estimated `1800`.
+The ceiling is one cause of high-end under-rating but not the only one: of the two largest
+under-estimates in that run, one floored at `1100` (true `2400`, estimated `1800`) and the
+other floored at `1200` (true `2200`, estimated `1400`).
+
+**Selection honesty.** This configuration was chosen out of six rounds measured against the
+same 24 problems. Choosing against a fixed eval set is itself a form of fitting: after six
+rounds those 24 problems are no longer strictly held out, so the figures above are optimistic
+by an unmeasured amount. Nor is 279 the lowest MAE of the six — a later round measured 275
+and was rejected because it produced a prerequisite floor above a problem's true rating,
+which disqualifies a construct whose only job is to be a lower bound. A 4-point difference on
+n=24 is evidence of nothing either way.
 
 A 24-problem eval set carries roughly ±40 standard error, so treat these figures as accurate
 to about that much and no better. Codeforces ratings themselves quantize to 100 and carry

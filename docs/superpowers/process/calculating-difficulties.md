@@ -12,11 +12,21 @@ Do not start work before both are read. Then return here for the current positio
 
 ## Where we are
 
-Complete and reviewed. Frozen 2026-09-16, MAE 329, n=24, baseline 658. All three
-accuracy targets missed, so the skill ships a range rather than a ± interval.
-Final whole-branch review and its scoped re-review are both clean: 7 findings raised,
-7 addressed. Branch `feat/calculating-difficulties` is deliberately **unmerged and
-unpushed** at the user's instruction.
+Second generation complete. Frozen 2026-09-19 on branch
+`feat/calculating-difficulties-200`: MAE 279, bias −29, 58% within ±200, n=24,
+baseline 658, **171 anchors**. That is round 4's configuration — the 171-anchor table
+against the original 8-row floor vocabulary. Because MAE is at or below 300, the skill
+now emits a `± 300` interval instead of the range it shipped at 329.
+
+MAE ≤ 200 and ≥65% within ±200 are still missed. |bias| ≤ 75 is met for the first time,
+and the status section says plainly that −29 is cancellation between an over-rated low
+end and an under-rated high end, not accuracy.
+
+Round 5 (two added floor rows, 13 anchors re-tagged off `none`) measured MAE 275 and was
+**reverted** — see the deviations below. Both reference files are back to their round-4
+state; every round stays recorded in `metrics.md`.
+
+The branch is deliberately **unmerged and unpushed** at the user's instruction.
 
 ## Phase ledger
 
@@ -41,6 +51,18 @@ unpushed** at the user's instruction.
 | 16 | C calibrate | done | `calibration/metrics.md` | baseline + round 1 sections | 0 agents | 2026-09-16 |
 | 17 | C calibrate | done | `metrics.md` rounds 2-3 | ≤ 3 rounds total | 10 agents, 2 rounds | 2026-09-16 |
 | 18 | C calibrate | done | frozen `SKILL.md` | no `Uncalibrated` string remains | 0 agents | 2026-09-16 |
+
+### Generation 2 — corpus extended to 200 (plan `2026-09-19-calculating-difficulties-extend-200.md`)
+
+| Task | Phase | Status | Artifact | Verify it is really done | Cost | Date |
+|---|---|---|---|---|---|---|
+| 1 | A tooling | done | `calibration/fetch-corpus.py` | `extend` verb exists; `check` asserts the 200-row shape | 0 agents | 2026-09-19 |
+| 2 | B corpus | done | `calibration/corpus.md` (200 rows) | `check` prints `anchors: 175   eval: 24   excluded: 1` | 0 agents | 2026-09-19 |
+| 3 | B corpus | done | 12 batch files (workspace, not the repo) | 116 of 120 rows summarised; 4 ids failed to fetch | 12 agents | 2026-09-19 |
+| 4 | B corpus | done | `references/anchors.md` (171) | `grep -c '^\| [0-9]'` = 171, `check` still passes | 0 agents | 2026-09-19 |
+| 5 | C calibrate | done | `predictions-round4.md`, `metrics.md` round 4 | 24 rows; MAE 279 recorded | 5 agents | 2026-09-19 |
+| 6 | C calibrate | done | `predictions-round5.md`, `metrics.md` round 5 | 24 rows; MAE 275 recorded, then reverted | 5 agents | 2026-09-19 |
+| 7 | D freeze | done | frozen `SKILL.md`, this file | `grep -c "calibration/"` = 0 in `SKILL.md` and `references/` | 0 agents | 2026-09-19 |
 
 **Files on disk beat this table.** If a row says `done` and the artifact is not there, the
 artifact wins — correct the row and redo the task. A resume protocol that trusts its own
@@ -119,41 +141,80 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
   excluded (not the planned 56/24), and the `1900-2099` band draws its 3 eval from 9
   candidates instead of 10.
 
-## Next generation — extending the corpus to 200
+### Generation 2 (2026-09-19)
 
-Not started. This is the planned follow-on, not work in progress.
+- **Codeforces now serves a Cloudflare Managed Challenge to `curl`.** Generation 1 fetched
+  all 79 statements with plain `curl`. On 2026-09-19 every id — new and previously cached
+  alike — returned HTTP 403 with a JS challenge page, from `curl`, from the harness's own
+  fetcher, and from the public mirrors. Re-polling did not clear it. The 120 new statements
+  were fetched through the Exa MCP fetcher instead, by the Task 3 summariser agents, which
+  does reach clean statement text. `fetch-corpus.py`'s `fetch` verb was **not** weakened to
+  work around this and no assertion was relaxed; the fetcher changed, the checks did not.
+  Expect a future session to hit the same wall and need a fetcher that solves the challenge.
 
-**Goal:** 80 problems -> 200, as an *addition*. The existing 80 are frozen and keep their
-roles; 120 new ones are appended, 15 per band, and all become anchors.
+- **Four anchor ids could not be fetched at all: `1016C`, `1163B2`, `1322C`, `1638B`.** Not
+  PDF-only — the Exa fetcher returned `CRAWL_UNKNOWN_ERROR` / `CRAWL_LIVECRAWL_TIMEOUT` for
+  these four across 5-10 attempts each, both URL forms and the `?locale=` variants, and two
+  further controller re-probes afterwards. They keep
+  `role = anchor` in `corpus.md` and are absent from `references/anchors.md`, which is why
+  the anchor table holds **171 rows against 175 corpus anchors**. They were deliberately not
+  added to `EXCLUDED`: `EXCLUDED` means "Codeforces does not serve this as HTML", a permanent
+  property of the problem, while these four are a transient fetch failure that a later run
+  may resolve. `check`'s label-integrity pass only walks rows *present in* `anchors.md`, so
+  the gap passes cleanly and is recorded here rather than hidden in a constant.
 
-**The decision that matters, already made:** the eval set stays frozen at the same 24
-problems. Every new problem becomes an anchor, so the final split is **175 anchors / 24 eval
-/ 1 excluded**. Growing the eval set would be the obvious move and it is the wrong one — it
-would change `n`, and the MAE of a different `n` cannot be compared with the 658 / 408 / 475 /
-329 already recorded. Those four numbers are the only evidence that any of the tuning helped.
-A round measured on the enlarged anchor set against the *same* 24 sits in the same table and
-answers the question directly: did more anchors help?
+- **Round 4 beat the shipped baseline: MAE 329 → 279.** Same 24 eval slots, same `SKILL.md`,
+  same 8-row `tag-floors.md`; the only thing that changed was the anchor table growing from
+  55 rows to 171. Bias moved from +179 to −29 and within ±200 from 50% to 58%. A 50-point
+  MAE move on n=24 is just outside the ±40 standard error, so it is weak evidence of a real
+  improvement and was ruled to ship on that basis.
 
-**Why anchors are the right thing to buy.** The measurement says the anchor table, not the
-floor column, is what limits accuracy: shifting every floor by one constant (round 2) made
-MAE *worse*, while correcting Pass C's placement instruction (round 3) produced the best
-result. Three symptoms all point the same way — eval agents repeatedly had to widen Pass C's
-window for want of a comparable anchor, 4 of the 8 floor rows have **zero** anchors, and 25 of
-55 anchors are `none`-tagged. More anchors is the direct fix for a sparse window.
+- **Round 5 is a null result and was reverted.** Round 5 added two data-derived rows to
+  `tag-floors.md` (factorization/gcd/modular-periodicity and interactive-reconstruction, both
+  floored at 1500) and re-tagged 13 anchors off `none`. It measured MAE 275, bias +8, 54%
+  within ±200 — a 4-point MAE difference against round 4 on n=24, which is evidence of
+  nothing, and *worse* on within ±200. It also produced a demonstrated defect: `eval-22`
+  (true rating 1400) picked up the new interactive row and floored at **1500**, above the
+  problem's own true rating. A floor that sits above the true rating disqualifies the
+  construct, whose only job is to be a lower bound. Both reference files were restored to
+  their round-4 content with `git checkout bb2dddc --`. **Round 5 stays recorded** in
+  `metrics.md` and `predictions-round5.md`: a negative result that is deleted is not a result.
+  What this costs if wrong: the vocabulary question is left open for another generation, and
+  any real gain those two rows carried is forgone.
 
-**Open question the next session must rule on, with the evidence in hand:** whether to extend
-`tag-floors.md`'s 8-row vocabulary. 45% of anchors match no row, and untagged anchors span
-1200-2600, so `none` does not mean easy — yet a `none` problem floors at 1100 and can then
-reach at most ~2200 (the "Known ceiling" in `SKILL.md`). Extending the vocabulary would
-change floors, which changes measurements, so it belongs to a new generation and not to a
-patch. Ruling C12 deferred it for exactly that reason; this is when to revisit it.
+## Next generation — the high end is a Pass C window problem
+
+Not started. This section records the finding, not a plan.
+
+**The finding.** Two generations of tuning have not fixed high-end under-rating, and the
+round-4 data says why: it is a Pass C **window** problem, not a Pass B vocabulary problem.
+Of the nine `none`-tagged anchors rated 2300 or above, **six have no floorable prerequisite
+at all** — no row in any vocabulary tried so far describes what they require. The three that
+do have one floor at only **1500** (they are the number-theory and interactive-reconstruction
+rows round 5 added). Pass C then searches `[floor, floor+600]`, so the widest window those
+three can open is `[1500, 2100]` — it cannot reach a 2300 problem even in principle, and for
+the other six the window starts at `1100` and tops out around `1700`. A richer vocabulary
+does not close that gap: round 5 added exactly those rows and measured nothing.
+
+**The next lever is the `[floor, floor+600]` placement rule in Pass C**, not `tag-floors.md`.
+Whatever replaces it — a wider window, a window that scales with the floor, a two-stage
+placement that re-anchors after a first pass — it is a change to `SKILL.md`'s Pass C and it
+must be measured the same way: one variable, same 24 slots, appended to `metrics.md`.
+
+**A larger eval set costs comparability.** Six rounds are now recorded against the same 24
+problems (658 / 408 / 475 / 329 / 279 / 275). Changing `n` makes every one of those numbers
+incomparable with the new one, which throws away the only evidence that any tuning helped. It
+is still the right thing to do eventually — after six rounds of selection those 24 are no
+longer strictly held out and the shipped 279 is optimistic by an unmeasured amount — but it
+needs a **fresh generation with its own baseline**, not a patch to this one.
+
+**Four ids are owed a re-fetch.** `1016C`, `1163B2`, `1322C` and `1638B` are `role = anchor`
+in `corpus.md` and missing from `anchors.md`. A session that gets past the Cloudflare
+challenge should summarise them and bring the anchor table to 175.
 
 **Never, under any circumstances:** re-run `sample`, re-run `split`, or edit an existing row
-of `corpus.md`. Those would re-select or re-assign the frozen 80 and silently invalidate every
-measurement in `metrics.md`. The extension is append-only.
-
-The prompt to start that session is in
-`docs/superpowers/process/calculating-difficulties-extend-200.md`.
+of `corpus.md`. Those would re-select or re-assign the frozen rows and silently invalidate
+every measurement in `metrics.md`. Any further extension is append-only.
 
 ## Before ending a session
 

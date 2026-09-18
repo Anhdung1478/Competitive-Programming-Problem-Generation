@@ -17,8 +17,6 @@ can still solve the problem within the constraints. If yes, it is not a prerequi
 | FFT/NTT, convex hull trick, heavy-light decomposition | 2100 |
 | centroid decomposition, link-cut-free offline tricks, Mo's on trees | 2200 |
 | suffix automaton, suffix tree, advanced string automata | 2300 |
-| factorization, gcd/Euclidean descent, modular periodicity | 1500 |
-| interactive reconstruction of a hidden object from composed queries | 1500 |
 
 Nothing on the list required ⇒ floor `1100`.
 
@@ -28,10 +26,4 @@ charge at most `+200` for the extra independent insights they represent.
 <!-- Calibration: tuning round 2 shifted this column down by 200 as one constant and made
 both MAE and bias worse on a 24-problem blind eval, so round 3 restored the drafted values.
 The floors are not the binding constraint on the estimate; Pass C's anchor placement is.
-Row order has never changed for the original eight rows. The 2026-09-19 round (corpus
-extended to 200) appended the two rows above them: factorization/gcd/modular-periodicity
-and interactive-reconstruction-from-composed-queries, each floored at 1500. Both floors are
-the minimum rating observed anywhere in the 171-anchor table for that family, derived from
-the rating distributions of the then-64 untagged anchors (see the round's vocab-proposal.md).
-The original eight rows and their values are unchanged; only these two rows were added at
-the bottom. -->
+Row order has never changed. -->
