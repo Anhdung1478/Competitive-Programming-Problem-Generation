@@ -186,3 +186,44 @@ n = 24   MAE = 329   bias = +179   within200 = 50%   within300 = 62%
   contains `1063C`. The blindness check in the eval protocol looks for agents naming real
   Codeforces problem ids, so a mistyped id passed through it. Effect on the aggregate is at
   most 1 row of 24 and the figures above are unchanged; recorded here rather than left silent.
+## predictions-round4
+
+n = 24   MAE = 279   bias = -29   within200 = 58%   within300 = 62%
+
+| band | n | MAE | bias |
+|---|---|---|---|
+| 1100-1299 | 3 | 233 | +233 |
+| 1300-1499 | 3 | 400 | +400 |
+| 1500-1699 | 3 | 167 | -33 |
+| 1700-1899 | 3 | 200 | +133 |
+| 1900-2099 | 3 | 133 | +0 |
+| 2100-2299 | 3 | 333 | -267 |
+| 2300-2499 | 3 | 400 | -333 |
+| 2500-2699 | 3 | 367 | -367 |
+
+| slot | true | predicted | error |
+|---|---|---|---|
+| eval-01 | 2400 | 1800 | -600 |
+| eval-02 | 2400 | 2500 | +100 |
+| eval-03 | 2100 | 2000 | -100 |
+| eval-04 | 2500 | 2100 | -400 |
+| eval-05 | 2300 | 1800 | -500 |
+| eval-06 | 1600 | 1400 | -200 |
+| eval-07 | 1100 | 1200 | +100 |
+| eval-08 | 1900 | 2000 | +100 |
+| eval-09 | 2500 | 2200 | -300 |
+| eval-10 | 1500 | 1400 | -100 |
+| eval-11 | 1800 | 1700 | -100 |
+| eval-12 | 2000 | 2100 | +100 |
+| eval-13 | 1100 | 1600 | +500 |
+| eval-14 | 1600 | 1800 | +200 |
+| eval-15 | 1700 | 2200 | +500 |
+| eval-16 | 2000 | 1800 | -200 |
+| eval-17 | 2200 | 1400 | -800 |
+| eval-18 | 1300 | 1700 | +400 |
+| eval-19 | 2500 | 2100 | -400 |
+| eval-20 | 1300 | 1500 | +200 |
+| eval-21 | 1700 | 1700 | +0 |
+| eval-22 | 1400 | 2000 | +600 |
+| eval-23 | 2200 | 2300 | +100 |
+| eval-24 | 1100 | 1200 | +100 |
