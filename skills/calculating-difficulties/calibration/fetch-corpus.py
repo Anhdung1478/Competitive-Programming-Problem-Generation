@@ -3,7 +3,7 @@
 
 This never runs at skill runtime. The skill itself is offline.
 
-    sample    pick 10 rated Div1/Div2 problems per 200-point band -> corpus.md
+    sample    pick PER_BAND rated Div1/Div2 problems per 200-point band -> corpus.md
     extend    append EXTEND_PER_BAND fresh Div1/Div2 anchors per band -> corpus.md,
               append-only, refuses once the corpus reaches its target size
     starter   pick 1 per band and fetch it, for the provisional anchor set
@@ -15,7 +15,7 @@ This never runs at skill runtime. The skill itself is offline.
     metrics   score a predictions file against the eval set's true ratings
 
 WARNING: do not re-run `sample` once corpus.md is committed. The Codeforces
-problemset grows, so a second run selects a different 80 problems and silently
+problemset grows, so a second run selects a different corpus and silently
 invalidates every measurement taken against the first.
 """
 import html
