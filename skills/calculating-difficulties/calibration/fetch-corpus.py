@@ -4,6 +4,8 @@
 This never runs at skill runtime. The skill itself is offline.
 
     sample    pick 10 rated Div1/Div2 problems per 200-point band -> corpus.md
+    extend    append EXTEND_PER_BAND fresh Div1/Div2 anchors per band -> corpus.md,
+              append-only, refuses once the corpus reaches its target size
     starter   pick 1 per band and fetch it, for the provisional anchor set
     fetch     download every sampled statement into the cache as plain text
     split     assign each corpus row an anchor/eval/excluded role -> eval-set.md
@@ -33,9 +35,11 @@ CACHE = REPO / ".cache-cf-corpus"
 CORPUS = HERE / "corpus.md"
 
 SEED = 20260916
+EXTEND_SEED = 20260919
 CUTOFF = 1514764800                             # 2018-01-01 UTC
 BANDS = [(1100 + 200 * i, 1299 + 200 * i) for i in range(8)]
-PER_BAND = 10
+PER_BAND = 25                                   # problems per band in the frozen corpus
+EXTEND_PER_BAND = 15
 UA = "Mozilla/5.0 (compatible; cp-problem-generation calibration)"
 COLUMNS = ["id", "rating", "div", "date", "band", "role"]
 
@@ -181,6 +185,30 @@ def cmd_sample():
     print("sampled %d problems into %s" % (len(rows), CORPUS))
 
 
+def cmd_extend():
+    rows = read_corpus()
+    if len(rows) >= len(BANDS) * PER_BAND:
+        sys.exit("%s already holds %d rows — the corpus is at its target size and "
+                 "`extend` is append-only. Raise PER_BAND deliberately to grow it "
+                 "further." % (CORPUS, len(rows)))
+    present = {r["id"] for r in rows}
+    pool = candidates()
+    rng = random.Random(EXTEND_SEED)
+    added = []
+    for b in range(len(BANDS)):
+        fresh = sorted((e for e in pool[b] if e["id"] not in present),
+                       key=lambda e: e["id"])
+        if len(fresh) < EXTEND_PER_BAND:
+            sys.exit("band %d has only %d unused candidates, need %d"
+                     % (BANDS[b][0], len(fresh), EXTEND_PER_BAND))
+        for entry in sorted(rng.sample(fresh, EXTEND_PER_BAND), key=lambda e: e["id"]):
+            entry["role"] = "anchor"
+            added.append(entry)
+    write_corpus(sorted(rows + added, key=lambda r: (band_of(int(r["rating"])), r["id"])))
+    print("appended %d anchors -> %s (%d rows total)"
+          % (len(added), CORPUS, len(rows) + len(added)))
+
+
 def cmd_starter():
     rows = pick(candidates(), 1, SEED + 99)
     print("| id | rating | div | date |")
@@ -308,6 +336,16 @@ def cmd_check():
         n_eval = sum(1 for r in rows if r["band"] == band and r["role"] == "eval")
         if n_eval != EVAL_PER_BAND:
             failures.append("band %s has %d eval, expected %d" % (band, n_eval, EVAL_PER_BAND))
+    expected_eval = len(BANDS) * EVAL_PER_BAND
+    expected_anchors = len(BANDS) * PER_BAND - expected_eval - len(EXCLUDED)
+    if len(evals) != expected_eval:
+        failures.append("%d eval rows, expected %d" % (len(evals), expected_eval))
+    if len(anchors) != expected_anchors:
+        failures.append("%d anchor rows, expected %d" % (len(anchors), expected_anchors))
+    for band in sorted({r["band"] for r in rows}):
+        n_band = sum(1 for r in rows if r["band"] == band)
+        if n_band != PER_BAND:
+            failures.append("band %s has %d rows, expected %d" % (band, n_band, PER_BAND))
     if ANCHORS.exists():
         text = ANCHORS.read_text(encoding="utf-8")
         leaked = sorted(e for e in evals if re.search(r"\|\s*%s\s*\|" % re.escape(e), text))
@@ -376,9 +414,9 @@ def cmd_metrics():
         print("| %s | %d | %d | %+d |" % (slot, truth[slot], preds[slot], errors[slot]))
 
 
-VERBS = {"sample": cmd_sample, "starter": cmd_starter, "fetch": cmd_fetch,
-         "split": cmd_split, "blind": cmd_blind, "check": cmd_check,
-         "metrics": cmd_metrics}
+VERBS = {"sample": cmd_sample, "extend": cmd_extend, "starter": cmd_starter,
+         "fetch": cmd_fetch, "split": cmd_split, "blind": cmd_blind,
+         "check": cmd_check, "metrics": cmd_metrics}
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in VERBS:
