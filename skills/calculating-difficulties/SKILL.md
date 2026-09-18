@@ -176,8 +176,9 @@ emits a **range**, not a `±` interval: the interval was not earned. Report the 
 the skill is making — it is a limit of the floor table, and 45% of the anchors are themselves
 untagged while spanning 1200 to 2600, so an untagged problem is not necessarily an easy one.
 When Pass B lands on `1100`, treat the result as a **lower bound** rather than a placement,
-and say so in `Độ tin cậy`. The two largest misses in the measurement above were both of
-this kind.
+and say so in `Độ tin cậy`. The two largest under-estimates in the measurement above were both floor-`1100`
+problems — though the ceiling itself never bound in that run: no floor-`1100` estimate
+exceeded `2100`.
 
 A 24-problem eval set carries roughly ±40 standard error, so treat these figures as accurate
 to about that much and no better. Codeforces ratings themselves quantize to 100 and carry

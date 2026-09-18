@@ -1,7 +1,7 @@
 # Anchors
 
 Real Codeforces problems with their true ratings. Pass C places the problem being rated
-against these, in the window `[floor, floor+600]`.
+against these, in the window `[floor, floor+600]`, widened to `[floor, floor+800]` when nothing in it is comparable.
 
 Ratings are labels, not estimates — they come from the Codeforces API. Do not adjust one
 because a problem "feels" harder.
