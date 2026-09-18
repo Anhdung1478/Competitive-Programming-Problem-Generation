@@ -54,34 +54,34 @@ because a problem "feels" harder.
 | 1012A | 1500 | Div1 | two pointers, prefix sums, sorting + greedy | Sort the 2n values; answer is either the midpoint split or, with min and max paired, a sliding length-n window over the rest. |
 | 1166C | 1500 | Div2 | two pointers, prefix sums, sorting + greedy | Take absolute values, sort; a pair works iff larger ≤ twice smaller, so count with two pointers or binary search. |
 | 1186D | 1500 | Div2 | none | Floor every value; the floors sum to −k, so round up any k non-integer entries; parse decimals as strings. |
-| 1242A | 1500 | Div1 | none | Trial-divide n up to 1e6: answer is the prime p if n=p^k, otherwise 1 (and 1 for n=1). |
+| 1242A | 1500 | Div1 | factorization, gcd/Euclidean descent, modular periodicity | Trial-divide n up to 1e6: answer is the prime p if n=p^k, otherwise 1 (and 1 for n=1). |
 | 1299A | 1500 | Div1 | none | f(x,y)=x&~y, so the value is a1 minus bits of others; put first the element owning the highest bit set exactly once. |
 | 1313C1 | 1500 | Div2 | none | n≤1000 allows brute force: fix the peak index, walk outward taking running minima of m, and keep the best total. |
-| 1804C | 1500 | Div1+2 | none | Use that triangular numbers mod n repeat with period at most 2n, so brute-force check every force f from 1 to min(p, 2n). |
+| 1804C | 1500 | Div1+2 | factorization, gcd/Euclidean descent, modular periodicity | Use that triangular numbers mod n repeat with period at most 2n, so brute-force check every force f from 1 to min(p, 2n). |
 | 1924A | 1500 | Div1 | two pointers, prefix sums, sorting + greedy | Greedily partition s into consecutive blocks each covering all k letters; at least n full blocks means YES, else build a missing witness. |
 | 2027C | 1500 | Div2 | DSU, basic graph traversal with a twist, binary search on answer | Each index i is an edge from length a_i+i-1 to a_i+2i-2; DFS from n over the map-compressed graph, take the largest reachable node. |
 | 2067C | 1500 | Div2 | none | Answer is at most 9, so brute-force k in 0..9 and length p, testing whether n + k*(10^p - 1) contains a 7. |
-| 2109C1 | 1500 | Div2 | none | Interactive: repeated digit-sum reduction shrinks x to a few candidates; feedback from add/mul/div then identifies and rebuilds x as n. |  <!-- unsure -->
+| 2109C1 | 1500 | Div2 | interactive reconstruction of a hidden object from composed queries | Interactive: repeated digit-sum reduction shrinks x to a few candidates; feedback from add/mul/div then identifies and rebuilds x as n. |  <!-- unsure -->
 | 2140C | 1500 | Div2 | two pointers, prefix sums, sorting + greedy | Prove only one swap ever happens (Bob then ends); pick the best single swap via prefix max/min scans over parity-based value swings. |
 | 1027C | 1600 | Div2 | two pointers, prefix sums, sorting + greedy | Minimizing P²/S reduces to minimizing a/b+b/a, so sort lengths with count≥2 and compare only adjacent candidate pairs. |
 | 1188A1 | 1600 | Div1 | none | Answer YES iff no vertex has degree exactly 2; any other tree lets leaf-path operations set each edge independently. |
 | 1389B | 1600 | Div2 | two pointers, prefix sums, sorting + greedy | Enumerate the number j of left moves; score is the prefix sum to index k−2j+1 plus j times the best adjacent-pair prefix-max. |
 | 1455D | 1600 | Div2 | two pointers, prefix sums, sorting + greedy | Greedily scan left to right, swapping a_i with x whenever a_i > x and a_i breaks the sorted order built so far. |
 | 1481C | 1600 | Div2 | two pointers, prefix sums, sorting + greedy | Process painters in reverse, assigning each to a plank still needing that color, else to an already-repainted dump plank. |
-| 1612D | 1600 | Div2 | none | Euclidean descent on (a,b): at each step answer YES if x <= a and (a-x) % b == 0. |
-| 1797C | 1600 | Div2 | none | Query three well-chosen cells (Chebyshev distances) and algebraically solve the resulting max() equations to pin down the king's row and column. |
+| 1612D | 1600 | Div2 | factorization, gcd/Euclidean descent, modular periodicity | Euclidean descent on (a,b): at each step answer YES if x <= a and (a-x) % b == 0. |
+| 1797C | 1600 | Div2 | interactive reconstruction of a hidden object from composed queries | Query three well-chosen cells (Chebyshev distances) and algebraically solve the resulting max() equations to pin down the king's row and column. |
 | 2182D | 1600 | Div2 | none | Total turns S fixes each position's turn count (q+1 for the first S mod n, else q); count placements with a_i <= that count. |
 | 980B | 1600 | Div2 | none | Ad hoc construction: exploit top-bottom mirror symmetry between the two paths, placing hotels symmetrically (or blocking a full row) to force equal path counts. |
 | 1073D | 1700 | Div2 | DSU, basic graph traversal with a twist, binary search on answer | Binary search on the number of full laps around the circle; prefix sums give the spend per lap, then simulate the final partial lap. |
 | 1153C | 1700 | Div2 | two pointers, prefix sums, sorting + greedy | Force s0='(' and last=')', fill the earliest '?' as '(' to balance counts, then verify the prefix balance stays positive until the end. |
-| 1228C | 1700 | Div2 | none | Factorize x by trial division, then for each prime sum floor(n/p^i) (Legendre-style) to get its exponent, and multiply modpow results. |
+| 1228C | 1700 | Div2 | factorization, gcd/Euclidean descent, modular periodicity | Factorize x by trial division, then for each prime sum floor(n/p^i) (Legendre-style) to get its exponent, and multiply modpow results. |
 | 1406C | 1700 | Div2 | DSU, basic graph traversal with a twist, binary search on answer | Find centroids by subtree sizes; with two, move a leaf of the second centroid's side onto the first, else cut and re-add any edge. |
 | 1478C | 1700 | Div2 | two pointers, prefix sums, sorting + greedy | Since d_i = 2*sum_j max(abs(a_i),abs(a_j)), sort d descending and peel off each distinct value top-down, checking each appears exactly twice. |
 | 1814B | 1700 | Div2 | none | Brute-force the final leg length m up to ~10^5; cost is (m-1)+ceil(a/m)+ceil(b/m) since all lengthening may precede all jumps. |
 | 2018C | 1700 | Div1 | two pointers, prefix sums, sorting + greedy | DFS gets each node's depth and subtree height; a difference array over [depth, depth+height] finds the target depth maximizing kept nodes. |
 | 2112D | 1700 | Div2 | DSU, basic graph traversal with a twist, binary search on answer | Orient edges by depth parity so every vertex is a pure source or sink (n-1 pairs), then flip one edge whose leaf neighbour has degree two. |
 | 2205D | 1700 | Div2 | segment tree / BIT, standard DP over one dimension, shortest paths | Cool means valley-shaped, so the maximum must end up at an end: recurse on the Cartesian tree, g = min(left+g(right), right+g(left)). |
-| 983A | 1700 | Div1 | none | Divide q by gcd(p,q), then repeatedly strip g = gcd(q,b) from q (squaring b to keep it O(log log)); finite iff q becomes 1. |
+| 983A | 1700 | Div1 | factorization, gcd/Euclidean descent, modular periodicity | Divide q by gcd(p,q), then repeatedly strip g = gcd(q,b) from q (squaring b to keep it O(log log)); finite iff q becomes 1. |
 | 1129A2 | 1800 | Div1 | none | Per station cost = (cnt-1)*n + min dist to one chosen last destination; answer from s is max over stations of dist(s,i) + cost_i. |  <!-- unsure -->
 | 1190B | 1800 | Div1 | two pointers, prefix sums, sorting + greedy | Sort, validate the one permitted duplicate pair, then the game is forced: first player wins iff sum(a) - n(n-1)/2 is odd. |
 | 1327E | 1800 | Div2 | none | Direct combinatorial formula per block length: count boundary vs interior placements with free-digit choices, using precomputed powers of 10 mod p. |
@@ -96,7 +96,7 @@ because a problem "feels" harder.
 | 1063C | 1900 | Div1 | none | Place points via an adaptive convex-hull construction so any online adversarial coloring stays linearly separable at the end. |  <!-- unsure -->
 | 1120A | 1900 | Div1 | two pointers, prefix sums, sorting + greedy | Two-pointer sliding window locates the shortest segment containing b's required multiset, then greedily trims flowers so it becomes an early workpiece. |
 | 1453D | 1900 | Div2 | none | A checkpoint block of length L costs 2^(L+1)-2 expected tries; odd k is impossible, else greedily decompose k/2 into terms 2^L-1. |
-| 1656D | 1900 | Div1+2 | none | Odd k needs k divides n, even k needs 2n/k odd; with n = 2^a*m (m odd) answer min(2^(a+1), m), or -1 when m=1. |
+| 1656D | 1900 | Div1+2 | factorization, gcd/Euclidean descent, modular periodicity | Odd k needs k divides n, even k needs 2n/k odd; with n = 2^a*m (m odd) answer min(2^(a+1), m), or -1 when m=1. |
 | 1717D | 1900 | Div2 | two pointers, prefix sums, sorting + greedy | Recognize the answer equals the prefix sum of C(n,i) for i=0..k, computed via precomputed factorials mod 1e9+7. |
 | 2133D | 1900 | Div2 | segment tree / BIT, standard DP over one dimension, shortest paths | Linear DP over the stack with a flag for whether the mob below was left at 1 HP to chain fall damage. |
 | 2165B | 1900 | Div1 | segment tree / BIT, standard DP over one dimension, shortest paths | Achievable iff the omitted values' total plus the largest omitted count is at most n; count those tuples with a knapsack DP. |
@@ -108,7 +108,7 @@ because a problem "feels" harder.
 | 1379C | 2000 | Div2 | two pointers, prefix sums, sorting + greedy | Sort a descending with prefix sums; for each type's b_i, take every a_j > b_i then fill the remaining flowers with b_i. |
 | 1380D | 2000 | Div2 | two pointers, prefix sums, sorting + greedy | Match b as a subsequence of a, then cost each gap greedily: a fireball is forced when the gap max beats both borders. |
 | 1513D | 2000 | Div2 | segment tree / BIT, standard DP over one dimension, shortest paths | Process values ascending; binary-search each one's maximal gcd-equal range via sparse table, then DSU-merge that range at this weight, Kruskal-style. |
-| 1867E1 | 2000 | Div2 | none | XOR disjoint k-blocks left to right; for the even leftover one overlapping query at n-k+1 cancels the already-reversed overlap. |
+| 1867E1 | 2000 | Div2 | interactive reconstruction of a hidden object from composed queries | XOR disjoint k-blocks left to right; for the even leftover one overlapping query at n-k+1 cancels the already-reversed overlap. |
 | 1905D | 2000 | Div2 | none | Keep the non-decreasing prefix-mex values in a deque of (value,count) with a running sum; rotating pops the front and clamps the back to p_1. |
 | 1943B | 2000 | Div1 | two pointers, prefix sums, sorting + greedy | Because overlapping equal-length palindromic substrings force periodicity, almost every k is good except the whole segment or its trim, verified via O(1) palindrome hashing. |
 | 1987E | 2000 | Div1+2 | DSU, basic graph traversal with a twist, binary search on answer | Slack b_v = sum of children a_u minus a_v; pulling surplus from a descendant costs its depth gap, so greedily fix deficits bottom-up. |
@@ -128,7 +128,7 @@ because a problem "feels" harder.
 | 1470D | 2200 | Div1 | DSU, basic graph traversal with a twist, binary search on answer | DFS the graph marking a vertex a teacher only if no visited neighbour is one; disconnected graphs answer NO. |
 | 1695D1 | 2200 | Div2 | DSU, basic graph traversal with a twist, binary search on answer | Compute the tree's metric dimension via leaves minus exterior-major-vertices: walk each leaf up to its nearest degree>=3 ancestor and count distinct ones. |
 | 1841E | 2200 | Div2 | two pointers, prefix sums, sorting + greedy | Monotonic-stack/Cartesian-tree split on the maximum a_i enumerates maximal free rectangles; greedily fill the widest runs first, a length-L run giving L-1 beauty. |
-| 1848D | 2200 | Div2 | none | Last digit cycles 2,4,8,6 adding 20 every four steps; for each of four offsets maximize the quadratic (s+20i)(k-i) at its vertex. |
+| 1848D | 2200 | Div2 | factorization, gcd/Euclidean descent, modular periodicity | Last digit cycles 2,4,8,6 adding 20 every four steps; for each of four offsets maximize the quadratic (s+20i)(k-i) at its vertex. |
 | 1909F1 | 2200 | Div1+2 | none | Track d_i = i - a_i as the unmatched row/column defect; multiply per-step factors 1, 1+2d, or d^2 depending on a_i - a_{i-1}. |
 | 2025E | 2200 | Div2 | segment tree / BIT, standard DP over one dimension, shortest paths | DP over suits carrying how many surplus trumps player 1 must spend; each non-trump suit's split count is a ballot/Catalan number. |
 | 2209E | 2200 | Div2 | segment tree / BIT, standard DP over one dimension, shortest paths | Z-function of the query suffix, then DP g[i]=max{g[j]+1 : j+z[j+1]>=i}; g is monotone so a pointer finds the best j. |
@@ -136,7 +136,7 @@ because a problem "feels" harder.
 | 932D | 2200 | Div1+2 | none | Build each node's chain to its nearest ancestor with weight >= its own via binary lifting, then binary-search that chain's prefix sum against X. |
 | 979D | 2200 | Div2 | digit DP, bitmask DP over subsets, tree DP with rerooting | Insert u into a binary trie per divisor; walk bits maximizing XOR while a tight flag keeps v within s-x. |
 | 980E | 2200 | Div2 | DSU, basic graph traversal with a twist, binary search on answer | Repeatedly pop the smallest-indexed leaf from a min-heap k times, since 2^i weighting means only leaf removals preserve the optimum. |
-| 1282D | 2300 | Div2 | none | Two length-300 all-a and all-b queries reveal n, then flipping each position once and reading edit distance fixes every character. |
+| 1282D | 2300 | Div2 | interactive reconstruction of a hidden object from composed queries | Two length-300 all-a and all-b queries reveal n, then flipping each position once and reading edit distance fixes every character. |
 | 1292C | 2300 | Div1 | digit DP, bitmask DP over subsets, tree DP with rerooting | Optimal labels occupy one path, so dp[u][v] = max(dp[par u][v], dp[u][par v]) + size_u*size_v over all vertex pairs. |
 | 1513E | 2300 | Div2 | none | Split values into above/below/equal-average groups; require both non-equal groups contiguous (2 orderings) if size >= 2 each, else count all permutations via factorials. |
 | 1594E2 | 2300 | Div2 | segment tree / BIT, standard DP over one dimension, shortest paths | Six-colour tree DP over the O(nk) ancestors of the fixed nodes; each untouched subtree contributes a precomputed power 4^(2^h-1). |
@@ -153,7 +153,7 @@ because a problem "feels" harder.
 | 1981D | 2400 | Div2 | DSU, basic graph traversal with a twist, binary search on answer | Map values to primes and adjacent pairs to edges; find the smallest k whose loop-complete graph admits an Eulerian trail of n-1 edges. |
 | 1993F1 | 2400 | Div2 | two pointers, prefix sums, sorting + greedy | Unfold the reflections: the robot sits at origin iff prefix displacement is 0 mod 2w and 2h; hash-count prefixes per repetition offset. |
 | 2005D | 2400 | Div2 | segment tree / BIT, standard DP over one dimension, shortest paths | Precompute prefix/suffix gcds; for each l, jump through the O(log) breakpoints where the swapped-range gcds change, maximizing the sum. |
-| 2097C | 2400 | Div1 | none | Unfold the triangle via repeated reflections into a straight line, then use gcd/Euclidean analysis on velocity ratios to find escape vertex and bounce count. |
+| 2097C | 2400 | Div1 | factorization, gcd/Euclidean descent, modular periodicity | Unfold the triangle via repeated reflections into a straight line, then use gcd/Euclidean analysis on velocity ratios to find escape vertex and bounce count. |
 | 2169E | 2400 | Div2 | two pointers, prefix sums, sorting + greedy | Optimal remaining set is the at-most-four extreme points; enumerate which roles share a point and take top candidates per linear objective. |
 | 939F | 2400 | Div2 | segment tree / BIT, standard DP over one dimension, shortest paths | DP over flip intervals keyed by time spent on the hidden side, minimised with a sliding-window monotonic deque inside each interval. |
 | 983C | 2400 | Div1 | digit DP, bitmask DP over subsets, tree DP with rerooting | DP state tracks employees loaded so far, current floor, and the destination-floor multiset of the up-to-4 passengers still inside the elevator. |
@@ -177,7 +177,7 @@ because a problem "feels" harder.
 | 1895F | 2600 | Div2 | lazy propagation, SOS DP, matrix exponentiation, flows | Count difference shapes: (x+k)(2k+1)^(n-1) minus a matrix-exponentiated count of shapes whose range stays below x, since max>=x forces the window. |
 | 1905F | 2600 | Div2 | none | Good indices are prefix-max breakpoints splitting p into consecutive value-blocks; find which single swap fixing/merging blocks maximizes new breakpoints. |
 | 2003E1 | 2600 | Div2 | segment tree / BIT, standard DP over one dimension, shortest paths | Each interval is a small-prefix then large-suffix; DP over positions by number of larges maximizes 10-pairs, plus C(c0,2)+C(c1,2) intra-group inversions. |
-| 2231F | 2600 | Div2 | none | Distances follow Legendre's sum-of-three-squares theorem (mod-8 exceptions add one), with small differences resolved by direct BFS over nearby vertices. |
+| 2231F | 2600 | Div2 | factorization, gcd/Euclidean descent, modular periodicity | Distances follow Legendre's sum-of-three-squares theorem (mod-8 exceptions add one), with small differences resolved by direct BFS over nearby vertices. |
 | 935F | 2600 | Div2 | segment tree / BIT, standard DP over one dimension, shortest paths | Keep the difference array (a range add is two point updates); a segment tree of max/min finds the element whose bump most raises the absolute-difference sum. |
 
 **171 anchors**, drawn from the frozen corpus in the skill's build-time calibration data.
