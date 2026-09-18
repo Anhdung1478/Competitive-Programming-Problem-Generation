@@ -77,14 +77,24 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
 - **`split` (Task 12).** Same reasoning — it refuses once roles are assigned. Re-splitting
   moves problems between the anchor and eval sets, which retroactively contaminates every
   round already measured.
-- **Summarization (Task 13).** 6 agents over 55 statements. `references/anchors.md` having
-  55 rows means it is done. Re-run only if the anchor id set itself changed.
-- **Each eval round (Tasks 14, 15, 17).** ~5 agents each. Every round writes its own
-  `predictions-round<N>.md` and *appends* a section to `metrics.md` — never overwrite one.
-  The comparison between rounds is the only evidence that tuning helped.
-- **Statement fetching (Task 11)** is cheap — curl only, no model tokens — but
-  `.cache-cf-corpus/` is gitignored, so a fresh clone must re-run `fetch`. That is expected.
-  It is also why the *summaries* live in committed files and the raw statements do not.
+- **Summarization (Task 13, then Generation 2 Task 3).** 6 agents over the original 55
+  statements, then 12 more agents over 120 added statements. `references/anchors.md` having
+  **171 rows** means it is done — do not re-dispatch summariser agents to chase some other
+  row count. The one legitimate reason to add rows is the four ids still missing from the
+  table (`1016C`, `1163B2`, `1322C`, `1638B` — see "Next generation" below); everything else
+  is a re-run to avoid.
+- **Each eval round (Tasks 14, 15, 17, and Generation 2's Tasks 5, 6).** ~5 agents each.
+  Every round writes its own `predictions-round<N>.md` and *appends* a section to
+  `metrics.md` — never overwrite one. Rounds 1-5 are all already recorded (round 5 was
+  reverted but stays logged); the comparison between rounds is the only evidence that tuning
+  helped.
+- **Statement fetching (Task 11, and Generation 2's fetch of 120 new ids).** It used to be
+  cheap — curl only, no model tokens — but as of 2026-09-19 Codeforces serves this network a
+  Cloudflare Managed Challenge that no plain HTTP client passes (see the Generation 2
+  deviations below); fetching now costs a per-id Exa MCP fetch, or whatever a future session
+  finds solves the challenge. `.cache-cf-corpus/` is gitignored regardless, so a fresh clone
+  must re-fetch; that is expected. It is also why the *summaries* live in committed files and
+  the raw statements do not.
 
 ## Deviations from the plan
 
@@ -167,7 +177,10 @@ bookkeeping is how expensive work gets silently repeated or silently skipped.
   same 8-row `tag-floors.md`; the only thing that changed was the anchor table growing from
   55 rows to 171. Bias moved from +179 to −29 and within ±200 from 50% to 58%. A 50-point
   MAE move on n=24 is just outside the ±40 standard error, so it is weak evidence of a real
-  improvement and was ruled to ship on that basis.
+  improvement and was ruled to ship on that basis. The sharper reading: ±40 is the standard
+  error of a single round's MAE, while the bar for a difference between two independently
+  drawn rounds is about ±57 — under which a 50-point move is inside the noise. Call the
+  improvement real but marginal, not confirmed.
 
 - **Round 5 is a null result and was reverted.** Round 5 added two data-derived rows to
   `tag-floors.md` (factorization/gcd/modular-periodicity and interactive-reconstruction, both

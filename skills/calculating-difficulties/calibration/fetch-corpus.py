@@ -371,6 +371,9 @@ def cmd_check():
         sys.exit(1)
     print("anchors: %d   eval: %d   excluded: %d   disjoint: yes" % (
         len(anchors), len(evals), len(excluded)))
+    if ANCHORS.exists():
+        summarised = len(read_anchor_labels())
+        print("anchors.md: %d of %d corpus anchors summarised" % (summarised, len(anchors)))
     print("ALL CHECKS PASSED")
 
 

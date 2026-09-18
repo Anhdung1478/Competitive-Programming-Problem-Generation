@@ -149,11 +149,11 @@ Then continue. A missing estimate is not a workflow failure — Step 8 renders `
 ## Calibration status
 
 Calibrated against 171 anchors drawn from rated Div1/Div2 problems (2018 onward), and
-measured blind on 24 held-out problems from the same sample — agents that saw the statement
-and these references, never a true rating. Those agents derived each intended solution from
-the statement alone; at runtime this skill reads a validated implementation instead, so the
-figures below are measured under harder conditions than it normally works in — likely
-pessimistic, but by an unmeasured amount.
+measured on the same 24 blind problems used for every round (see the selection note below) —
+agents that saw the statement and these references, never a true rating. Those agents derived
+each intended solution from the statement alone; at runtime this skill reads a validated
+implementation instead, so the figures below are measured under harder conditions than it
+normally works in — likely pessimistic, but by an unmeasured amount.
 
 | | value |
 |---|---|
@@ -197,7 +197,7 @@ never the aggregate alone.
 **Known ceiling.** A problem whose prerequisites match no row in `tag-floors.md` floors at
 `1100`, and the passes above can then reach at most about `2200`. That is not a judgement
 the skill is making — it is a limit of the floor table, and 37% of the anchors are themselves
-untagged while spanning roughly 1200 to 2600, so an untagged problem is not necessarily an
+untagged while spanning roughly 1100 to 2600, so an untagged problem is not necessarily an
 easy one. When Pass B lands on `1100`, treat the result as a **lower bound** rather than a
 placement, and say so in `Độ tin cậy`. **The ceiling bound in the measurement above.** The
 highest estimate any floor-`1100` problem received was exactly `2200`, and two floor-`1100`
