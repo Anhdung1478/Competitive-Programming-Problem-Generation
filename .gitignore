@@ -12,3 +12,6 @@ Thumbs.db
 
 # Subagent-driven-development scratch (ledger, briefs, review packages).
 /.superpowers/
+
+# Python bytecode from build-time tooling probes.
+__pycache__/
