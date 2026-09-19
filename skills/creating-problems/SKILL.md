@@ -9,8 +9,9 @@ description: >
   idea to a Polygon package, run the workflow, execute the problem-preparation
   workflow. Umbrella over validate-solution, polygon-statement,
   polygon-checker, generator-config, generating-tests,
-  polygon-validator, writing-editorials, tex-statement and the generator-*
-  skills; it owns the step order and the gates between them. Use this whenever
+  polygon-validator, writing-editorials, calculating-difficulties,
+  tex-statement and the generator-* skills; it owns the step order and the
+  gates between them. Use this whenever
   the request spans two or more of those steps, or when the user hands over
   problem sources and wants the package built.
 ---
