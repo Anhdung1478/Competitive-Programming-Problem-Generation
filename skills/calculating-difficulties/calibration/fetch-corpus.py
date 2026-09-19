@@ -13,6 +13,7 @@ This never runs at skill runtime. The skill itself is offline.
     check     verify corpus/eval-set/anchors integrity (row counts, roles,
               anchor/eval disjointness, no eval leakage, label integrity)
     metrics   score a predictions file against the eval set's true ratings
+    metrics-today  same, but against era-corrected (today-scale) labels
 
 WARNING: do not re-run `sample` once corpus.md is committed. The Codeforces
 problemset grows, so a second run selects a different corpus and silently
@@ -303,15 +304,15 @@ def cmd_blind():
 
 
 def read_anchor_labels():
-    """Parse id/rating/div out of every table row in references/anchors.md."""
+    """Parse id/rating/year/div out of every table row in references/anchors.md."""
     rows = []
     for line in ANCHORS.read_text(encoding="utf-8").splitlines():
         if not line.startswith("|") or line.startswith("| id ") or set(line) <= set("|- "):
             continue
         cells = [c.strip() for c in line.strip("|").split("|")]
-        if len(cells) < 3:
+        if len(cells) < 4:
             continue
-        rows.append({"id": cells[0], "rating": cells[1], "div": cells[2]})
+        rows.append({"id": cells[0], "rating": cells[1], "year": cells[2], "div": cells[3]})
     return rows
 
 
@@ -361,6 +362,10 @@ def cmd_check():
                 failures.append(
                     "LABEL MISMATCH: %s anchors.md says %s | %s, corpus.md says %s | %s" % (
                         a["id"], a["rating"], a["div"], c["rating"], c["div"]))
+            if a["year"] != c["date"][:4]:
+                failures.append(
+                    "YEAR MISMATCH: %s anchors.md says %s, corpus.md says %s" % (
+                        a["id"], a["year"], c["date"]))
     if EVAL.exists():
         listed = {r["id"] for r in read_eval()}
         if listed != evals:
@@ -377,11 +382,44 @@ def cmd_check():
     print("ALL CHECKS PASSED")
 
 
+def era_discount(year):
+    """SKILL.md Pass C.1: how much an old label overstates today's scale."""
+    y = int(year)
+    if y >= 2025:
+        return 0
+    if y >= 2023:
+        return 50
+    if y >= 2021:
+        return 100
+    if y >= 2019:
+        return 150
+    return 200
+
+
 def cmd_metrics():
+    _metrics(today=False)
+
+
+def cmd_metrics_today():
+    """Score against era-corrected labels.
+
+    Since Pass C.1 the skill states its answer on today's scale, while the eval
+    set's ratings are printed labels fitted in their own contest year. Comparing
+    the two directly charges the skill for the drift it is correcting for, so this
+    verb puts both sides on the same scale before scoring.
+    """
+    _metrics(today=True)
+
+
+def _metrics(today):
     if len(sys.argv) != 3:
-        sys.exit("usage: fetch-corpus.py metrics <predictions-file.md>")
+        sys.exit("usage: fetch-corpus.py %s <predictions-file.md>" % sys.argv[1])
     truth = {r["slot"]: int(r["rating"]) for r in read_eval()}
     bands = {r["slot"]: r["band"] for r in read_eval()}
+    if today:
+        dates = {r["id"]: r["date"] for r in read_corpus()}
+        for r in read_eval():
+            truth[r["slot"]] -= era_discount(dates[r["id"]][:4])
     path = Path(sys.argv[2])
     preds = {}
     for line in path.read_text(encoding="utf-8").splitlines():
@@ -398,7 +436,7 @@ def cmd_metrics():
     bias = sum(errors.values()) / n
     within200 = 100.0 * sum(1 for e in errors.values() if abs(e) <= 200) / n
     within300 = 100.0 * sum(1 for e in errors.values() if abs(e) <= 300) / n
-    print("## %s" % path.stem)
+    print("## %s%s" % (path.stem, " (today-scale labels)" if today else ""))
     print()
     print("n = %d   MAE = %.0f   bias = %+.0f   within200 = %.0f%%   within300 = %.0f%%"
           % (n, mae, bias, within200, within300))
@@ -419,7 +457,8 @@ def cmd_metrics():
 
 VERBS = {"sample": cmd_sample, "extend": cmd_extend, "starter": cmd_starter,
          "fetch": cmd_fetch, "split": cmd_split, "blind": cmd_blind,
-         "check": cmd_check, "metrics": cmd_metrics}
+         "check": cmd_check, "metrics": cmd_metrics,
+         "metrics-today": cmd_metrics_today}
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in VERBS:

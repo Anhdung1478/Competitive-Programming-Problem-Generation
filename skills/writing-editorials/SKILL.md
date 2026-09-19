@@ -175,7 +175,7 @@ Include:
 
 - the problem name;
 - `Time limit` and `Memory limit` rows, only when authoritative values exist;
-- an `Expected rating` field copied verbatim from `outputs/difficulty.md` — including its interval and the `(ước lượng)` marker — or `chưa xác định` when that file is absent or records `not estimable`;
+- an `Expected rating` field taking the number and interval from `outputs/difficulty.md` unchanged — that file is written in English, so render its `(estimated)` marker as `(ước lượng)` here and change nothing else — or `chưa xác định` when that file is absent or records `not estimable`;
 - concise Codeforces-style tags inferred from the validated algorithm.
 
 Do not estimate the rating here. Step 8a owns it: copy `outputs/difficulty.md`'s number or write `chưa xác định`. Do not block completion to ask for a difficulty or tags, do not re-derive a number the file already carries, and never write a leading `*` before it.
@@ -300,4 +300,4 @@ Verify all of the following:
 - only one supplied theme is used and its CSS, chrome, and trailing script remain intact; on `fb-light`, `<div class="pt-body">` wraps the whole body and each `<p>` carries one reasoning step;
 - when the user asked for a companion implementation, `outputs/solution.cpp` mirrors the editorial's algorithm, compiles, and passes the full test set;
 - no subtask, limit, rating, sample, or alternative solution is presented as authoritative without support;
-- the `Expected rating` row is a copy of `outputs/difficulty.md` or `chưa xác định` — never a number this editorial invented.
+- the `Expected rating` row carries `outputs/difficulty.md`'s number and interval, or `chưa xác định` — never a number this editorial invented, and never a number it re-derived from that file's English reasoning.

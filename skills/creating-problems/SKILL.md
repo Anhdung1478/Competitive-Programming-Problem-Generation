@@ -551,11 +551,15 @@ that ends at Step 7 with no editorial is finished, not incomplete. The editorial
 Use the `calculating-difficulties` skill. It runs whenever Step 8 runs, and may be run
 alone at any point after Step 1. It reads the validated solution and
 `source/problem-context.md`, and writes `outputs/difficulty.md`: the estimate with its
-interval, the prerequisite floor, the anchors compared, every adjustment applied, and a
-confidence line.
+interval, the prerequisite floor, the anchors compared with their era correction, every
+adjustment applied, and a confidence line.
 
-The estimate is a comparability figure on the Codeforces scale, not a prediction of how
-any particular group will perform, and never a per-subtask rating.
+Unlike the Vietnamese editorial, **`outputs/difficulty.md` is written in English.** It is an
+audit trail for the setter, not a student-facing document; Step 8 copies its number, not its
+prose.
+
+The estimate is a comparability figure on the Codeforces scale stated on today's scale, not
+a prediction of how any particular group will perform, and never a per-subtask rating.
 
 With no validated solution the file records `not estimable` plus the reason, and the
 workflow continues — Step 8 then renders `chưa xác định`. Never let a guess stand in for
