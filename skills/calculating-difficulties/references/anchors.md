@@ -13,9 +13,10 @@ being written today. SKILL.md Pass C.1 owns that correction and its table; apply
 never by editing the `rating` column.
 
 Nearly half this table is old — 78 of the 171 anchors are from 2018-2020 — so the
-correction fires on most placements rather than at the margins. Where the window offers a
-genuine choice between two comparable anchors, prefer the more recent one: its label needs
-less correction and therefore carries less of the correction's own uncertainty.
+correction fires on most placements rather than at the margins. **Choose anchors by match
+quality alone and let their years fall where they may.** Pass C.1 puts an old label onto
+today's scale arithmetically, which is exactly so that you never have to avoid an old one:
+blind round 6 measured a preference for recent anchors and it cost 42 points of MAE.
 
 | id | rating | year | div | prereq | intended solution |
 |---|---|---|---|---|---|

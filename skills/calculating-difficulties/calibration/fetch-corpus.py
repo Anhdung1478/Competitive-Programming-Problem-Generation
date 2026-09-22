@@ -14,6 +14,8 @@ This never runs at skill runtime. The skill itself is offline.
               anchor/eval disjointness, no eval leakage, label integrity)
     metrics   score a predictions file against the eval set's true ratings
     metrics-today  same, but against era-corrected (today-scale) labels
+    fresh-build    sample+fetch the held-out eval set (disjoint from corpus.md) -> eval-set-2.md
+    fresh-blind    write held-out statements to CACHE/blind2, title stripped
 
 WARNING: do not re-run `sample` once corpus.md is committed. The Codeforces
 problemset grows, so a second run selects a different corpus and silently
@@ -21,6 +23,7 @@ invalidates every measurement taken against the first.
 """
 import html
 import json
+import os
 import random
 import re
 import subprocess
@@ -47,6 +50,29 @@ COLUMNS = ["id", "rating", "div", "date", "band", "role"]
 EVAL_PER_BAND = 3
 EVAL = HERE / "eval-set.md"
 ANCHORS = SKILL / "references" / "anchors.md"
+
+# Anchor ids cited by a recorded round that are not in anchors.md. Both are the same
+# typo for 1063C and both are already written up under `Post-freeze corrections` in
+# metrics.md. Nothing goes in here without being recorded there the same way.
+KNOWN_BAD_CITATIONS = {"1063D"}
+
+# Selecting anchors by year rather than by match quality is what blind round 6 measured
+# at +42 MAE (metrics.md, round 6). The instruction was deleted from SKILL.md but left
+# in anchors.md, which Pass C also reads, so round 7 measured a half-removed preference.
+# This guard is what would have caught that.
+RECENCY_GUARD = re.compile(r"prefer the (more recent|newer)", re.I)
+
+# `| eval-NN | predicted | floor | anchors used |` in a predictions file. Round 1
+# separates the ids with spaces, later rounds with commas.
+PREDICTION_ROW = re.compile(r"^\|\s*eval-\d+\s*\|[^|]*\|[^|]*\|([^|]*)\|")
+
+# The held-out set. eval-set.md was tuned against for seven rounds and is no longer
+# held out in any strict sense; this one is drawn from problems absent from corpus.md
+# entirely, so it overlaps neither the anchors nor the old eval set.
+FRESH_EVAL = HERE / "eval-set-2.md"
+FRESH_PER_BAND = 6                              # 6 x 8 bands = 48, ~+/-28 standard error
+FRESH_SEED = 20260920
+FRESH_BLIND = "blind2"
 
 # Codeforces serves 1181C's statement as a native PDF, so it cannot be fetched
 # or summarized. It stays in the frozen corpus as a record of the sample and is
@@ -162,11 +188,22 @@ def fetch_one(problem_id):
     if not match:
         return "malformed id"
     url = "https://codeforces.com/problemset/problem/%s/%s" % match.groups()
-    proc = subprocess.run(["curl", "-sS", "-m", "60", "-A", UA, url],
-                          capture_output=True, text=True,
+    # Codeforces sits behind a Cloudflare challenge. When it is active, plain curl
+    # gets a 403 interstitial; pass a browser session through the environment:
+    #   CF_UA="<navigator.userAgent>" CF_COOKIE="cf_clearance=..." python ... fresh-build
+    # The cookie is bound to that user agent and to the machine's IP, and it is never
+    # written to disk or committed.
+    agent = os.environ.get("CF_UA") or UA
+    cmd = ["curl", "-sS", "-m", "60", "--compressed", "-A", agent]
+    cookie = os.environ.get("CF_COOKIE")
+    if cookie:
+        cmd += ["-H", "Cookie: " + cookie]
+    proc = subprocess.run(cmd + [url], capture_output=True, text=True,
                           encoding="utf-8", errors="replace")
     if proc.returncode != 0:
         return "curl exit %d" % proc.returncode
+    if "Just a moment" in proc.stdout or "challenge-platform" in proc.stdout:
+        return "blocked by Cloudflare — set CF_UA and CF_COOKIE"
     if "problem-statement" not in proc.stdout:
         return "no statement in response"
     text = to_text(proc.stdout)
@@ -277,15 +314,31 @@ def cmd_split():
         len(rows) - len(evals) - len(excluded), len(evals), len(excluded), EVAL))
 
 
-def read_eval():
-    if not EVAL.exists():
-        sys.exit("%s does not exist — run `split` first" % EVAL)
+def read_eval(path=None, prefix="| eval-"):
+    path = path or EVAL
+    if not path.exists():
+        sys.exit("%s does not exist — run `split` first" % path)
     rows = []
-    for line in EVAL.read_text(encoding="utf-8").splitlines():
-        if not line.startswith("| eval-"):
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.startswith(prefix):
             continue
         cells = [c.strip() for c in line.strip("|").split("|")]
-        rows.append(dict(zip(["slot", "id", "rating", "band"], cells)))
+        rows.append(dict(zip(["slot", "id", "rating", "band", "date"], cells)))
+    return rows
+
+
+def read_any_eval(path):
+    """Read either eval set, picking the slot prefix from the file's own rows.
+
+    Deciding by path identity against FRESH_EVAL fails for a relative path that
+    names the same file: the prefix then silently falls back to "| eval-", no row
+    matches, and the caller scores an empty set instead of reporting the mistake.
+    """
+    lines = path.read_text(encoding="utf-8").splitlines()
+    prefix = "| fresh-" if any(l.startswith("| fresh-") for l in lines) else "| eval-"
+    rows = read_eval(path, prefix)
+    if not rows:
+        sys.exit("%s contains no '%s' rows" % (path, prefix.strip()))
     return rows
 
 
@@ -366,6 +419,19 @@ def cmd_check():
                 failures.append(
                     "YEAR MISMATCH: %s anchors.md says %s, corpus.md says %s" % (
                         a["id"], a["year"], c["date"]))
+        cited = {a["id"] for a in read_anchor_labels()}
+        for pred in sorted(HERE.glob("predictions-*.md")):
+            for line in pred.read_text(encoding="utf-8").splitlines():
+                row = PREDICTION_ROW.match(line)
+                if not row:
+                    continue
+                for one in re.split(r"[,\s]+", row.group(1).strip()):
+                    if one and one not in cited and one not in KNOWN_BAD_CITATIONS:
+                        failures.append("BAD CITATION: %s cites %s, absent from anchors.md"
+                                        % (pred.name, one))
+        if RECENCY_GUARD.search(text):
+            failures.append("anchors.md steers anchor selection by year; blind round 6 "
+                            "measured that instruction at +42 MAE")
     if EVAL.exists():
         listed = {r["id"] for r in read_eval()}
         if listed != evals:
@@ -412,18 +478,23 @@ def cmd_metrics_today():
 
 
 def _metrics(today):
-    if len(sys.argv) != 3:
-        sys.exit("usage: fetch-corpus.py %s <predictions-file.md>" % sys.argv[1])
-    truth = {r["slot"]: int(r["rating"]) for r in read_eval()}
-    bands = {r["slot"]: r["band"] for r in read_eval()}
+    if len(sys.argv) not in (3, 4):
+        sys.exit("usage: fetch-corpus.py %s <predictions-file.md> [eval-set-file.md]"
+                 % sys.argv[1])
+    evalpath = Path(sys.argv[3]) if len(sys.argv) == 4 else EVAL
+    rows = read_any_eval(evalpath)
+    truth = {r["slot"]: int(r["rating"]) for r in rows}
+    bands = {r["slot"]: r["band"] for r in rows}
     if today:
         dates = {r["id"]: r["date"] for r in read_corpus()}
-        for r in read_eval():
-            truth[r["slot"]] -= era_discount(dates[r["id"]][:4])
+        for r in rows:
+            # the fresh eval set carries its own date column; the old one does not
+            date = r.get("date") or dates[r["id"]]
+            truth[r["slot"]] -= era_discount(date[:4])
     path = Path(sys.argv[2])
     preds = {}
     for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.startswith("| eval-"):
+        if not (line.startswith("| eval-") or line.startswith("| fresh-")):
             continue
         cells = [c.strip() for c in line.strip("|").split("|")]
         preds[cells[0]] = int(cells[1])
@@ -455,10 +526,81 @@ def _metrics(today):
         print("| %s | %d | %d | %+d |" % (slot, truth[slot], preds[slot], errors[slot]))
 
 
+def cmd_fresh_build():
+    """Sample, fetch and record the held-out eval set, disjoint from corpus.md."""
+    if FRESH_EVAL.exists():
+        sys.exit("%s already exists. It is the only uncontaminated measurement this "
+                 "skill has; re-sampling it destroys that. Delete it deliberately if "
+                 "that is what you mean." % FRESH_EVAL)
+    taken = {r["id"] for r in read_corpus()}
+    pool = candidates()
+    rng = random.Random(FRESH_SEED)
+    chosen = []
+    for b in range(len(BANDS)):
+        fresh = sorted((e for e in pool[b] if e["id"] not in taken), key=lambda e: e["id"])
+        if len(fresh) < FRESH_PER_BAND:
+            sys.exit("band %d has only %d candidates outside the corpus"
+                     % (BANDS[b][0], len(fresh)))
+        # Oversample: some statements are served as PDFs and cannot be fetched.
+        order = rng.sample(fresh, min(len(fresh), FRESH_PER_BAND * 4))
+        kept = []
+        print("band %d-%d:" % BANDS[b])
+        for entry in order:
+            if len(kept) == FRESH_PER_BAND:
+                break
+            err = fetch_one(entry["id"])
+            if err is None:
+                kept.append(entry)
+                print("  %-8s %s  ok" % (entry["id"], entry["rating"]))
+            else:
+                print("  %-8s %s  skipped: %s" % (entry["id"], entry["rating"], err))
+            time.sleep(1)
+        if len(kept) < FRESH_PER_BAND:
+            sys.exit("band %d: fetched only %d of %d" % (BANDS[b][0], len(kept), FRESH_PER_BAND))
+        chosen.extend(sorted(kept, key=lambda e: e["id"]))
+
+    lines = [
+        "# Eval set 2 — the held-out set",
+        "",
+        "Build-time only. Never read at skill runtime, never named by SKILL.md, and never",
+        "shown to an agent that is about to predict a rating.",
+        "",
+        "Drawn from rated Div1/Div2 problems absent from `corpus.md` entirely, so it is",
+        "disjoint from the 171 anchors *and* from the 24 problems in `eval-set.md` that",
+        "seven rounds of tuning were measured against. This is the only set that can still",
+        "support a held-out accuracy claim.",
+        "",
+        "| slot | id | rating | band | date |",
+        "|---|---|---|---|---|",
+    ]
+    for i, e in enumerate(chosen, 1):
+        b = band_of(int(e["rating"]))
+        lines.append("| fresh-%02d | %s | %s | %d-%d | %s |" % (
+            i, e["id"], e["rating"], BANDS[b][0], BANDS[b][1], e["date"]))
+    FRESH_EVAL.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print("\nwrote %d held-out problems to %s" % (len(chosen), FRESH_EVAL))
+
+
+def cmd_fresh_blind():
+    out = CACHE / FRESH_BLIND
+    out.mkdir(parents=True, exist_ok=True)
+    rows = read_any_eval(FRESH_EVAL)
+    for row in rows:
+        src = CACHE / ("%s.txt" % row["id"])
+        if not src.exists():
+            sys.exit("missing %s — run `fresh-build` first" % src)
+        body = src.read_text(encoding="utf-8")
+        # Drop the leading "D. Problem Title" line so the slot cannot be traced by name.
+        body = body.split("\n", 1)[1].lstrip() if "\n" in body else body
+        (out / ("%s.txt" % row["slot"])).write_text(body, encoding="utf-8")
+    print("wrote %d blind statements to %s" % (len(rows), out))
+
+
 VERBS = {"sample": cmd_sample, "extend": cmd_extend, "starter": cmd_starter,
          "fetch": cmd_fetch, "split": cmd_split, "blind": cmd_blind,
          "check": cmd_check, "metrics": cmd_metrics,
-         "metrics-today": cmd_metrics_today}
+         "metrics-today": cmd_metrics_today,
+         "fresh-build": cmd_fresh_build, "fresh-blind": cmd_fresh_blind}
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in VERBS:
