@@ -1159,3 +1159,66 @@ and it should be tested the same way: one arm, one change, threshold written fir
 carry a small multiple-comparison optimism. The shipped arm is the *control*, not a winner
 selected for its score, which makes that cost smaller here than the pre-registration allowed
 for — but the set is no longer pristine, and a round 10 should draw a third sample.
+
+## Configuration drift since round 9A (2026-09-22)
+
+Round 9A measured the skill as it stood on the morning of 2026-09-22. The shipped `SKILL.md`
+has since gained wording. None of the changes below is measured; round 10's control arm
+measures them together.
+
+| change | why | risk |
+|---|---|---|
+| Pass C.1: the "level shift, not a de-compression" paragraph | round 9C's negative result, recorded where the next reader would otherwise re-propose the step | wording, no arithmetic |
+| Pass B: a `1100` floor caps the reachable estimate near `2200` and is reported as a lower bound | moved from `Calibration status`, which the agent reads after answering, into the pass that fires | wording, no arithmetic |
+| `## The procedure at a glance`: a seven-row map at the top | 2,900 words with no overview; the map gives the passes an order and one binding rule each | changes what the agent reads first; unmeasured |
+| "What the number means": the placement range is about `1100` to `2900`; `Confidence` names a floor ≥ `2100` or a placement ≥ `2500` | the anchor table spans `1100`-`2600` and the top three floor rows have no anchor; the description advertises `800`-`3500` | `Confidence` text only |
+| Gate: proof is a Step 1 `PASS` in this session, the user's word, or a validated full-scope AC in the manifest | `validate-solution` writes no file, so a standalone Step 8a had nothing to check | affects whether an estimate is produced, not its value |
+| Pass C: the round-6 story cut to three sentences; `33 points` corrected to `42` | the figure contradicted `anchors.md` and this file | wording |
+| `Calibration status` cut to the table and one paragraph; figures removed from Pass E, the template and `README.md` | five copies of the round figures, one already stale | changes what the agent reads; unmeasured |
+| Template: the coverage sentence and the `Source:` line carry no figures | same | output prose only |
+| `anchors.md`: five rows (`2109C1`, `1129A2`, `2196C1`, `1063C`, `1783F`) had a seventh cell holding the unsure marker | the table misaligned in any renderer | none; the parser reads four cells |
+
+## Round 10 — pre-registered decision rules
+
+Written 2026-09-22, before any round-10 number exists, and before any arm was dispatched.
+
+**Prerequisite: a third held-out sample.** The fresh 48 have been compared against by four
+arms and are no longer pristine. Round 10 runs on `eval-set-3.md`: 48 problems, 6 per band
+across the same 8 bands, disjoint from `corpus.md`, `eval-set.md` and `eval-set-2.md`.
+`fetch-corpus.py fresh-build` writes `eval-set-2.md` by name and must be generalised before
+this round can run; that is build tooling and touches nothing the skill reads.
+
+**Arms.** Same 48 slots, the round-1 eval prompt verbatim, 8 subagents of 6 slots each.
+
+| arm | configuration |
+|---|---|
+| 10A | the shipped skill as of this entry — the drift list above applied, nothing else — control |
+| 10B | 10A with the `two pointers, prefix sums, sorting + greedy` row removed from `tag-floors.md`, so those problems floor at `1100`. Two anchors carrying that tag, `1923B` and `2245B`, are rated `1100`, and round 9 floored two true-`1100` problems, `fresh-04` and `fresh-05`, at `1200`: the row is not a lower bound |
+| 10C | 10A with Pass C.1 removed: anchors compared on their printed ratings. The era correction has never been measured alone on held-out problems; round 7's 25-point lead over round 4 was inside a ±40 standard error |
+| 10D | 10A plus one structural rule in Pass C: at least one of the anchors compared must lie in the base window `[floor, floor+600]`, and the output names it. In 9A, 30 of 142 citations sat outside the base window, and the worst miss, `fresh-11` (true `1400`, estimated `2200`), took all three anchors from the top of the widened window |
+
+**Primary endpoints.** 10B: the count of floors above a true rating, which must be `0`, and
+the `1100-1299` band bias. 10C: MAE, since the correction claims a level shift. 10D: the
+`1100-1499` bias and worst-band |bias|. MAE is the guard for every arm.
+
+**Ship rules**, `a` = 10A, evaluated independently for 10B and 10D:
+
+| condition | outcome |
+|---|---|
+| `worst_band ≤ a.worst_band − 100` and `MAE ≤ a.MAE + 28` | that arm ships |
+| `MAE ≤ a.MAE − 28` | that arm ships whatever worst-band does |
+| any estimate clamped by the floor to above its true rating | that arm is disqualified whatever its MAE |
+| otherwise | that arm is reverted and recorded as a negative result |
+
+**The rule for 10C is inverted**, because it removes a pass rather than adding one:
+
+| condition | outcome |
+|---|---|
+| `MAE ≤ a.MAE − 28` | Pass C.1 is removed: the correction was costing accuracy |
+| otherwise | Pass C.1 stays, and its measured gain, `a.MAE` against 10C's, is stated in `Calibration status` for the first time, bounded by the ±28 standard error |
+
+**If both 10B and 10D qualify**, ship the lower worst-band; within 30, the lower MAE. **They
+are not combined.** A combination is its own arm in a later round.
+
+**Whatever ships**, `Calibration status` is restated on the round-10 figures, which remain the
+only copy in the repository, and this file records every arm.
