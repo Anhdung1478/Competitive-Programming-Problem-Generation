@@ -1164,17 +1164,18 @@ for — but the set is no longer pristine, and a round 10 should draw a third sa
 
 Round 9A measured the skill as it stood on the morning of 2026-09-22. The shipped `SKILL.md`
 has since gained wording. None of the changes below is measured; round 10's control arm
-measures them together.
+measures them together. The changes shipped between rounds 7 and 9A are listed under
+**Configuration drift since round 7** and were measured by 8A and 9A.
 
 | change | why | risk |
 |---|---|---|
-| Pass C.1: the "level shift, not a de-compression" paragraph | round 9C's negative result, recorded where the next reader would otherwise re-propose the step | wording, no arithmetic |
+| Pass C.1: the "level shift, not a de-compression" paragraph; its per-band discount range corrected from `−75` to `−117` (false) to the measured `−84` to `−127` | round 9C's negative result, recorded where the next reader would otherwise re-propose the step; the range was recomputed from `anchors.md` on 2026-09-22 | wording, no arithmetic |
 | Pass B: a `1100` floor caps the reachable estimate near `2200` and is reported as a lower bound | moved from `Calibration status`, which the agent reads after answering, into the pass that fires | wording, no arithmetic |
-| `## The procedure at a glance`: a seven-row map at the top | 2,900 words with no overview; the map gives the passes an order and one binding rule each | changes what the agent reads first; unmeasured |
-| "What the number means": the placement range is about `1100` to `2900`; `Confidence` names a floor ≥ `2100` or a placement ≥ `2500` | the anchor table spans `1100`-`2600` and the top three floor rows have no anchor; the description advertises `800`-`3500` | `Confidence` text only |
+| `## The procedure at a glance`: a seven-row map at the top; row C says anchors are selected on printed ratings and compared on their Pass C.1 today ratings, so the map cannot be read as C.1 never reaching the estimate | 2,900 words with no overview; the map gives the passes an order and one binding rule each | changes what the agent reads first; unmeasured |
+| "What the number means": the placement range is about `1100` to `2900`; `Confidence` names a floor ≥ `2100` or a placement ≥ `2500` in the template's own words; "It is a comparability figure" became "The number is" | the anchor table spans `1100`-`2600` and the top three floor rows have no anchor; the description advertises `800`-`3500` | `Confidence` text only |
 | Gate: proof is a Step 1 `PASS` in this session, the user's word, or a validated full-scope AC in the manifest | `validate-solution` writes no file, so a standalone Step 8a had nothing to check | affects whether an estimate is produced, not its value |
 | Pass C: the round-6 story cut to three sentences; `33 points` corrected to `42` | the figure contradicted `anchors.md` and this file | wording |
-| `Calibration status` cut to the table and one paragraph; figures removed from Pass E, the template and `README.md` | five copies of the round figures, one already stale | changes what the agent reads; unmeasured |
+| `Calibration status` cut to the table and one paragraph; figures removed from Pass E, the template and `README.md`; the section says its figures predate the wording listed here and points at this table | five copies of the round figures, one already stale; the old "measures exactly the configuration shipped here" claim was no longer true | changes what the agent reads; unmeasured |
 | Template: the coverage sentence and the `Source:` line carry no figures | same | output prose only |
 | `anchors.md`: five rows (`2109C1`, `1129A2`, `2196C1`, `1063C`, `1783F`) had a seventh cell holding the unsure marker | the table misaligned in any renderer | none; the parser reads four cells |
 
@@ -1197,9 +1198,10 @@ this round can run; that is build tooling and touches nothing the skill reads.
 | 10C | 10A with Pass C.1 removed: anchors compared on their printed ratings. The era correction has never been measured alone on held-out problems; round 7's 25-point lead over round 4 was inside a ±40 standard error |
 | 10D | 10A plus one structural rule in Pass C: at least one of the anchors compared must lie in the base window `[floor, floor+600]`, and the output names it. In 9A, 30 of 142 citations sat outside the base window, and the worst miss, `fresh-11` (true `1400`, estimated `2200`), took all three anchors from the top of the widened window |
 
-**Primary endpoints.** 10B: the count of floors above a true rating, which must be `0`, and
-the `1100-1299` band bias. 10C: MAE, since the correction claims a level shift. 10D: the
-`1100-1499` bias and worst-band |bias|. MAE is the guard for every arm.
+**Primary endpoints.** Worst-band |bias| for 10B and 10D; MAE for 10C, since the correction
+claims a level shift. MAE is the guard for every arm. Reported alongside, without a threshold
+of their own: for 10B the count of floors above a true rating (a disqualifier in the rules
+below) and the `1100-1299` band bias; for 10D the `1100-1299` and `1300-1499` band biases.
 
 **Ship rules**, `a` = 10A, evaluated independently for 10B and 10D:
 
@@ -1221,4 +1223,4 @@ the `1100-1299` band bias. 10C: MAE, since the correction claims a level shift. 
 are not combined.** A combination is its own arm in a later round.
 
 **Whatever ships**, `Calibration status` is restated on the round-10 figures, which remain the
-only copy in the repository, and this file records every arm.
+only copy in the skill's runtime text, and this file records every arm.

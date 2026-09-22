@@ -16,8 +16,8 @@ Write one file, `outputs/difficulty.md`, in the problem repository. Change nothi
 | Gate | Confirms the implementation being rated was validated | No proof ⇒ write the `not estimable` file and continue |
 | A | Extracts features: techniques, independent observations, hardest step, implementation weight | No number is written in this pass |
 | B | Reads the prerequisite floor from `references/tag-floors.md` | The hardest technique *required*, not merely present; nothing listed ⇒ `1100` |
-| C | Places the problem against 2-3 anchors from `references/anchors.md` in `[floor, floor+600]` | Ids copied verbatim; the estimate ends within `300` of an anchor compared |
-| C.1 | Era-corrects each anchor's printed rating to today's scale | Corrects the anchors, never the estimate and never the floor |
+| C | Places the problem against 2-3 anchors from `references/anchors.md`, selected in `[floor, floor+600]` on printed ratings and compared on their Pass C.1 today ratings | Ids copied verbatim; the estimate ends within `300` of an anchor compared |
+| C.1 | Era-corrects each selected anchor's printed rating to today's scale, before Pass C states its estimate | Corrects the anchors, never the estimate and never the floor |
 | D | Applies feature adjustments | Total capped at `±300` |
 | E | Floor gate, round, clamp, interval, anchor-id check, write | Interval is `± 300`; every id cited exists in `anchors.md` |
 
@@ -31,9 +31,9 @@ The word **modern** is load-bearing. The scale drifts, so a rating only means so
 
 **One number, for the whole problem.** Never a per-subtask rating, and never a Vietnamese tier (`dễ` / `trung bình` / `khó`): the output is an integer on the Codeforces scale, or `not estimable`.
 
-**The placement range is about `1100` to `2900`, narrower than the scale.** The anchor table runs from `1100` to `2600`, the lowest floor is `1100`, and Pass C's window starts at the floor, so nothing below `1100` can be placed against an anchor and nothing above `2600` plus Pass D's cap can. The top three rows of `tag-floors.md` have no anchor carrying their technique. A problem that Pass A suggests lies outside this range still gets a number, but `Confidence` is `low` and says the placement ran off the end of the anchor table.
+**The placement range is about `1100` to `2900`, narrower than the scale.** The anchor table runs from `1100` to `2600`, the lowest floor is `1100`, and Pass C's window starts at the floor, so nothing below `1100` can be placed against an anchor and nothing above `2600` plus Pass D's cap can. The top three rows of `tag-floors.md` have no anchor carrying their technique. A problem that Pass A suggests lies outside this range still gets a number, but `Confidence` must say so in the words the template offers: a floor at `2100` or above, or a placement at `2500` or above, is where the anchor table thins out.
 
-It is a **comparability figure, not a prediction**. It tells a Codeforces-literate reader what class of problem this is. It does not predict how a particular group of students will perform, and it says nothing about individual subtasks. The output file must repeat this, or the number will be over-trusted.
+The number is a **comparability figure, not a prediction**. It tells a Codeforces-literate reader what class of problem this is. It does not predict how a particular group of students will perform, and it says nothing about individual subtasks. The output file must repeat this, or the number will be over-trusted.
 
 Codeforces ratings are fitted from contest performance — roughly the rating at which in-contest solve probability is 50%. Tags and constraints are not inputs to that fit. There is no formula to recover; this skill places a problem against real rated problems instead.
 
@@ -115,7 +115,7 @@ today(anchor) = printed rating − era discount(year)
 The `year` column of `references/anchors.md` supplies the year.
 
 **This is a level shift, not a de-compression.** Across the anchor table the discount averages
-`−102` and stays between `−75` and `−117` in every rating band, so in practice it lowers the
+`−102` and its per-band mean stays between `−84` and `−127`, so in practice it lowers the
 whole comparison set by about `100` rather than stretching it. That is all it is meant to do.
 An explicit de-compression step was measured blind on held-out problems and made every figure
 worse — see `Calibration status`.
@@ -201,7 +201,7 @@ Total adjustment: +100 (capped at ±300). 2000 + 100 = 2100.
 <high / medium / low, and one sentence saying why — a weak anchor window, anchors mostly
 from 2020 or earlier, an unusual technique, a floor that overrode the adjustments, a
 solution whose complexity depends on input shape, a `1100` floor, which makes the number
-a lower bound rather than a placement, or a floor of `2100` or above or a placement of
+a lower bound rather than a placement, or a floor at `2100` or above, or a placement at
 `2500` or above, where the anchor table thins out>
 
 ---
@@ -231,11 +231,14 @@ Then continue. A missing estimate is not a workflow failure — Step 8 renders `
 
 ## Calibration status
 
-The figures below are the only copy in this repository; every other file points here.
+The figures below are the only copy in the skill's runtime text; `README.md` and the output
+template point here, and the round-by-round record lives in `calibration/metrics.md`.
 Measured blind at round 9A on 2026-09-22 against 48 held-out problems the rubric was never
 tuned against, disjoint from the anchor table, the old eval set and the frozen corpus. Agents
-saw the statement and these references, never a true rating. The round history, the rejected
-candidates and the pre-registered rules for the next round live in `calibration/metrics.md`.
+saw the statement and these references, never a true rating. **They measure the skill as it
+stood that morning, not the wording it has gained since**: `calibration/metrics.md` lists that
+wording under `Configuration drift since round 9A`, together with the round history, the
+rejected candidates and the pre-registered rules for round 10, whose control arm measures it.
 
 | | value | target | met |
 |---|---|---|---|
@@ -250,7 +253,7 @@ candidates and the pre-registered rules for the next round live in `calibration/
 The two misses are inside the ±28 standard error of a 48-problem set. MAE 210 earns the
 `± 300` interval Pass E emits, and that interval is a measured error band, not a confidence
 interval. Two results bind the passes above: an explicit de-compression step measured worse
-on every figure in a blind arm, so none is applied; and 19 of the 48 problems floored at the
+on every figure in a blind arm, so no such step is applied; and 19 of the 48 problems floored at the
 uninformative `1100`, so a `1100` floor leaves the number resting on Pass C alone. Four arms
 were compared on this set, so these figures carry a small multiple-comparison optimism.
 Codeforces ratings themselves quantize to 100 and carry about ±150 of inherent noise; no
