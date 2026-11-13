@@ -6,9 +6,9 @@ description: >
   solution from the naive one, OI or ICPC, which subtask rungs earn points,
   and what goes in outputs/problem.json. Triggers on shape this problem,
   pick N, chọn N, subtask ladder, thang subtask, partial scoring, chấm từng
-  phần, point weights, is this problem already known, problem.json. Do not
-  use for statement wording (polygon-statement) or test data
-  (generator-config).
+  phần, point weights, is this problem already known, problem.json, problem
+  tags, Codeforces tags. Do not use for statement wording (polygon-statement)
+  or test data (generator-config).
 ---
 
 # Shaping problems
@@ -161,6 +161,24 @@ whatever you put in it. Findings go in your report, not in the document.
 | `io.input` / `io.output` | Both sentinels (`"stdin"`/`"stdout"`) or both bare filenames (`flight.inp`/`flight.out`). Never one of each, never a path separator |
 | `limits.time_ms_published` | The proposal from §2, and the single home for the limit. Workflow Step 4 may raise or lower it once it has measured one, and announces the change |
 | `examples` | `[]` here. Workflow Step 5b fills the sample files |
+| `tags` | **Required.** 1–5 names, each verbatim from [`references/codeforces-tags.md`](references/codeforces-tags.md), no repeats. Chosen as in *Tags* below. `uploading-to-polygon` sends exactly this list to Polygon |
+
+### Tags
+
+Take them from the first source that has them:
+
+1. **`problem-context.md` lists tags** → copy them. A name that is not on the
+   usable list, or a list longer than 5, is a finding: report it and ask
+   which listed names were meant.
+   Do not map it yourself, and **write the file without `tags`** until the
+   user answers — a partial list passes every check while silently dropping a
+   tag, and an absent key stops the upload until it is filled.
+2. **It does not** → tag the ideas `source/solution.cpp` (else the stated
+   intended solution) **needs**. A construct that merely appears is not a
+   tag: a `std::sort` call is `sortings` only when sorting is the idea. Name
+   each tag with a one-line reason in your report.
+
+Order them most central idea first; the upload keeps that order.
 
 `uploading-to-polygon` records the Polygon id in `outputs/polygon.json` and never
 writes `problem.json`. No key here tracks the upload.
@@ -188,6 +206,7 @@ whatever the report says about it.
 - [ ] Every `subtasks[].bounds` key exists in `constraints[]`
 - [ ] Every `min`/`max` is an integer
 - [ ] `checker` uses one of the two shapes, and any `name` is a token from the table
+- [ ] `tags` holds 1–5 names, each verbatim from `references/codeforces-tags.md`, none repeated — or is absent while the user answers a question about the source's tags
 - [ ] No keys outside the table above
 - [ ] Unstated bounds raised as questions, not encoded as guesses
 
@@ -199,4 +218,5 @@ whatever the report says about it.
 | Transcribing the source ladder | The markdown's rungs copied straight into `subtasks[]` without a separation table |
 | Equal splits | 25/25/25/25 across four rungs — the arithmetic of not deciding |
 | Vague algorithm names | "brute force" and "optimized brute force" as two different rungs |
-| Silent invention | A query-range bound, a tag, or a time limit that appears in the JSON but nowhere in the source |
+| Silent invention | A query-range bound or a time limit that appears in the JSON but nowhere in the source |
+| Off-list tag | `segment tree`, `bfs` or `prefix sums` in the JSON — none is a Codeforces tag. Every tag in the file is a name from the usable list |

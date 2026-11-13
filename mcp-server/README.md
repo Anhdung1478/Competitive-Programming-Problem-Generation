@@ -85,7 +85,7 @@ or a secret into a conversation.
 
 ## Tools
 
-Thirty, listed by upload phase in
+Thirty-two, listed by upload phase in
 [`../skills/uploading-to-polygon/references/polygon-tools.md`](../skills/uploading-to-polygon/references/polygon-tools.md),
 with the API method each wraps. The loaded tool schema is always the authority
 over that file.
@@ -99,9 +99,8 @@ than retrying the identical request.
 **There are no group tools.** `problem.enableGroups`, `problem.setTestGroup`,
 `problem.saveTestGroup` and `problem.viewTestGroup` have no wrapper, because
 the skill scores every test individually and never enables groups. So do
-`problem.setInteractor`, `problem.saveTags` and
-`problem.saveGeneralDescription`. This is deliberate: a rule that cannot be
-violated beats a rule that is written down.
+`problem.setInteractor` and `problem.saveGeneralDescription`. This is
+deliberate: a rule that cannot be violated beats a rule that is written down.
 
 ## Tests
 

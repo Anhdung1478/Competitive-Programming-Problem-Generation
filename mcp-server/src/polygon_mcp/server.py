@@ -9,7 +9,7 @@ that original in three ways that are all deliberate:
   `problem.saveTestGroup` and `problem.viewTestGroup` have no wrapper here,
   because the skill scores every test on its own and never enables groups. A
   rule that cannot be violated beats a rule that is written down. So are
-  `problem.setInteractor` (no interactive problems), `problem.saveTags`,
+  `problem.setInteractor` (no interactive problems),
   `problem.saveGeneralDescription` and `problem.saveStatementResource`.
 * **An empty string is a value, not an omission.** `polygon_save_statement` and
   `polygon_problem_update_info` take `str | None`, where `None` means "leave the
@@ -267,6 +267,52 @@ async def polygon_problem_update_info(
         return {"ok": True, "updated": True}
     except Exception as error:
         return _fail(error, "problem.updateInfo")
+
+
+@mcp.tool()
+async def polygon_view_tags(problem_id: int) -> dict[str, Any]:
+    """Read the problem's tags back. → `problem.viewTags`
+
+    The readback after `polygon_save_tags`: it shows what Polygon actually
+    stored, which is what to compare against the list you sent.
+    """
+    try:
+        result = await api.call("problem.viewTags", {"problemId": problem_id})
+        return {"ok": True, "tags": result or []}
+    except Exception as error:
+        return _fail(error, "problem.viewTags")
+
+
+@mcp.tool()
+async def polygon_save_tags(problem_id: int, tags: list[str]) -> dict[str, Any]:
+    """Replace the problem's tags with exactly these. → `problem.saveTags`
+
+    Pass the tags as a list, in the order they should be stored —
+    `["dp", "data structures"]`. Polygon takes them as one comma-separated
+    string and **replaces the whole set**, so this is also how a re-upload
+    clears a previous problem's tags.
+
+    Refused before any request: an empty list (it would wipe every tag), an
+    empty tag, a tag with a comma in it (Polygon would split it in two), a tag
+    with leading or trailing spaces, and a duplicate. Which names are allowed
+    is not checked here — that rule belongs to the package, not the server.
+    """
+    try:
+        if not tags:
+            raise PolygonError("Pass at least one tag; an empty list would wipe them all.")
+        for tag in tags:
+            if not tag or tag != tag.strip() or "," in tag:
+                raise PolygonError(
+                    f"Each tag must be non-empty, unpadded and comma-free; got {tag!r}."
+                )
+        if len(set(tags)) != len(tags):
+            raise PolygonError(f"Tags must not repeat; got {tags!r}.")
+        await api.call(
+            "problem.saveTags", {"problemId": problem_id, "tags": ",".join(tags)}
+        )
+        return {"ok": True, "tags": tags}
+    except Exception as error:
+        return _fail(error, "problem.saveTags")
 
 
 # -------------------------------------------------------------------- access

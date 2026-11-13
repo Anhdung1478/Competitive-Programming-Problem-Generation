@@ -5,11 +5,11 @@ description: >
   plugin's bundled `polygon` MCP server (tools `polygon_*`) — take the Polygon
   problem name from source/problem-context.md (ask when it states none),
   create the problem or, when that name already exists on Polygon, wipe its old
-  content — script, every test, the statement fields — and re-sync this package
-  onto it, push the Vietnamese statement with its Scoring section, upload
-  validator.cpp, gentest.cpp, the checker named by problem.json (a std:: token
-  or checker.cpp), and every solution tagged with its intended verdict, set
-  time/memory limits, upload samples, load test-script.txt, enable per-test
+  content and re-sync this package onto it, push the Vietnamese statement with
+  its Scoring section, upload validator.cpp, gentest.cpp, the checker named by
+  problem.json (a std:: token or checker.cpp), and every solution tagged with
+  its intended verdict, set time/memory limits and the problem.json tags,
+  upload samples, load test-script.txt, enable per-test
   points, commit without email, build a full verified package, and grant
   `codeforces` READ access. Triggers on upload this problem to polygon, upload
   to codeforces, push to polygon, đẩy lên polygon, take it to polygon, sync to
@@ -39,10 +39,10 @@ PROBLEM = working repository root (the one with source/ and outputs/)
 
 Source of truth, in this order: `source/problem-context.md` (constraints,
 subtask scoring, **and the Polygon problem name**), `outputs/problem.json`
-(limits, I/O mode, `format`, the checker decision, subtask points),
+(limits, I/O mode, `format`, the checker decision, subtask points, tags),
 `outputs/statement.txt`, `outputs/solution/manifest.md`. **Never invent a number
 the package does not state** — no time limit, no memory limit, no subtask
-points — and never invent the Polygon problem name.
+points, no tag — and never invent the Polygon problem name.
 
 **Precondition — the package is finished.** These must exist and be current:
 
@@ -52,7 +52,7 @@ points — and never invent the Polygon problem name.
 | `outputs/validator.cpp` | yes |
 | `outputs/gentest.cpp`, `outputs/test-script.txt` | yes |
 | `outputs/solution/` + `manifest.md` | yes (at least one full-scope AC) |
-| `outputs/problem.json` | yes — limits, `io`, `format`, the checker decision |
+| `outputs/problem.json` | yes — limits, `io`, `format`, the checker decision, `tags` |
 | `outputs/checker.cpp` | only when `problem.json` says `"kind": "custom"` |
 | `outputs/example-test/test_<i>.inp` + `.out` | yes (1–2 pairs; the statement samples) |
 | `outputs/editorial.html` | not uploaded; ignore here |
@@ -65,7 +65,7 @@ They are not in your catalogue until you load them: call `ToolSearch` with a
 `select:` list of the names the phase needs, and **read the loaded schema**,
 which always wins over anything written down.
 [`references/polygon-tools.md`](references/polygon-tools.md) lists all
-thirty by phase — a map, not an authority.
+thirty-two by phase — a map, not an authority.
 
 Credentials are `POLYGON_API_KEY` / `POLYGON_API_SECRET` in the server's own
 environment; if a tool reports them missing, stop and point the user at
@@ -107,7 +107,7 @@ that do not exist.
   0 preflight            [block until the problem name is known]
   1 create or resolve    [gate: id recorded, block]
   1b wipe the old content, when the problem already existed
-  2 limits
+  2 limits + tags
   3 statement (lang english, content in Vietnamese)
   4 checker + validator + generator + solutions
   5 tests (samples, script, per-test points)
@@ -133,9 +133,21 @@ and then ask them for that name rather than coining `<name>-2` yourself.
 1. The required files exist; the package passed its consistency gate.
    `outputs/problem.json` loads, and its `checker` is one of the two shapes —
    `{ "kind": "stock", "name": "<token>" }` or
-   `{ "kind": "custom", "file": "checker.cpp" }`.
+   `{ "kind": "custom", "file": "checker.cpp" }`. Its `tags` holds 1–5
+   names, each on the usable list in
+   [`../shaping-problems/references/codeforces-tags.md`](../shaping-problems/references/codeforces-tags.md).
+   Missing, empty, over 5 or off-list → **stop** and send the package back to
+   `shaping-problems`. Never pick or fix tags here.
 2. `polygon_whoami()` — the cheapest proof that the key, the secret and the
    clock are all good. Run it before anything else touches Polygon.
+
+   Load `polygon_save_tags` and `polygon_view_tags` here too. If they do not
+   resolve while the other `polygon_*` tools do, the installed plugin predates
+   them — the server runs from the plugin's installed copy, so restarting it
+   changes nothing. Ask the user to run `claude plugin update
+   cp-problem-generation@cp-problem-generation` and start a new session, and
+   stop before anything is created or wiped. That is a stale install, not a
+   missing tool, so the Appendix's raw-API route does not apply.
 3. **Polygon problem name (blocking).** It comes from
    `source/problem-context.md` — the field naming the Polygon problem
    (`problem_id`, `Polygon name`, or the same idea under another label). Use it
@@ -250,6 +262,7 @@ and the skill must not pretend otherwise:
 | Test script | `polygon_clear_script` |
 | Tests | `polygon_delete_tests` |
 | Statement fields | overwritten in Phase 3, blanked field by field |
+| Tags | replaced as a whole set in Phase 2 |
 | Source files, solutions | overwritten by name in Phase 4 — **no delete API** |
 
 1. **`polygon_discard_working_copy(problem_id)`** throws away *uncommitted*
@@ -299,10 +312,12 @@ and the skill must not pretend otherwise:
 
 ---
 
-### 2. Limits
+### 2. Limits and tags
 
 > **API:** [`problem.updateInfo`](references/polygon-api.md#problemupdateinfo)
-> — every parameter optional, omitted ones untouched; bounds in §7
+> — every parameter optional, omitted ones untouched; bounds in §7;
+> [`problem.saveTags`](references/polygon-api.md#problemsavetags),
+> [`problem.viewTags`](references/polygon-api.md#problemviewtags)
 
 `polygon_problem_update_info(problem_id, …)`:
 
@@ -334,6 +349,31 @@ first guess when a build fails on `Expected EOLN`, and it is **not** a remedy:
 it does not normalise line endings for the validator. Both values were tested on
 the same package across four builds with no effect. Fix the generator (Phase 0
 step 7), not this flag.
+
+**Tags.** Upload exactly the `tags` list in `outputs/problem.json` — the same
+names, the same spelling, in the same order, nothing added or dropped:
+
+```text
+polygon_save_tags(problem_id, tags=<problem.json "tags", verbatim>)
+polygon_view_tags(problem_id)
+```
+
+`saveTags` replaces the whole set, which is also what clears the previous
+problem's tags on a re-upload. Saving them before Phase 6 means the commit
+carries them if Polygon keeps tags in the working copy. Then read them back:
+`polygon_view_tags` must hold the **same set** as `problem.json` — Polygon may
+return it in another order, which is fine.
+
+Either of these **stops the upload before Phase 3**:
+
+- `polygon_save_tags` comes back FAILED — report Polygon's comment verbatim.
+- It succeeds, but the readback has a tag missing, extra or spelled
+  differently — report what you sent against what Polygon stored.
+
+Do not edit `problem.json` to match, and do not re-send a different list: the
+names are valid Codeforces tags, so the conflict is Polygon's and the user
+decides it. Nothing is committed yet, and the next run's Phase 1b discards
+this working copy.
 
 ---
 
@@ -758,7 +798,7 @@ outside its venv its compiled deps fail to import.
 ## Degraded mode — no MCP server
 
 Per phase, offer the manual equivalent and stop; never fake a successful upload.
-Create and limits via the Polygon web UI, statement via the Statement tab, files
+Create, limits and tags via the Polygon web UI, statement via the Statement tab, files
 via Sources, tests via the script and manual-test forms, commit via "Commit
 changes", package via "Build package", access via "Manage access". Proceed only
 as the user confirms each phase.
@@ -781,6 +821,8 @@ re-upload from Phase 2 as usual.
 - [ ] Limits match `source/problem-context.md`, else `outputs/problem.json`,
       and `input_file`/`output_file` are the `.inp`/`.out` pair `io` names; no
       unconfirmed provisional limit published
+- [ ] Tags uploaded verbatim from `outputs/problem.json` → `tags`, and
+      `polygon_view_tags` read back the same set
 - [ ] Statement uploaded under `lang="english"` with Vietnamese content; `name`
       single-line; display math `$$...$$`; `scoring` present (OI) and matching
       the statement's subtasks; every unused field sent as `""` except

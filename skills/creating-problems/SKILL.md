@@ -591,6 +591,7 @@ Before finishing, cross-check:
 - `outputs/problem.json` subtask points sum to `polygon.total_points`, and its `format`, limits, and bounds match the statement;
 - `outputs/problem.json` carries a `checker` in one of its two shapes, and it matches reality: on `"custom"`, `outputs/checker.cpp` exists and its semantics == statement output semantics, including tokenization and any floating-point tolerance; on `"stock"`, the named token's comparison == the statement's output format and no `outputs/checker.cpp` is present;
 - the decision is `"custom"` whenever the statement admits more than one correct output;
+- `outputs/problem.json` carries 1–5 `tags`, each verbatim from `shaping-problems/references/codeforces-tags.md`;
 - `outputs/statement.txt`'s limits, I/O mode, and problem name agree with `outputs/problem.json`;
 - multi-test format agrees everywhere;
 - `outputs/editorial.html`, when Step 8 produced one, describes in Vietnamese the algorithm and complexity of the validated `source/solution.cpp` when it exists, otherwise a validated full-scope AC from `outputs/solution/manifest.md`;

@@ -78,11 +78,18 @@ above exist so leftovers can be *found* and reported; removing one needs the web
 UI. A leftover solution can at least be neutralised with
 `polygon_save_solution(name=…, tag="NR")` and no source.
 
-## Phase 2 — limits
+## Phase 2 — limits and tags
 
 | Tool | Polygon method |
 | --- | --- |
 | `polygon_problem_update_info(problem_id, input_file=, output_file=, interactive=, well_formed=, time_limit_ms=, memory_limit_mb=)` | `problem.updateInfo` |
+| `polygon_save_tags(problem_id, tags)` | `problem.saveTags` |
+| `polygon_view_tags(problem_id)` | `problem.viewTags` |
+
+`polygon_save_tags` takes `tags` as a list and **replaces the whole set**. It
+refuses, before any request, an empty list, an empty or padded tag, a tag with a
+comma in it, and a repeat. Which names are allowed is the package's rule, not
+the server's.
 
 `input_file`/`output_file` are the problem's literal file names. Never pass the
 word `"stdin"` — that creates a problem reading a file *called* `stdin`; a

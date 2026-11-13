@@ -32,6 +32,8 @@ the **raw** column is authoritative about what Polygon actually accepts.
 | 1b | Find stale statement languages | [`problem.statements`](#problemstatements) | `polygon_statements` |
 | 1b | Neutralise a leftover solution | [`problem.saveSolution`](#problemsavesolution) with `tag=NR` | `polygon_save_solution` |
 | 2 | Time / memory / I/O files | [`problem.updateInfo`](#problemupdateinfo) | `polygon_problem_update_info` |
+| 2 | Set the tags (replaces the set) | [`problem.saveTags`](#problemsavetags) | `polygon_save_tags` |
+| 2 | Read the tags back | [`problem.viewTags`](#problemviewtags) | `polygon_view_tags` |
 | 3 | Statement fields | [`problem.saveStatement`](#problemsavestatement) | `polygon_save_statement` |
 | 4 | Upload validator / generator / checker source | [`problem.saveFile`](#problemsavefile) `type=source` | `polygon_save_file` |
 | 4 | Bind the validator | [`problem.setValidator`](#problemsetvalidator) | `polygon_set_validator` |
@@ -55,7 +57,7 @@ the **raw** column is authoritative about what Polygon actually accepts.
 `problem.editSolutionExtraTags` (one testset, no groups),
 `problem.setInteractor` / `problem.interactor` (no interactive problems),
 `problem.saveValidatorTest` / `problem.saveCheckerTest` (not part of the pack),
-`problem.setMaterial` / `problem.materials`, `problem.saveTags`,
+`problem.setMaterial` / `problem.materials`,
 `problem.saveGeneralDescription`, `problem.saveGeneralTutorial`,
 `problem.saveNote`.
 
@@ -535,9 +537,14 @@ needs WRITE.
   (`OK` / `WRONG_ANSWER` / `PRESENTATION_ERROR` / `CRASHED`), `testIndex`
   **required**, `testInput` / `testOutput` / `testAnswer` required on add.
 
-### problem.viewTags / problem.saveTags
+### problem.saveTags
 
-`saveTags`: `tags` — **required** — comma-separated; **replaces** the whole set.
+- `tags` — **required** — comma-separated, so no tag may contain a comma;
+  **replaces** the whole set
+
+### problem.viewTags
+
+Returns: list of strings, the stored tags.
 
 ### problem.viewGeneralDescription / problem.saveGeneralDescription
 

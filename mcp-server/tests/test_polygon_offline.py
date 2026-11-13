@@ -562,6 +562,57 @@ def test_save_test_has_no_group_parameter():
     assert "test_group" not in inspect.signature(server.polygon_save_test).parameters
 
 
+# ---------------------------------------------------------------------- tags
+
+
+async def test_save_tags_sends_one_comma_joined_list_in_order(polygon):
+    """`problem.saveTags` takes the whole set as one comma-separated string.
+
+    The skill uploads `problem.json`'s tags verbatim, so the order and the
+    spaces inside a Codeforces tag (`data structures`) must reach the wire as
+    they were given.
+    """
+    fake = polygon(ok(None))
+    result = await server.polygon_save_tags(42, ["dp", "data structures", "greedy"])
+    assert result["ok"] is True
+    assert result["tags"] == ["dp", "data structures", "greedy"]
+    assert fake.last.method == "problem.saveTags"
+    assert fake.last.verb == "POST"
+    assert fake.last.params["tags"] == "dp,data structures,greedy"
+
+
+@pytest.mark.parametrize(
+    "tags",
+    [
+        [],
+        ["dp", ""],
+        ["two pointers,sortings"],
+        ["dp", "dp"],
+        [" greedy"],
+    ],
+    ids=["empty-list", "empty-tag", "comma-inside", "duplicate", "padded"],
+)
+async def test_a_malformed_tag_list_is_caught_before_the_request(polygon, tags):
+    """`saveTags` replaces the whole set, so a bad list must never go out.
+
+    A comma inside one tag would silently split it into two on Polygon's side,
+    and an empty list would wipe every stored tag.
+    """
+    fake = polygon(ok(None))
+    result = await server.polygon_save_tags(42, tags)
+    assert result["ok"] is False
+    assert result["method"] == "problem.saveTags"
+    assert fake.calls == []
+
+
+async def test_view_tags_reads_the_stored_list(polygon):
+    fake = polygon(ok(["dp", "data structures"]))
+    result = await server.polygon_view_tags(42)
+    assert result == {"ok": True, "tags": ["dp", "data structures"]}
+    assert fake.last.method == "problem.viewTags"
+    assert fake.last.verb == "GET"
+
+
 # ------------------------------------------------------------------ failures
 
 
